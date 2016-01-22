@@ -1,6 +1,7 @@
 body {
 	background-image: url('/static/img/cubes.png');
 	background-repeat: repeat;
+	background-attachment: fixed;
 }
 header {
 	position: fixed;
