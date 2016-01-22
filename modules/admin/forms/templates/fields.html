@@ -1,0 +1,122 @@
+<!--Text Input-->
+<script type="text/ng-template" id="text.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<input type="text" class="form-control" placeholder="{{field.placeholder}}">
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--Pointer Input-->
+<script type="text/ng-template" id="pointer.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<select class="form-control"><option>{{field.placeholder}}</option></select>
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--Color Input-->
+<script type="text/ng-template" id="color.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<input type="color" class="form-control" placeholder="{{field.placeholder}}">
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--Date Input-->
+<script type="text/ng-template" id="date.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<input type="datetime-local" class="form-control" placeholder="{{field.placeholder}}">
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--Number Input-->
+<script type="text/ng-template" id="number.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<input type="number" class="form-control" placeholder="{{field.placeholder}}">
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--TextArea Input-->
+<script type="text/ng-template" id="textarea.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<textarea class="form-control" placeholder="{{field.placeholder}}"></textarea>
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--Checkbox Input-->
+<script type="text/ng-template" id="checkbox.field">
+	<div class="checkbox">
+		<label title="{{field.placeholder}}">
+			<input type="checkbox"> 
+		</label>
+		<span contenteditable ng-model="field.title">{{field.title}}</span>
+		<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+	</div>
+</script>
+
+
+<!--Select Input-->
+<script type="text/ng-template" id="select.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<select class="form-control"><option>Number of options: {{field.options.length}}</option></select>
+	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
+</script>
+
+<!--File Input-->
+<script type="text/ng-template" id="file.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<h1 class="thumbnail text-center">Files</h1>
+</script>
+
+
+<!--Signature Input-->
+<script type="text/ng-template" id="signature.field">
+	<label contenteditable ng-model="field.title">{{field.title}}</label>
+	<p></p>
+	<hr>
+</script>
+
+<!--Header-->
+<script type="text/ng-template" id="header.field">
+	<div class="well">
+		<div class="btn-group pull-right">
+			<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Files <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li ng-repeat="file in field.files">
+					<i class="fa fa-trash" ng-click="tools.item.remove(field.files, file)"></i>
+					<a ng-href="{{file.url}}" target="_new">
+						<img ng-src="{{file.iconUrl}}">
+						<span>{{file.name}}</span>
+					</a>
+				</li>
+				<li><a ng-click="tools.item.addFiles(field)">Add Files</a></li>
+			</ul>
+		</div>
+		<h1 contenteditable ng-model="field.title">{{field.title}}</h1>
+		<p  contenteditable ng-model="field.p">{{field.p}}</p>
+	</div>
+</script>
+
+<!--Group Input-->
+<script type="text/ng-template" id="group.field">
+	<div class="well" ng-class="{highlight: field==fParent}">
+		<div class="btn-group pull-right">
+			<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Files <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu">
+				<li ng-repeat="file in field.files">
+					<i class="fa fa-trash" ng-click="tools.item.remove(field.files, file)"></i>
+					<a ng-href="{{file.url}}" target="_new">
+						<img ng-src="{{file.iconUrl}}">
+						<span>{{file.name}}</span>
+					</a>
+				</li>
+				<li><a ng-click="tools.item.addFiles(field)">Add Files</a></li>
+			</ul>
+		</div>
+		<h1 contenteditable ng-model="field.title">{{field.title}}</h1>
+		<p  contenteditable ng-model="field.p">{{field.p}}</p>
+		<div class="form-group" ng-repeat="field in field.fields" ng-include="field.type+'.field'" ng-click="tools.item.focus(field)"></div>
+		<button type="button" class="btn btn-block" ng-click="tools.item.focus(field)">Add Fields</button>
+	</div>
+</script>

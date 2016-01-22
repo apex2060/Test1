@@ -1,0 +1,49 @@
+<div id="colModal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Column: {{focus.name}}</h4>
+			</div>
+			<div class="modal-body">
+				<!--<h1>Settings</h1>-->
+				<select class="form-control" ng-options="template as template.title for template in colTemplates" ng-model="focus.template"></select>
+				<div ng-include="tools.column.template(focus)"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" ng-click="tools.column.remove(focus)">Remove Column</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+
+
+
+<div id="deepDive" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Diving Deeper</h4>
+			</div>
+			<div class="modal-body">
+				<table class="table table-striped">
+					<tr>
+						<th ng-repeat="ttl in focus.columns">{{ttl}}</th>
+					</tr>
+					<tr ng-repeat="row in focus.list">
+						<td ng-repeat="ttl in focus.columns">{{row[ttl]}}</td>
+					</tr>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>

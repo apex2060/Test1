@@ -1,0 +1,16 @@
+<div ng-controller="TestCtrl" class="container">
+	<div class="row">
+		<div class="col-md-3">
+			<div class="list-group">
+				<div class="list-group-item active"><form ng-submit="tools.list(temp.areaCode)"><input type="text" class="form-control" ng-model="temp.areaCode" placeholder="Area Code Search"></form></div>
+				<a class="list-group-item" ng-repeat="number in numbers" ng-click="tools.register(number)">{{number.number}} ({{number.rate_center}})</a>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="list-group">
+				<a class="list-group-item active">Registered Numbers</a>
+				<a class="list-group-item" ng-repeat="number in list">{{number.number}}</a>
+			</div>
+		</div>
+	</div>
+</div>
