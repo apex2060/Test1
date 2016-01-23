@@ -1,15 +1,45 @@
 <div ng-controller="TestCtrl" class="container">
 	<div class="row">
 		<div class="col-md-3">
-			<div class="list-group">
-				<div class="list-group-item active"><form ng-submit="tools.list(temp.areaCode)"><input type="text" class="form-control" ng-model="temp.areaCode" placeholder="Area Code Search"></form></div>
-				<a class="list-group-item" ng-repeat="number in numbers" ng-click="tools.register(number)">{{number.number}} ({{number.rate_center}})</a>
+			<div class="well well-sm">
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation" class="active"><a href="#owned" aria-controls="owned" role="tab" data-toggle="tab"><i class="fa fa-slack"></i></a></li>
+					<li role="presentation"><a href="#directory" aria-controls="directory" role="tab" data-toggle="tab"><i class="fa fa-users"></i></a></li>
+					<li role="presentation"><a href="#purchase" aria-controls="purchase" role="tab" data-toggle="tab"><i class="fa fa-usd"></i></a></li>
+				</ul>
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="owned">
+						<div class="list-group">
+							<a class="list-group-item active">Registered Numbers</a>
+							<a class="list-group-item" ng-repeat="number in list" ng-click="tools.focus(number)">{{number.number}}</a>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="directory">
+						<div class="list-group">
+							<div class="list-group-item active">Directory</div>
+							<div class="list-group-item"><input type="text" class="form-control" ng-model="directorySearch" placeholder="Search"></form></div>
+							<a class="list-group-item" ng-repeat="employee in employees">{{employee.name}}</a>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="purchase">
+						<div class="list-group">
+							<div class="list-group-item active">Buy A Number</div>
+							<div class="list-group-item"><form ng-submit="tools.list(temp.areaCode)"><input type="text" class="form-control" ng-model="temp.areaCode" placeholder="Area Code Search"></form></div>
+							<a class="list-group-item" ng-repeat="number in numbers" ng-click="tools.register(number)">{{number.number}} ({{number.rate_center}})</a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-		<div class="col-md-3">
-			<div class="list-group">
-				<a class="list-group-item active">Registered Numbers</a>
-				<a class="list-group-item" ng-repeat="number in list">{{number.number}}</a>
+		<div class="col-md-9">
+			<div class="panel panel-default">
+				<div class="panel-heading">Number: {{focus.number}}</div>
+				<div class="panel-body">
+					<a class="btn btn-default">Add Time-Based Rules</a>
+					<a class="btn btn-default">Add External Number Rules</a>
+					<a class="btn btn-default">Add Routing Rules</a>
+				</div>
+				<div class="panel-footer">{{focus}}</div>
 			</div>
 		</div>
 	</div>

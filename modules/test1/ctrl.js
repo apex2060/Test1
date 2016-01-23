@@ -15,14 +15,19 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, Parse, confi
 			})
 		},
 		register: function(number){
-			Numbers.save({
-				type: 	'phone',
-				number:	number.number,
-				city: 	number.rate_center,
-				state: 	number.region
-			}).then(function(d){
-				alert('Saved')
-			})
+			if(confirm('Please confirm your purchase of: '+number.number)){
+				Numbers.save({
+					type: 	'phone',
+					number:	number.number,
+					city: 	number.rate_center,
+					state: 	number.region
+				}).then(function(d){
+					toastr.success(number.number, 'Number Registered!')
+				})
+			}
+		},
+		focus: function(item){
+			$scope.focus = item;
 		}
 	}
 	tools.init();

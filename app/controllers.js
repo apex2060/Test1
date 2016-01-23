@@ -14,6 +14,8 @@ app.controller('SiteCtrl', function($rootScope, $scope, $routeParams, $http, $ti
 			logout: function(){
 				Auth.tools.logout();
 				$rootScope.user = null;
+				var loc = document.location.href
+				document.location.href = "https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue="+loc;
 			},
 			login: function(){
 				Auth.tools.login().catch(function(response){
@@ -24,38 +26,10 @@ app.controller('SiteCtrl', function($rootScope, $scope, $routeParams, $http, $ti
 			addScope: function(scope){
 				return Auth.tools.google.scopes(scope)
 			}
-		},
-		alert: {
-			add: function(type, message, time){
-				if(type=='error')
-					type='danger'
-				var alert = {type: type, message: message}
-				$scope.alerts.push(alert)
-				if(time)
-					$timeout(function(){
-						$scope.alerts.splice($scope.alerts.indexOf(alert), 1)
-					}, time*1000)
-			},
-			remove: function(alert){
-				$scope.alerts.splice($scope.alerts.indexOf(alert), 1)
-			}
-			
-		},
-		serviceWorker: {
-			register: function(){
-				// navigator.serviceWorker.register('/worker.js', {
-				// 	scope: '/'
-				// }).then(function(reg) {
-				// 	console.log('◕‿◕', reg);
-				// }, function(err) {
-				// 	console.log('ಠ_ಠ', err);
-				// });
-			}
 		}
 	}
 	
 	$rootScope.config = config;
-	tools.serviceWorker.register();
 	it.SiteCtrl = $scope;
 });
 

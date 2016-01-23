@@ -9,7 +9,7 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		service: 	$provide.service,
 	};
 
-	var parent 		= ['scalehouse', 'equipment', 'operations']
+	var parent 		= ['scalehouse']
  	// :module/index.html		>	:module/ctrl.js
 	var child		= ['admin', 'employee', 'communication']
 	// :module/:view/index.html	> 	:module/:view/ctrl.js
@@ -127,13 +127,6 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 	.otherwise({
 		redirectTo: '/main'
 	});
-
-	$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|mailto|tel|sms):/);
-	// $translateProvider.useStaticFilesLoader({
-	// 	prefix: 'static/languages/',
-	// 	suffix: '.json'
-	// });
-	// $translateProvider.uses('en');
 });
 
 app.run(['$window', '$rootScope', function($window, $rootScope) {
@@ -164,7 +157,7 @@ var authPromise = new Promise(function(resolve, reject) {
 Promise.all([vizPromise, authPromise]).then(function() {
 	angular.bootstrap(document, ['RootApp']);
 }, function() {
-  // one or more failed
+	toastr.error('Something went wrong.', 'Please Reload')
 });
 
 google.load('visualization', '1', {packages: ['gauge']});

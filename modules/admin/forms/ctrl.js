@@ -1,20 +1,20 @@
-app.lazy.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routeParams, Data, Google) {
-	var Forms = Data('Forms');
+app.lazy.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routeParams, Parse, Google) {
+	var Forms = new Parse('Forms');
 	$scope.tools = {
 		view: function(){
 			var a = $routeParams.action || 'list';
 			return 'modules/admin/forms/'+a+'.html';
 		}
 	}
-	Forms.tools.list().then(function(list){
+	Forms.list().then(function(list){
 		$scope.forms = list;
 	})
 	it.AdminFormsCtrl = $scope;
 });
 
-app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $routeParams, Data, Auth, Google) {
-	var Forms = Data('Forms');
-	var Users = Data('_User');
+app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $routeParams, Parse, Auth, Google) {
+	var Forms = new Parse('Forms');
+	var Users = new Parse('_User');
 	
 	//The following variables make it possible to work with nested input groups.
 	var ePromise;
@@ -118,7 +118,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			$timeout(function(){
 				if($routeParams.action=='create'){
 					if($routeParams.id){
-						Forms.tools.byId($routeParams.id).then(function(form){
+						Forms.get($routeParams.id).then(function(form){
 							$scope.form = angular.copy(form);
 						})
 					}else{
@@ -170,9 +170,18 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				$scope.fParent = $scope.form;
 			},
 			save: function(){
-				Forms.tools.save($scope.form).then(function(form){
+				Forms.save($scope.form).then(function(form){
 					$scope.form = form;
+					toastr.success('Form Saved!')
 				})
+			},
+			delete: function(){
+				if(confirm('Are you sure you want to delete this form?')){
+					Forms.delete($scope.form).then(function(form){
+						tools.form.new();
+						toastr.error('Form Deleted!')
+					})
+				}
 			}
 		},
 		field: {
@@ -188,11 +197,11 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 	}
 	
 	Auth.init().then(function(){
-		Forms.tools.list().then(function(list){
+		Forms.list().then(function(list){
 			$scope.forms = list;
 			tools.init();
 		})
-		Users.tools.list().then(function(list){
+		Users.list().then(function(list){
 			$scope.users = list;
 		})
 	})
@@ -381,6 +390,14 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 			}
 		},
 		item: {
+			id: function($parent){
+				var name = '';
+				while($parent && $parent.$parent){
+					name+=$parent.$id
+					$parent = $parent.$parent;
+				}
+				return name;
+			},
 			pointer: function(field){
 				// console.log('a',field)
 			},
