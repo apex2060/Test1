@@ -1,5 +1,23 @@
 app.factory('config', function ($http, $q) {
-	var config = {
+	var config = {};
+	function init(newConfig){
+		config = angular.copy(newConfig)
+		Parse.initialize(config.parse.appId, config.parse.jsKey);
+		$http.defaults.headers.common['X-Parse-Application-Id'] = config.parse.appId;
+		$http.defaults.headers.common['X-Parse-REST-API-Key'] = config.parse.restKey;
+		$http.defaults.headers.common['Content-Type'] = 'application/json';
+	}
+	function pConfig(){
+		var deferred = $q.defer();
+		$http.get('https://api.parse.com/1/classes/Config').success(function(data){
+			config = angular.extend(config, {params:data.results[0]});
+			deferred.resolve(config);
+		})
+		return deferred.promise;
+	}
+	var rootConfig = {
+		init: 		init,
+		pConfig: 	pConfig,
 		domain: 	'easybusiness.center',
 		secureUrl: 	'https://the.easybusiness.center',
 		oauth: 		encodeURI('https://the.easybusiness.center/oauth'),
@@ -21,15 +39,8 @@ app.factory('config', function ($http, $q) {
 			"javascript_origins": ["https://root-apex2060.c9users.io", "http://easybusiness.center", "https://easybusiness.center"]
 		}
 	}
-	
-	Parse.initialize(config.parse.appId, config.parse.jsKey);
-	$http.defaults.headers.common['X-Parse-Application-Id'] = config.parse.appId;
-	$http.defaults.headers.common['X-Parse-REST-API-Key'] = config.parse.restKey;
-	$http.defaults.headers.common['Content-Type'] = 'application/json';
-	
-	$http.get('https://api.parse.com/1/classes/Config').success(function(data){
-		config = angular.extend(config, {params:data.results[0]});
-	})
-	
+
+	init(rootConfig);
+	pConfig();
 	return config;
 });

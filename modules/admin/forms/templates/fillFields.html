@@ -29,14 +29,14 @@
 <!--Number Input-->
 <script type="text/ng-template" id="number.fill">
 	<label for="field{{$index}}">{{field.title}}</label>
-	<input type="number" class="form-control" id="field{{$index}}" placeholder="{{field.placeholder}}" ng-model="field.value">
+	<input type="number" class="form-control" id="field{{$index}}" step="{{field.step || 1}}" placeholder="{{field.placeholder}}" ng-model="field.value">
 	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
 </script>
 
 <!--Select Input-->
 <script type="text/ng-template" id="select.fill">
 	<label for="field{{$index}}">{{field.title}}</label>
-	<select class="form-control" ng-options="item.value as item.title for item in field.options" ng-model="field.value"></select>
+	<select class="form-control" ng-options="item.name as item.title for item in field.options" ng-model="field.value"></select>
 	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
 </script>
 

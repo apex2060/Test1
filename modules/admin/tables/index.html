@@ -46,11 +46,23 @@
 		<table id="table" class="table table-striped">
 			<thead>
 				<tr ui-sortable ng-model="columns">
+					<th>Tools</th>
 					<th ng-repeat="column in columns" ng-click="tools.column.focus(column)">{{column.name}}</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="row in list">
+					<td>
+						<div class="dropdown">
+						<button class="btn btn-default dropdown-toggle" type="button" id="form_{{$index}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							Form
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" aria-labelledby="form_{{$index}}">
+							<li ng-repeat="form in forms"><a href="#/admin/forms/{{form.objectId}}?action=fill&for={{row.objectId}}">{{form.title}}</a></li>
+						</ul>
+						</div>
+					</td>
 					<td ng-repeat="column in columns" ng-include="tools.cell.template(column, row)"></td>
 				</tr>
 			</tbody>

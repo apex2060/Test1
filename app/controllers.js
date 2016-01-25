@@ -1,5 +1,4 @@
-app.controller('SiteCtrl', function($rootScope, $scope, $routeParams, $http, $timeout, config, Auth){
-	$scope.alerts = [];
+app.controller('SiteCtrl', function($rootScope, config, Auth){
 	it.user = Auth;
 	Auth.init().then(function(me){
 		$rootScope.user = Auth;
@@ -30,29 +29,5 @@ app.controller('SiteCtrl', function($rootScope, $scope, $routeParams, $http, $ti
 	}
 	
 	$rootScope.config = config;
-	it.SiteCtrl = $scope;
+	it.SiteCtrl = $rootScope;
 });
-
-
-// app.controller('DrawerCtrl', function($rootScope, $scope, $routeParams){
-// 	$scope.visable 		= true;
-// 	$scope.position 		= 'bottom';
-// 	$scope.partial 		= '/partials/generic.html';
-// 	$scope.height 		= '300px';
-	
-// 	$rootScope.$on("drawer", function(e, params) {
-// 		console.log(e)
-// 		if(params.visable != undefined)
-// 			$scope.visable = params.visable;
-// 		if(params.position != undefined)
-// 			$scope.position = params.position;
-// 		if(params.partial != undefined)
-// 			$scope.partial = params.partial;
-// 		if(params.height != undefined)
-// 			$scope.height = params.height;
-// 		if(params.scope != undefined)
-// 			$scope.scope = params.scope;
-// 	});
-	
-// 	it.DrawerCtrl = $scope;
-// });

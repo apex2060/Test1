@@ -1,14 +1,44 @@
 app.lazy.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routeParams, Parse, Google) {
 	var Forms = new Parse('Forms');
-	$scope.tools = {
+	var tools = $scope.tools = {
 		view: function(){
 			var a = $routeParams.action || 'list';
 			return 'modules/admin/forms/'+a+'.html';
+		},
+		init: function(){
+			tools.form.load();
+		},
+		focus: function(item){
+			$scope.focus = item;
+		},
+		state: function(check){
+			return $scope.state == check;
+		},
+		form: {
+			load: function(){
+				$scope.state = 'loading'
+				Forms.list().then(function(list){
+					$scope.forms = list;
+					$scope.state = 'loaded'
+				})
+			},
+			refresh: function(){
+				$scope.state = 'refreshing'
+				Forms.list().then(function(list){
+					$scope.forms = list;
+					$scope.state = 'loaded'
+				})
+			},
+			delete: function(form){
+				if(confirm('Are you sure you want to delete this form?'))
+					Forms.delete(form).then(function(){
+						var i = $scope.forms.indexOf(form)
+						$scope.forms.splice(i,1)
+					})
+			}
 		}
 	}
-	Forms.list().then(function(list){
-		$scope.forms = list;
-	})
+	tools.init();
 	it.AdminFormsCtrl = $scope;
 });
 
@@ -139,8 +169,8 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				parent[attr] = parent[attr] || [];
 				parent[attr].push(item)
 			},
-			copy: function(){
-				
+			copy: function(parent, item){
+				parent.push(angular.copy(item));
 			},
 			remove: function(parent, item){
 				parent.splice(parent.indexOf(item), 1)
@@ -166,8 +196,10 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 		},
 		form: {
 			new: function(){
-				$scope.form = angular.copy(formTemplate);
-				$scope.fParent = $scope.form;
+				if(!$scope.form || confirm('Any unsaved work will be lost, do you wish to continue?')){
+					$scope.form = angular.copy(formTemplate);
+					$scope.fParent = $scope.form;
+				}
 			},
 			save: function(){
 				Forms.save($scope.form).then(function(form){
@@ -379,14 +411,9 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 					dataId: $scope.data.objectId,
 					data: 	$scope.data
 				}
-				console.log(request)
 				$http.post('https://api.parse.com/1/functions/formSubmit', request).success(function(resp){
-					alert('saved!')
+					toastr.success('Form Saved!')
 				})
-				// Data.save($scope.data).then(function(data){
-				// 	$scope.data = data;
-				// 	alert('Saved!')
-				// })
 			}
 		},
 		item: {
@@ -438,8 +465,3 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 	
 	it.AdminFormsFillCtrl = $scope;
 });
-
-//any input group should be able to insert it's contents into an array of data instead of just a single object.
-//Input Group
-//[] As Array
-//[] Allow History Edit

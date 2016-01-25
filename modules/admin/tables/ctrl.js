@@ -1,4 +1,5 @@
 app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolate, $http, Auth, Parse){
+	var Forms = new Parse('Forms');
 	$scope.rp = $routeParams;
 	if($routeParams.id){
 		var tableId = $routeParams.id
@@ -50,6 +51,9 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 	var tools = $scope.tools = {
 		init: function(){
 			tools.table.init();
+			Forms.query('?where={"name":"'+tableId+'"}').then(function(list){
+				$scope.forms = list;
+			})
 		},
 		table: {
 			init: function(){
