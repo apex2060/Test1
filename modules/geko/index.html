@@ -56,7 +56,7 @@
 		</div>
 		<div class="col-md-6">
 			<div class="well" ng-show="focus">
-				<h2 ng-show="focus.objectId">Site Details</h2>
+				<h2 ng-show="focus.objectId">Site Details <i class="fa fa-link" ng-show="tools.isEmulated()" ng-click="tools.initSetup()"></i></h2>
 				<h2 ng-hide="focus.objectId">New Site</h2>
 				<form class="form-horizontal" ng-submit="tools.save(focus)">
 					<div class="form-group">

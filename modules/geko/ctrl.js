@@ -39,7 +39,6 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User,
 			
 			config.init(site);
 			var eUser = new User();
-			eUser.init();
 
 			eUser.init().then(function(me) {
 				$rootScope.user = eUser;
@@ -53,6 +52,21 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User,
 					}
 				})
 			})
+		},
+		initSetup: function(){
+			$http.post(config.parse.root+'/functions/initSetup', {}).success(function(){
+				var eUser = new User();
+				eUser.init().then(function(me) {
+					$rootScope.user = eUser;
+					toastr.success('Site Initialized.');
+				});
+			})
+		},
+		isEmulated: function(){
+			if($scope.focus && $scope.focus.parse)
+				return ($http.defaults.headers.common['X-Parse-Application-Id'] == $scope.focus.parse.appId);
+			else
+				return false;
 		}
 	}
 	tools.init();

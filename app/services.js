@@ -605,22 +605,26 @@ app.factory('Parse', function($http, $q, config, Auth){
 			})
 			return deferred.promise;
 		},
-		ds.list = function(query){
+		ds.list = function(){
 			var deferred = $q.defer();
-			$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
-				deferred.resolve(data.results)
-			}).error(function(e){
-				deferred.reject(e);
-			})
+			Auth.init().then(function(){
+				$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
+					deferred.resolve(data.results)
+				}).error(function(e){
+					deferred.reject(e);
+				})
+			});
 			return deferred.promise;
 		}
 		ds.query = function(query){
 			var deferred = $q.defer();
-			$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
-				deferred.resolve(data.results)
-			}).error(function(e){
-				deferred.reject(e);
-			})
+			Auth.init().then(function(){
+				$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
+					deferred.resolve(data.results)
+				}).error(function(e){
+					deferred.reject(e);
+				})
+			});
 			return deferred.promise;
 		}
 		ds.get = function(objectId){

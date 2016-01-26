@@ -120,12 +120,14 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 				$('#deepDive').modal('show')
 			},
 			template: function(col, row){
-				if(col.name == 'objectId')
-					return 'noedit.templateCell'
-				if(col.template)
-					return col.template.name+'.templateCell'
-				else
-					return 'default.templateCell'
+				if(col){
+					if(col.name == 'objectId')
+						return 'noedit.templateCell'
+					if(col.template)
+						return col.template.name+'.templateCell'
+					else
+						return 'default.templateCell'
+				}
 			}
 		},
 		object: {
