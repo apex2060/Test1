@@ -23,9 +23,10 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		var deferred = $q.defer();
 		var includes = [];
 		
-		if(module=='employee' || module=='admin'){
+		if(module=='admin'){
 			includes.push('vendor/jSignature/flashcanvas.js')
 			includes.push('vendor/jSignature/jSignature.min.js')
+			includes.push('//widget.cloudinary.com/global/all.js')
 		}
 		
 		

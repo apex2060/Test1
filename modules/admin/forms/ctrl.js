@@ -135,6 +135,12 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			dataType:   'Object',
 			enabled: 	true
 		},{
+			title:      'Image Input',
+			name: 		'columnName',
+			type:       'image',
+			dataType:   'Object',
+			enabled: 	true
+		},{
 			title:      'Signature Input',
 			name: 		'columnName',
 			type:       'signature',
@@ -250,7 +256,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 	it.AdminFormsCreateCtrl = $scope;
 });
 
-app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, $routeParams, $interpolate, Parse, Google) {
+app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, $routeParams, $interpolate, config, Parse, Google) {
 	var Forms = new Parse('Forms');
 	var Data = null;
 	$scope.data = {};
@@ -448,6 +454,25 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 					ol = ol.concat(data.docs)
 					item.value = angular.extend(item.value, ol)
 				})
+			},
+			addPictures: function(item){
+				cloudinary.openUploadWidget({
+					cloud_name: config.cloudinary.cloud_name,
+					upload_preset: config.cloudinary.preset,
+					theme: 'white',
+					multiple: false,
+				},
+				function(error, result) {
+					if (result)
+						item.value = {
+							etag: result[0].etag,
+							public_id: result[0].public_id,
+							secure_url: result[0].secure_url,
+							thumbnail_url: result[0].thumbnail_url,
+							url: result[0].url
+						}
+					$scope.$apply();
+				});
 			},
 			addArr: function(field){
 				var instance = angular.copy(field);

@@ -58,7 +58,7 @@
 	</div>
 </script>
 
-
+<!--File Input-->
 <script type="text/ng-template" id="file.fill">
 	<div class="list-group">
 		<a class="list-group-item active">{{field.title}}</a>
@@ -67,6 +67,14 @@
 	</div>
 </script>
 
+<!--Image Input-->
+<script type="text/ng-template" id="image.fill">
+	<div class="thumbnail" ng-click="tools.item.addPictures(field)">
+		<img ng-src="{{field.value.secure_url}}" alt="Add Image">
+	</div>
+</script>
+
+<!--Signature Input-->
 <script type="text/ng-template" id="signature.fill">
 	<label for="field{{$index}}">{{field.title}}</label>
 	<signature ng-model="field.value"></signature>

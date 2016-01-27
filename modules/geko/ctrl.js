@@ -21,6 +21,10 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User,
 					"project_id": "easy-business-center",
 					"redirect_uris": ["https://root-apex2060.c9users.io/oauth", "https://easybusiness.center/oauth", "http://easybusiness.center/oauth"],
 					"token_uri": "https://accounts.google.com/o/oauth2/token"
+				},
+				"cloudinary": {
+					"cloud_name": 	"easybusiness",
+					"preset": 		"sampleSites"
 				}
 			}
 		},

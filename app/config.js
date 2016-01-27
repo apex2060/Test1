@@ -37,6 +37,10 @@ app.factory('config', function ($http, $q) {
 			"client_secret": "jG4FoLYpU6TC7Pfk9O3iZtJV",
 			"redirect_uris": ["https://root-apex2060.c9users.io/oauth", "https://easybusiness.center/oauth", "http://easybusiness.center/oauth"],
 			"javascript_origins": ["https://root-apex2060.c9users.io", "http://easybusiness.center", "https://easybusiness.center"]
+		},
+		cloudinary: {
+			"cloud_name": "easybusiness",
+			"preset": "mainSite"
 		}
 	}
 
