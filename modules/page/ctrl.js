@@ -1,6 +1,7 @@
 app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
 	var Page = new Parse('Pages');
-
+	
+	$scope.moment = moment;
 	$scope.Data = {};
 	$scope.data = {};
 	$scope.template = '';
