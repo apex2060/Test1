@@ -9,7 +9,7 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		service: 	$provide.service,
 	};
 
-	var parent 		= ['scalehouse']
+	var parent 		= ['scalehouse','page']
  	// :module/index.html		>	:module/ctrl.js
 	var child		= ['admin', 'employee', 'communication']
 	// :module/:view/index.html	> 	:module/:view/ctrl.js
@@ -125,7 +125,7 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		}
 	})
 	.otherwise({
-		redirectTo: '/main'
+		redirectTo: '/page/main'
 	});
 });
 

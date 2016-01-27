@@ -201,6 +201,15 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 					$scope.fParent = $scope.form;
 				}
 			},
+			copy: function(){
+				Forms.save($scope.form).then(function(form){
+					form = angular.copy(form);
+					delete form.objectId;
+					$scope.form = form;
+					$scope.form.title = $scope.form.title + ' (copy)'
+					toastr.success('Form Copied!')
+				});
+			},
 			save: function(){
 				Forms.save($scope.form).then(function(form){
 					$scope.form = form;

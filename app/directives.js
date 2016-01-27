@@ -20,7 +20,7 @@ app.directive('drawer', ['$timeout', function($timeout) {
 	};
 }]);
 
-app.directive('signature', function(FileService, $timeout){
+app.directive('signature', function(){
 	return {
 		restrict: 'E',
 		replace: true,
@@ -477,5 +477,16 @@ app.filter('map', function(){
 		return input.map(function(item){
 			return item[key]
 		})
+	}
+})
+app.directive('compile', function($compile) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attr) {
+			scope.$watch(function() {return element.attr('compile'); }, function(newValue){
+				element.html($compile(attr.compile)(scope));
+				it.e = element;
+			});
+		}
 	}
 })
