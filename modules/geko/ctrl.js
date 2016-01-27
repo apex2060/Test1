@@ -47,6 +47,8 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User,
 					if (config.params) {
 						if (config.params.background)
 							document.body.style.backgroundImage = 'url("' + config.params.background + '")';
+						if (config.params.bgSize)
+							$('body').css('background-size', config.params.bgSize);
 						if (config.params.theme)
 							$('#theme').attr('href', config.params.theme);
 					}
