@@ -457,8 +457,8 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 			},
 			addPictures: function(item){
 				cloudinary.openUploadWidget({
-					cloud_name: config.cloudinary.cloud_name,
-					upload_preset: config.cloudinary.preset,
+					cloud_name: config.params.cloudinary.cloud_name,
+					upload_preset: config.params.cloudinary.preset,
 					theme: 'white',
 					multiple: false,
 				},
