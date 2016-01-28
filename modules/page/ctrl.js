@@ -1,5 +1,5 @@
 app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
-	var Page = new Parse('Pages');
+	var Page = new Parse('Pages', true);
 	
 	$scope.moment = moment;
 	$scope.Data = {};
@@ -48,7 +48,7 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
 				return deferred.promise;
 			},
 			get: function(request){
-				var data = $scope.Data[request.alias] = new Parse(request.table);
+				var data = $scope.Data[request.alias] = new Parse(request.table, true); //[] Allow this (immediate) to be defined by the user
 				if(request.query)
 					return data.query(request.query)
 				else

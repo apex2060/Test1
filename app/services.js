@@ -593,9 +593,10 @@ app.factory('ParseData', function ($rootScope, $timeout, $http, $q, config, Auth
 	return ParseData;
 });
 app.factory('Parse', function($http, $q, config, Auth){
-	var Parse = function(className){
+	var Parse = function(className, immediate){
 		var ds = this;
 		ds.className = className;
+		ds.immediate = immediate;
 		ds.schema = function(){
 			var deferred = $q.defer();
 			$http.get(config.parse.root+'/schemas/'+ds.className).success(function(data){
@@ -604,27 +605,41 @@ app.factory('Parse', function($http, $q, config, Auth){
 				deferred.reject(e);
 			})
 			return deferred.promise;
-		},
+		}
 		ds.list = function(){
 			var deferred = $q.defer();
-			Auth.init().then(function(){
+			if(ds.immediate)
 				$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
 					deferred.resolve(data.results)
 				}).error(function(e){
 					deferred.reject(e);
 				})
-			});
+			else
+				Auth.init().then(function(){
+					$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
+						deferred.resolve(data.results)
+					}).error(function(e){
+						deferred.reject(e);
+					})
+				});
 			return deferred.promise;
 		}
 		ds.query = function(query){
 			var deferred = $q.defer();
-			Auth.init().then(function(){
+			if(ds.immediate)
 				$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
 					deferred.resolve(data.results)
 				}).error(function(e){
 					deferred.reject(e);
 				})
-			});
+			else
+				Auth.init().then(function(){
+					$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
+						deferred.resolve(data.results)
+					}).error(function(e){
+						deferred.reject(e);
+					})
+				});
 			return deferred.promise;
 		}
 		ds.get = function(objectId){
