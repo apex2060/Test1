@@ -1,23 +1,6 @@
 app.factory('config', function ($http, $q) {
 	var config = {};
-	function init(newConfig){
-		config = angular.copy(newConfig)
-		Parse.initialize(config.parse.appId, config.parse.jsKey);
-		$http.defaults.headers.common['X-Parse-Application-Id'] = config.parse.appId;
-		$http.defaults.headers.common['X-Parse-REST-API-Key'] = config.parse.restKey;
-		$http.defaults.headers.common['Content-Type'] = 'application/json';
-	}
-	function pConfig(){
-		var deferred = $q.defer();
-		$http.get('https://api.parse.com/1/classes/Config').success(function(data){
-			config = angular.extend(config, {params:data.results[0]});
-			deferred.resolve(config);
-		})
-		return deferred.promise;
-	}
 	var rootConfig = {
-		init: 		init,
-		pConfig: 	pConfig,
 		domain: 	'easybusiness.center',
 		secureUrl: 	'https://the.easybusiness.center',
 		oauth: 		encodeURI('https://the.easybusiness.center/oauth'),
@@ -41,10 +24,44 @@ app.factory('config', function ($http, $q) {
 		cloudinary: {
 			"cloud_name": "easybusiness",
 			"preset": "mainSite"
-		}
+		},
+	}
+	
+	function init(newConfig){
+		if(newConfig)
+			localStorage.setItem('config', angular.toJson(newConfig))
+		if(localStorage.getItem('config'))
+			newConfig = angular.fromJson(localStorage.getItem('config'))
+		else
+			newConfig = rootConfig;
+		config = angular.extend(newConfig, {
+			init: 		init,
+			pConfig: 	pConfig,
+			reset: 		reset,
+		})
+		Parse.initialize(config.parse.appId, config.parse.jsKey);
+		$http.defaults.headers.common['X-Parse-Application-Id'] = config.parse.appId;
+		$http.defaults.headers.common['X-Parse-REST-API-Key'] = config.parse.restKey;
+		$http.defaults.headers.common['Content-Type'] = 'application/json';
+		return pConfig();
+	}
+	function pConfig(){
+		var deferred = $q.defer();
+		$http.get('https://api.parse.com/1/classes/Config').success(function(data){
+			if(data.results.length)
+				config = angular.extend(config, {params:data.results[0]});
+			else
+				config.params = {};
+			deferred.resolve(config);
+		})
+		return deferred.promise;
+	}
+	function reset(){
+		localStorage.removeItem('config');
+		init();
+		pConfig();
 	}
 
-	init(rootConfig);
-	pConfig();
+	init();
 	return config;
 });

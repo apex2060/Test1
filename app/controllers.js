@@ -1,8 +1,20 @@
-app.controller('SiteCtrl', function($rootScope, config, Auth){
+app.controller('SiteCtrl', function($rootScope, config, Auth, User){
 	it.user = Auth;
-	Auth.init().then(function(me){
-		$rootScope.user = Auth;
+	
+	config.init().then(function(config){
+		$rootScope.config = config;
+		if(config.params.sample){
+			Auth.tools.reload().then(function(me){
+				$rootScope.user = me;
+				tools.sampleSetup(config);
+			})
+		}else{
+			Auth.init().then(function(me){
+				$rootScope.user = me;
+			})
+		}
 	})
+	
 	
 	var tools = $rootScope.tools = {
 		clearStorage: function(){
@@ -25,9 +37,17 @@ app.controller('SiteCtrl', function($rootScope, config, Auth){
 			addScope: function(scope){
 				return Auth.tools.google.scopes(scope)
 			}
+		},
+		sampleSetup: function(config){
+			if (config.params.background && config.params.background.length)
+				document.body.style.backgroundImage = 'url("' + config.params.background.secure_url + '")';
+			if (config.params.bgSize)
+				$('body').css('background-size', config.params.bgSize);
+			if (config.params.theme)
+				$('#theme').attr('href', config.params.theme);
 		}
 	}
 	
-	$rootScope.config = config;
+	
 	it.SiteCtrl = $rootScope;
 });

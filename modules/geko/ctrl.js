@@ -1,4 +1,4 @@
-app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User, config) {
+app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, Auth, config) {
 	var FmSites = new Parse('FmSites');
 	var tools = $scope.tools = {
 		init: function() {
@@ -41,31 +41,20 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User,
 			localStorage.clear();
 			$http.defaults.headers.common['X-Parse-Session-Token'] = null;
 			
-			config.init(site);
-			var eUser = new User();
-
-			eUser.init().then(function(me) {
-				$rootScope.user = eUser;
-				config.pConfig().then(function(config) {
-					$rootScope.config = config;
-					if (config.params) {
-						if (config.params.background)
-							document.body.style.backgroundImage = 'url("' + config.params.background.secure_url + '")';
-						if (config.params.bgSize)
-							$('body').css('background-size', config.params.bgSize);
-						if (config.params.theme)
-							$('#theme').attr('href', config.params.theme);
-					}
+			config.init(site).then(function(config) {
+				$rootScope.config = config;
+				$rootScope.tools.sampleSetup(config);
+				Auth.tools.reload().then(function(me) {
+					$rootScope.user = me;
 				})
 			})
 		},
 		initSetup: function(){
 			$http.post(config.parse.root+'/functions/initSetup', {}).success(function(){
-				var eUser = new User();
-				eUser.init().then(function(me) {
-					$rootScope.user = eUser;
+				Auth.tools.reload().then(function(me) {
+					$rootScope.user = me;
 					toastr.success('Site Initialized.');
-				});
+				})
 			})
 		},
 		isEmulated: function(){
@@ -73,6 +62,10 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, User,
 				return ($http.defaults.headers.common['X-Parse-Application-Id'] == $scope.focus.parse.appId);
 			else
 				return false;
+		},
+		deEmulate: function(){
+			config.reset();
+			tools.emulate();
 		}
 	}
 	tools.init();

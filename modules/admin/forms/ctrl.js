@@ -256,7 +256,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 	it.AdminFormsCreateCtrl = $scope;
 });
 
-app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, $routeParams, $interpolate, config, Parse, Google) {
+app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, $routeParams, $interpolate, Parse, Google) {
 	var Forms = new Parse('Forms');
 	var Data = null;
 	$scope.data = {};
@@ -457,8 +457,8 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 			},
 			addPictures: function(item){
 				cloudinary.openUploadWidget({
-					cloud_name: config.params.cloudinary.cloud_name,
-					upload_preset: config.params.cloudinary.preset,
+					cloud_name: $scope.config.params.cloudinary.cloud_name,
+					upload_preset: $scope.config.params.cloudinary.preset,
 					theme: 'white',
 					multiple: false,
 				},

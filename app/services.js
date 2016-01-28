@@ -117,33 +117,32 @@ app.factory('User', function ($http, $q, $timeout, config) {
 
 	var User = function(scopes){
 		var my = this;
-			my.status 	= 'start';
-			my.pending 	= true;
-			my.roles 	= [];
-			my.data 	= {};
-			my.data.date= new Date();
-			my.defer 	= $q.defer()
-			if(scopes)
-				my.data.scopes 	= scopes;
-			else
-				my.data.scopes 	= defaults.scopes;
-			
 				
 		var tools = {
 			reset: function(scopes){
 				my.data 		= {}
-				my.objectId 	= null
+				my.status 		= 'start';
+				my.data.date	= new Date();
+				my.pending 		= true;
 				my.sessionToken = null
 				my.gAuth 		= null
 				my.pAuth		= null
 				my.roles 		= []
 				my.profile 		= {}
 				my.defer 		= $q.defer()
+				if(scopes)
+					my.data.scopes 	= scopes;
+				else
+					my.data.scopes 	= defaults.scopes;
 			},
 			init: function(scopes){
 				if(my.status == 'start')
 					tools.loadUser(true);
 				return my.defer.promise;
+			},
+			reload: function(){
+				tools.reset();
+				return tools.init();
 			},
 			login: function(scopes){
 				tools.loadUser();
@@ -157,15 +156,15 @@ app.factory('User', function ($http, $q, $timeout, config) {
 				// alert('Load User')
 				// [] TODO This has a problem... it is being called 3+ times
 				tools.google.auth(immediate).then(function(gAuth){
-					if(gAuth.error){
-						my.error = gAuth;
-					}else{
+					if(gAuth && gAuth.access_token && !gAuth.error){
 						tools.parse.auth(gAuth).then(function(){
 							tools.userData().then(function(){
 								my.pending = false;
 								my.defer.resolve(my);
 							})
 						})
+					}else{
+						my.error = gAuth;
 					}
 				}).catch(function(e){
 					my.error = e;
@@ -233,7 +232,7 @@ app.factory('User', function ($http, $q, $timeout, config) {
 					var deferred = $q.defer();
 					if(my.profile && my.profile.length)
 						deferred.resolve(my.profile)
-					else
+					else if(my.gAuth)
 						$http.get('https://www.googleapis.com/plus/v1/people/me?access_token='+my.gAuth.access_token).success(function(profile){
 							$http.get('https://api.parse.com/1/classes/UserProfile').then(function(response){
 		 						my.profile = angular.extend(profile, response.data.results[0])
@@ -318,6 +317,7 @@ app.factory('User', function ($http, $q, $timeout, config) {
 				}
 			}
 		}
+		tools.reset();
 		
 		this.tools 	= tools;
 		this.is 	= tools.is;
