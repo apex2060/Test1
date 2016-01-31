@@ -3,7 +3,7 @@ app.controller('SiteCtrl', function($rootScope, config, Auth, User){
 	
 	config.init().then(function(config){
 		$rootScope.config = config;
-		if(config.params.sample){
+		if(config.emulating){
 			Auth.tools.reload().then(function(me){
 				$rootScope.user = me;
 				tools.sampleSetup(config);
@@ -39,7 +39,7 @@ app.controller('SiteCtrl', function($rootScope, config, Auth, User){
 			}
 		},
 		sampleSetup: function(config){
-			if (config.params.background && config.params.background.length)
+			if (config.params.background)
 				document.body.style.backgroundImage = 'url("' + config.params.background.secure_url + '")';
 			if (config.params.bgSize)
 				$('body').css('background-size', config.params.bgSize);
