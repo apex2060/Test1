@@ -47,23 +47,34 @@
 				<li class="list-group-item" ng-class="{disabled: !field.enabled}" ng-repeat="field in fieldOptions" ng-click="tools.field.add(field)">{{field.title}}</li>
 			</ul>
 		</div>
+		
 		<div class="col-md-6">
 			<div class="well" ng-show="form.p"><p contenteditable ng-model="form.p">{{form.p}}</p></div>
 			<div class="well clearfix" ng-class="{highlight: form==fParent}">
 				<form ng-click="tools.item.focus(form)">
-					<div ng-repeat="field in form.fields">
-						<div class="form-group" ng-if="!field.array" ng-include="field.type+'.field'" ng-click="tools.item.focus(field)"></div>
-						<div class="list-group" ng-if="field.array" ng-click="tools.item.focus(field)">
-							<div class="list-group-item">Array: {{field.title}}</div>
-							<div class="list-group-item">
-								<div class="form-group" ng-include="field.type+'.field'"></div>
+					<div class="list-group" ng-repeat="field in form.fields" ng-click="tools.item.focus(field)">
+						<div class="list-group-item active" ng-show="field == focus">
+							Edit
+							<span class="badge"><i ng-drag="true" ng-drag-data="{{field}}" ng-drag-start="tools.drag.start(form,field,$event)" ng-drag-stop="tools.drag.stop()" class="fa fa-arrows"></i></span>
+						</div>
+						<div class="list-group-item" ng-class="{highlight: field==fParent}">
+							<div class="form-group" ng-if="!field.array" ng-include="field.type+'.field'"></div>
+							<div class="list-group" ng-if="field.array">
+								<div class="list-group-item">Array: {{field.title}}</div>
+								<div class="list-group-item">
+									<div class="form-group" ng-include="field.type+'.field'"></div>
+								</div>
 							</div>
+						</div>
+						<div class="form-dropzone" ng-show="dragItem" ng-drop="true" ng-drop-success="tools.drop.complete(form,field,$event)">
+							<p class="reveal text-center">{{dragItem.title}}</p>
 						</div>
 					</div>
 					<button type="submit" class="btn btn-success pull-right" ng-click="tools.form.save()">Save</button>
 				</form>
 			</div>
 		</div>
+		
 		<div class="col-md-3">
 			<div class="well clearfix" sticky media-query="min-width: 1080px" stick-limit="true" offset="50">
 				<div ng-include="focus.type+'.details'"></div>

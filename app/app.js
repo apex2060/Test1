@@ -1,7 +1,7 @@
 var it = {};
 var app = null;
 
-app = angular.module('RootApp', ['ngAnimate','ngResource','ngRoute','ngTouch','xeditable','textAngular','sticky','ui.sortable']);
+app = angular.module('RootApp', ['ngAnimate','ngResource','ngRoute','ngTouch','xeditable','textAngular','sticky','ui.sortable','ngDraggable']);
 app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide) {
 	app.lazy = {
 		controller: $controllerProvider.register,

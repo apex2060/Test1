@@ -104,25 +104,42 @@
 
 <!--Group Input-->
 <script type="text/ng-template" id="group.field">
-	<div class="well" ng-class="{highlight: field==fParent}">
-		<div class="btn-group pull-right">
-			<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				Files <span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu">
-				<li ng-repeat="file in field.files">
-					<i class="fa fa-trash" ng-click="tools.item.remove(field.files, file)"></i>
-					<a ng-href="{{file.url}}" target="_new">
-						<img ng-src="{{file.iconUrl}}">
-						<span>{{file.name}}</span>
-					</a>
-				</li>
-				<li><a ng-click="tools.item.addFiles(field)">Add Files</a></li>
-			</ul>
-		</div>
-		<h1 contenteditable ng-model="field.title">{{field.title}}</h1>
-		<p  contenteditable ng-model="field.p">{{field.p}}</p>
-		<div class="form-group" ng-repeat="field in field.fields" ng-include="field.type+'.field'" ng-click="tools.item.focus(field)"></div>
-		<button type="button" class="btn btn-block" ng-click="tools.item.focus(field)">Add Fields</button>
+	<h1 contenteditable ng-model="field.title">{{field.title}}</h1>
+	<p  contenteditable ng-model="field.p">{{field.p}}</p>
+	<div class="btn-group pull-right">
+		<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			Files <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu">
+			<li ng-repeat="file in field.files">
+				<i class="fa fa-trash" ng-click="tools.item.remove(field.files, file)"></i>
+				<a ng-href="{{file.url}}" target="_new">
+					<img ng-src="{{file.iconUrl}}">
+					<span>{{file.name}}</span>
+				</a>
+			</li>
+			<li><a ng-click="tools.item.addFiles(field)">Add Files</a></li>
+		</ul>
 	</div>
+		
+		
+	<div class="list-group" ng-repeat="field in field.fields" ng-click="tools.item.focus(field)">
+		<div class="list-group-item active" ng-show="field == focus">
+			Edit
+			<span class="badge"><i ng-drag="true" ng-drag-data="{{field}}" ng-drag-start="tools.drag.start($parent.$parent.$parent.field,field,$event)" ng-drag-stop="tools.drag.stop()"  class="fa fa-arrows"></i></span>
+		</div>
+		<div class="list-group-item">
+			<div class="form-group" ng-if="!field.array" ng-include="field.type+'.field'"></div>
+			<div class="list-group" ng-if="field.array">
+				<div class="list-group-item">Array: {{field.title}}</div>
+				<div class="list-group-item">
+					<div class="form-group" ng-include="field.type+'.field'"></div>
+				</div>
+			</div>
+		</div>
+		<div class="form-dropzone" ng-show="dragItem" ng-drop="true" ng-drop-success="tools.drop.complete($parent.$parent.$parent.field,field,$event)">
+			<p class="reveal text-center">{{dragItem.title}}</p>
+		</div>
+	</div>
+	<button type="button" class="btn btn-block" ng-click="tools.item.focus(field)">Add Fields</button>
 </script>

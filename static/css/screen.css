@@ -209,6 +209,21 @@ signature{
 .dropdown-menu > li{position:relative;}
 .dropdown-menu > li > i{position:absolute;right:3px;top:6px;}
 
+.form-dropzone{
+	margin-top:15px;
+	padding:5px;
+	border:1px dashed;
+}
+.form-dropzone>.reveal{
+	display:none;
+}
+.drag-enter{
+	padding:30px;
+}
+.drag-enter>.reveal{
+	display:block;
+}
+
 [ui-sortable] > *{
 	cursor: move;
 }

@@ -50,9 +50,9 @@
 					</span>
 				</div>
 				<div class="list-group-item">
-					<a class="btn btn-success btn-block" ng-click="tools.create()">Create</a>
-					<a class="btn btn-success btn-block" ng-click="tools.initSetup()">Initial Setup</a>
-					<a class="btn btn-success btn-block" ng-click="tools.deEmulate()">De Emulate</a>
+					<a class="btn btn-success btn-block" ng-click="tools.create()" ng-hide="config.emulating">Create</a>
+					<a class="btn btn-success btn-block" ng-click="tools.initSetup()" ng-show="config.emulating && !user.roles.length">Initial Setup</a>
+					<a class="btn btn-success btn-block" ng-click="tools.deEmulate()" ng-show="config.emulating">De Emulate</a>
 				</div>
 			</div>
 		</div>

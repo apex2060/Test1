@@ -41,7 +41,8 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, Auth,
 			localStorage.clear();
 			$http.defaults.headers.common['X-Parse-Session-Token'] = null;
 			
-			site.emulating = true;
+			if(site)
+				site.emulating = true;
 			config.init(site).then(function(config){
 				$rootScope.config = config;
 				$rootScope.tools.sampleSetup(config);

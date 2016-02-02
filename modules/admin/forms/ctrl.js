@@ -238,6 +238,36 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				$scope.fParent.fields.push( angular.copy(field) );
 			},
 		},
+		drag: {
+			init: function(){
+				$(".form-dropzone").on('dragover', function(e){
+					it.e = e
+				});
+			},
+			start: function(parent,item,event){
+				tools.drag.init();
+				$scope.dragItem 	= item;
+				$scope.dragParent 	= parent;
+			},
+			stop: function(){
+				$timeout(function(){
+					delete $scope.dragItem;
+					delete $scope.dragParent;
+				}, 500)
+			}
+		},
+		drop: {
+			complete: function(parent,item,dropped){
+				var di = $scope.dragItem;
+				var dp = $scope.dragParent;
+				if(dp && di!=parent){
+					dp.fields.splice(dp.fields.indexOf(di), 1)
+					parent.fields.splice(parent.fields.indexOf(item)+1, 0, dropped.data)
+					delete $scope.dragItem;
+					delete $scope.dragParent;
+				}
+			}
+		},
 		modal: function(id){
 			$('#'+id).modal('show');
 		}

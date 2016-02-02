@@ -15,6 +15,28 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
 	var tools = $scope.tools = {
 		init: function(){
 			tools.get();
+			tools.keyEvents();
+		},
+		keyEvents: function(){
+			require(['vendor/mousetrap.js'], function(Mousetrap){
+				Mousetrap.bind('ctrl+e', function(e){
+					if(Auth.is('Admin'))
+						tools.edit();
+				});
+				Mousetrap.bind(['ctrl+s', 'meta+s'], function(e){
+					if (e.preventDefault) {
+						e.preventDefault();
+					}
+					else {
+						e.returnValue = false;
+					}
+					if(Auth.is('Admin'))
+						tools.save();
+				});
+			});
+			$scope.$on('$routeChangeStart', function(next, current) {
+				Mousetrap.reset();
+			});
 		},
 		get: function(){
 			// [] Make this content available offline once loaded for the first time.
