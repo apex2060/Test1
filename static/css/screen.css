@@ -209,6 +209,12 @@ signature{
 .dropdown-menu > li{position:relative;}
 .dropdown-menu > li > i{position:absolute;right:3px;top:6px;}
 
+.move{
+	cursor:move;
+}
+.dragging-parent{
+	display: none;
+}
 .form-dropzone{
 	margin-top:15px;
 	padding:5px;

@@ -2,9 +2,14 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, Auth,
 	var FmSites = new Parse('FmSites');
 	var tools = $scope.tools = {
 		init: function() {
+			$scope.state = 'refreshing'
 			FmSites.list().then(function(sites){
+				$scope.state = 'loaded';
 				$scope.sites = sites;
 			})
+		},
+		state: function(check){
+			return $scope.state == check;
 		},
 		create: function(){
 			$scope.focus = {

@@ -177,9 +177,11 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			},
 			copy: function(parent, item){
 				parent.push(angular.copy(item));
+				toastr.success('Item Cloned')
 			},
 			remove: function(parent, item){
-				parent.splice(parent.indexOf(item), 1)
+				if(confirm('Are sure you want to delete this item?'))
+					parent.splice(parent.indexOf(item), 1)
 			},
 			focus: function(field){
 				$timeout.cancel(ePromise);
@@ -208,19 +210,27 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				}
 			},
 			copy: function(){
-				Forms.save($scope.form).then(function(form){
-					form = angular.copy(form);
-					delete form.objectId;
-					$scope.form = form;
-					$scope.form.title = $scope.form.title + ' (copy)'
-					toastr.success('Form Copied!')
-				});
+				var error = tools.form.errors($scope.form.fields)
+				if(!error)
+					alert('You need to rename the column for: '+error.title)
+				else
+					Forms.save($scope.form).then(function(form){
+						form = angular.copy(form);
+						delete form.objectId;
+						$scope.form = form;
+						$scope.form.title = $scope.form.title + ' (copy)'
+						toastr.success('Form Copied!')
+					});
 			},
 			save: function(){
-				Forms.save($scope.form).then(function(form){
-					$scope.form = form;
-					toastr.success('Form Saved!')
-				})
+				var error = tools.form.errors($scope.form.fields)
+				if(error)
+					alert('You need to rename the column for: '+error.title)
+				else
+					Forms.save($scope.form).then(function(form){
+						$scope.form = form;
+						toastr.success('Form Saved!')
+					})
 			},
 			delete: function(){
 				if(confirm('Are you sure you want to delete this form?')){
@@ -228,6 +238,15 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						tools.form.new();
 						toastr.error('Form Deleted!')
 					})
+				}
+			},
+			errors: function(fields){
+				for(var i=0; i<fields.length; i++){
+					var f = fields[i];
+					if(f.type != 'header' && (f.name == 'columnName' || f.name == '' || !f.name))
+						return f;
+					if(f.fields)
+						return tools.form.verify(f.fields)
 				}
 			}
 		},

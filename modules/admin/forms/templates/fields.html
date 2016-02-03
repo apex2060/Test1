@@ -123,12 +123,15 @@
 	</div>
 		
 		
-	<div class="list-group" ng-repeat="field in field.fields" ng-click="tools.item.focus(field)">
+	<div class="list-group parent animate-repeat" ng-repeat="field in field.fields" ng-click="tools.item.focus(field)">
 		<div class="list-group-item active" ng-show="field == focus">
-			Edit
-			<span class="badge"><i ng-drag="true" ng-drag-data="{{field}}" ng-drag-start="tools.drag.start($parent.$parent.$parent.field,field,$event)" ng-drag-stop="tools.drag.stop()"  class="fa fa-arrows"></i></span>
+			<span class="move" ng-drag="true" ng-drag-data="{{field}}" ng-drag-start="tools.drag.start($parent.$parent.$parent.field,field,$event)" ng-drag-stop="tools.drag.stop()"><i class="fa fa-arrows"></i></span>
+			<div class="btn-group btn-group-xs pull-right" role="group">
+				<a class="btn btn-default"><i class="fa fa-clone" title="Clone" ng-click="tools.item.copy(fParent.fields, field)"></i></a>
+				<a class="btn btn-default"><i class="fa fa-trash" title="Delete" ng-click="tools.item.remove(fParent.fields, field)"></i></a>
+			</div>
 		</div>
-		<div class="list-group-item">
+		<div class="list-group-item" ng-class="{highlight: field==fParent}">
 			<div class="form-group" ng-if="!field.array" ng-include="field.type+'.field'"></div>
 			<div class="list-group" ng-if="field.array">
 				<div class="list-group-item">Array: {{field.title}}</div>

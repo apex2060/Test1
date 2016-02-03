@@ -23,6 +23,8 @@
 							<li><a ng-click="tools.form.new()">New</a></li>
 							<li><a ng-click="tools.form.copy()">Copy</a></li>
 							<li role="separator" class="divider"></li>
+							<li><a target="_blank" href="#/admin/forms/{{form.objectId}}?action=fill">Fill</a></li>
+							<li role="separator" class="divider"></li>
 							<li><a ng-click="tools.form.save()">Save</a></li>
 							<li><a ng-click="tools.form.delete()">Delete</a></li>
 						</ul>
@@ -52,10 +54,13 @@
 			<div class="well" ng-show="form.p"><p contenteditable ng-model="form.p">{{form.p}}</p></div>
 			<div class="well clearfix" ng-class="{highlight: form==fParent}">
 				<form ng-click="tools.item.focus(form)">
-					<div class="list-group" ng-repeat="field in form.fields" ng-click="tools.item.focus(field)">
+					<div class="list-group parent animate-repeat" ng-repeat="field in form.fields" ng-click="tools.item.focus(field)">
 						<div class="list-group-item active" ng-show="field == focus">
-							Edit
-							<span class="badge"><i ng-drag="true" ng-drag-data="{{field}}" ng-drag-start="tools.drag.start(form,field,$event)" ng-drag-stop="tools.drag.stop()" class="fa fa-arrows"></i></span>
+							<span class="move" ng-drag="true" ng-drag-data="{{field}}" ng-drag-start="tools.drag.start(form,field,$event)" ng-drag-stop="tools.drag.stop()"><i class="fa fa-arrows"></i></span>
+							<div class="btn-group btn-group-xs pull-right" role="group">
+								<a class="btn btn-default"><i class="fa fa-clone" title="Clone" ng-click="tools.item.copy(fParent.fields, field)"></i></a>
+								<a class="btn btn-default"><i class="fa fa-trash" title="Delete" ng-click="tools.item.remove(fParent.fields, field)"></i></a>
+							</div>
 						</div>
 						<div class="list-group-item" ng-class="{highlight: field==fParent}">
 							<div class="form-group" ng-if="!field.array" ng-include="field.type+'.field'"></div>
@@ -76,14 +81,14 @@
 		</div>
 		
 		<div class="col-md-3">
-			<div class="well clearfix" sticky media-query="min-width: 1080px" stick-limit="true" offset="50">
-				<div ng-include="focus.type+'.details'"></div>
-				<hr>
-				<div ng-show="focus.type">
-					<p><label for="asArray"><input id="asArray" type="checkbox" ng-model="focus.array"> As Array</label></p>
-					<p><label for="removeable" ng-show="focus.array"><input id="removeable" type="checkbox" ng-model="focus.removeable"> Allow Remove</label></p>
-					<a class="btn btn-block btn-info" 	ng-click="tools.item.copy(fParent.fields, focus)">Duplicate</a>
-					<a class="btn btn-block btn-danger" ng-click="tools.item.remove(fParent.fields, focus)">Delete</a>
+			<div sticky media-query="min-width: 1080px" stick-limit="true" offset="50">
+				<div class="well">
+					<div ng-include="focus.type+'.details'"></div>
+					<hr>
+					<div ng-show="focus.type">
+						<p><label for="asArray"><input id="asArray" type="checkbox" ng-model="focus.array"> As Array</label></p>
+						<p><label for="removeable" ng-show="focus.array"><input id="removeable" type="checkbox" ng-model="focus.removeable"> Allow Remove</label></p>
+					</div>
 				</div>
 			</div>
 		</div>

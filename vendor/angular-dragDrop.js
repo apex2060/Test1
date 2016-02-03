@@ -19,7 +19,7 @@ angular.module("ngDraggable", [])
         };
 
     }])
-    .directive('ngDrag', ['$rootScope', '$parse', '$document', '$window', 'ngDraggable', function ($rootScope, $parse, $document, $window, ngDraggable) {
+    .directive('ngDrag', ['$rootScope', '$parse', '$document', '$window', '$timeout', 'ngDraggable', function ($rootScope, $parse, $document, $window, $timeout, ngDraggable) {
         return {
             restrict: 'A',
             link: function (scope, element, attrs) {
@@ -184,6 +184,7 @@ angular.module("ngDraggable", [])
                     if (!element.hasClass('dragging')) {
                         _data = getDragData(scope);
                         element.addClass('dragging');
+                        element.closest('.parent').addClass('dragging-parent');
                         $rootScope.$broadcast('draggable:start', {x:_mx, y:_my, tx:_tx, ty:_ty, event:evt, element:element, data:_data});
 
                         if (onDragStartCallback ){
@@ -232,6 +233,10 @@ angular.module("ngDraggable", [])
                     $document.off(_moveEvents, onmove);
                     $document.off(_releaseEvents, onrelease);
 
+                    $timeout(function(){
+                        element.closest('.parent').removeClass('dragging-parent');
+                    }, 1500)
+                    
                     if (onDragStopCallback ){
                         scope.$apply(function () {
                             onDragStopCallback(scope, {$data: _data, $event: evt});
