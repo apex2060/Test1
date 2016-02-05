@@ -1,16 +1,16 @@
 app.factory('config', function ($http, $q) {
 	var config = {};
 	var rootConfig = {
-		domain: 	'easybusiness.center',
-		secureUrl: 	'https://the.easybusiness.center',
-		oauth: 		encodeURI('https://the.easybusiness.center/oauth'),
+		appsDomain: 	'easybusiness.center',
+		secureUrl: 		'https://the.easybusiness.center',
+		oauth: 			encodeURI('https://the.easybusiness.center/oauth'),
 		parse: {
 			root: 		'https://api.parse.com/1',
 			appId: 		'ETf61cYOebIkncxvVgrldjmPX4Z2acpWiKfY9wWM',
 			jsKey: 		'i3MNq4GYuP6ays3LNQdijimLuaN5uOJst1n87bVy',
 			restKey: 	'Wcpk6SaGnzklz5S0OhtngeYD6KJzNIoQ3VmyUgtK'
 		},
-		firebase: 'https://easybusiness.firebaseio.com/',
+		firebase: 		'https://easybusiness.firebaseio.com/',
 		google: {
 			"client_id": "821954483-q3ooncrbh8cmo8ukcupov77hfn41i6g9.apps.googleusercontent.com",
 			"project_id": "easy-business-center",

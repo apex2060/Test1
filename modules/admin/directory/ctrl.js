@@ -30,7 +30,7 @@ app.lazy.controller('WorkDirectoryCtrl', function($rootScope, $scope, $q, $http,
 			general: function(cmd, params){
 				var deferred = $q.defer();
 				// var userDomain = $rootScope.user.profile.domain; //GEt the domain to load settings.
-				var params = angular.extend({domain: config.domain}, params)
+				var params = angular.extend({domain: config.appsDomain}, params)
 				var request = gapi.client.directory[cmd].list(params);
 				request.execute(function(data) {
 					deferred.resolve(data);
@@ -56,7 +56,7 @@ app.lazy.controller('WorkDirectoryCtrl', function($rootScope, $scope, $q, $http,
 			members: function(group){
 				var deferred = $q.defer();
 				var request = gapi.client.directory.members.list({
-					domain: config.domain,
+					domain: config.appsDomain,
 					groupKey: group.id
 				});
 				
@@ -70,14 +70,14 @@ app.lazy.controller('WorkDirectoryCtrl', function($rootScope, $scope, $q, $http,
 		user: {
 			new: function(user){
 				$scope.udEmails.splice($scope.udEmails.indexOf(user), 1);
-				user.account = user.account+'@'+config.domain;
+				user.account = user.account+'@'+config.appsDomain;
 				if(!user.firstname){
 					user.firstname = user.name.split(' ')[0]
 					user.lastname = user.name.split(' ')[1]
 				}
 				var insert = gapi.client.directory.users.insert;
 				var data = {
-					"domain":		config.domain,
+					"domain":		config.appsDomain,
 					"primaryEmail": user.account,
 					"name": {
 						"givenName": user.firstname,

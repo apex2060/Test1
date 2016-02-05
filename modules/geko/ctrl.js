@@ -13,7 +13,7 @@ app.lazy.controller('GekoCtrl', function($rootScope, $scope, $http, Parse, Auth,
 		},
 		create: function(){
 			$scope.focus = {
-				"domain": "easybusiness.center",
+				"appsDomain": "easybusiness.center",
 				"secureUrl": "https://the.easybusiness.center",
 				"oauth": "https://the.easybusiness.center/oauth",
 				"firebase": "https://easybusiness.firebaseio.com/",

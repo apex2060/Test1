@@ -171,7 +171,6 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 		},
 		item: {
 			add: function(parent, attr, item){
-				console.log('adddd')
 				parent[attr] = parent[attr] || [];
 				parent[attr].push(item)
 			},

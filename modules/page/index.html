@@ -13,12 +13,12 @@
 					<h4 class="modal-title" id="pageEdit">Edit Page</h4>
 				</div>
 				<div class="modal-body">
-					<textarea class="form-control" placeholder="Template" ng-model="page.template"></textarea>
-					<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					<textarea class="form-control" placeholder="Template" ng-model="page.template" ng-model-options="{updateOn:'blur'}"></textarea>
+					<div class="panel-group" id="queryAccord" role="tablist" aria-multiselectable="true">
 						<div class="panel panel-default" ng-repeat="d in page.data">
 							<div class="panel-heading" role="tab" id="headingOne">
 								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse" data-parent="#accordion" href="#data{{$index}}" aria-expanded="true" aria-controls="data{{$index}}">{{d.table}} &gt; {{d.alias}}</a>
+									<a role="button" data-toggle="collapse" data-parent="#queryAccord" href="#data{{$index}}" aria-expanded="true" aria-controls="data{{$index}}">{{d.table}} &gt; {{d.alias}}</a>
 								</h4>
 							</div>
 							<div id="data{{$index}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">

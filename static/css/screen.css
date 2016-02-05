@@ -98,6 +98,9 @@ map {
 .modal-dialog{
 	z-index: 1050;
 }
+.control-label{
+	line-height: 2.5;
+}
 .white, .text-white{
 	color: #FFF;
 }

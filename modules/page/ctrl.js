@@ -1,4 +1,4 @@
-app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
+app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $q, Auth, Parse){
 	var Page = new Parse('Pages', true);
 	
 	$scope.moment = moment;
@@ -16,6 +16,12 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
 		init: function(){
 			tools.get();
 			tools.keyEvents();
+			$scope.$on('$locationChangeStart', function(event) {
+				if($routeParams.view == $scope.page.permalink)
+					tools.setup($scope.page)
+				else
+					tools.get();
+			});
 		},
 		keyEvents: function(){
 			require(['vendor/mousetrap.js'], function(Mousetrap){
@@ -71,8 +77,15 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
 			},
 			get: function(request){
 				var data = $scope.Data[request.alias] = new Parse(request.table, true); //[] Allow this (immediate) to be defined by the user
-				if(request.query)
-					return data.query(request.query)
+				
+				var vars = $location.search();
+				var query = request.query;
+				if(request.query && request.rpv)
+					for(var i=0; i<request.rpv.length; i++)
+						query = query.replace('%'+request.rpv[i]+'%', vars[request.rpv[i]])
+						
+				if(query)
+					return data.query(query)
 				else
 					return data.list()
 			},
@@ -84,24 +97,40 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $q, Auth, Parse){
 			$('#editPage').modal('show')
 		},
 		preview: function(){
+			$scope.page.data = tools.format($scope.page.data)
 			tools.setup($scope.page);
 		},
 		save: function(){
+			$scope.page.data = tools.format($scope.page.data)
 			Page.save($scope.page).then(function(page){
 				$scope.page = page;
 				toastr.success('Page Saved');
 			})
 		},
-		element: {
-			add: function(){
-				
-			},
-			remove: function(){
-				
+		format: function(queries){
+			for(var i=0; i<queries.length; i++){
+				var query = '--'+queries[i].query+'--';
+				query = query.split("\%");
+				queries[i].rpv = [];
+				for(var ii=0; ii<query.length; ii++)
+					if(ii%2)
+						queries[i].rpv.push(query[ii])
 			}
+			console.log(queries)
+			return queries;
+		},
+		
+		focus: function(item){
+			$scope.focus = item;
+		},
+		modal: function(modal){
+			$(modal).modal('show');
+		},
+		focusModal: function(item, modal){
+			tools.focus(item);
+			tools.modal(modal);
 		}
 	}
 	tools.init();
-	
 	it.PageCtrl = $scope;
 });
