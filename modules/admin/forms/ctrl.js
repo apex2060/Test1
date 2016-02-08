@@ -245,7 +245,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 					if(f.type != 'header' && (f.name == 'columnName' || f.name == '' || !f.name))
 						return f;
 					if(f.fields)
-						return tools.form.verify(f.fields)
+						return tools.form.errors(f.fields)
 				}
 			}
 		},
