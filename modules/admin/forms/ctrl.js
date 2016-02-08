@@ -210,7 +210,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			},
 			copy: function(){
 				var error = tools.form.errors($scope.form.fields)
-				if(!error)
+				if(error)
 					alert('You need to rename the column for: '+error.title)
 				else
 					Forms.save($scope.form).then(function(form){
