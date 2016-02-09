@@ -277,10 +277,18 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 		drop: {
 			complete: function(parent,item,dropped){
 				var di = $scope.dragItem;
+				var dc = angular.copy(di)
 				var dp = $scope.dragParent;
 				if(dp && di!=parent){
 					dp.fields.splice(dp.fields.indexOf(di), 1)
-					parent.fields.splice(parent.fields.indexOf(item)+1, 0, dropped.data)
+					parent.fields.splice(parent.fields.indexOf(item)+1, 0, dc);
+					
+					
+					$timeout(function(){
+						$scope.focus 	= dc;
+						$scope.fParent 	= parent;
+					}, 150);
+					
 					delete $scope.dragItem;
 					delete $scope.dragParent;
 				}
