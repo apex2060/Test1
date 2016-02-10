@@ -78,6 +78,22 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 			reset: function(){
 				tableColumns[tableId] = false;
 				$scope.columns = tools.table.columns($scope.list);
+			},
+			migrate: function(settings){
+				var NewData = new Parse(settings.name);
+				var status = 0;
+				for(var i=0; i<$scope.list.length; i++)
+					(function(item){
+						item = angular.copy(item);
+						var oldId = item.objectId;
+						delete item.objectId;
+						delete item.createdAt;
+						delete item.updatedAt;
+						NewData.save(item).then(function(result){
+							toastr.success(oldId+' coppied to: '+settings.name+' as: '+result.objectId)
+							$scope.migrationStatus = ++status/$scope.list.length*100
+						})
+					})($scope.list[i])
 			}
 		},
 		column: {
@@ -165,6 +181,9 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 				else if(type == 'aDate')
 					return moment(row[col.name]).format("MMM Do YYYY, h:mm:ss a");
 			}
+		},
+		modal: function(id){
+			$('#'+id).modal('show');
 		}
 	}
 	tools.init();

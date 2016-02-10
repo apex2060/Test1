@@ -168,6 +168,9 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						$scope.form.name = 'ud_'+newValue
 				}
 			}, true)
+			Google.calendar.list('writer').then(function(calendars){
+				$scope.calendars = calendars;
+			})
 		},
 		item: {
 			add: function(parent, attr, item){
@@ -447,6 +450,11 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 								className: 	field.ptr.database,
 								objectId: 	field.value
 							}
+						},
+						date: function(field){
+							var d = new Date()
+							var m = d.getTimezoneOffset();
+							return moment(field.value).subtract(m, 'minutes').toDate()
 						}
 					}
 					var formatOptions = Object.keys(format);

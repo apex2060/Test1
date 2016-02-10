@@ -47,3 +47,35 @@
 	</div>
 	<!-- /.modal-dialog -->
 </div>
+
+
+<div id="migrationModal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Migration Modal</h4>
+			</div>
+			<div class="modal-body">
+				<p>This will copy all current data into the table you specify.  If the table does not exist, it will be created for you.</p>
+				<form class="form-horizontal" ng-submit="tools.table.migrate(migration)">
+					<div class="form-group">
+						<label for="newClass" class="col-sm-4 control-label">Table: </label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="newClass" placeholder="No spaces" ng-model="migration.name">
+						</div>
+					</div>
+					<div class="form-group pull-right">
+						<button type="submit" class="btn btn-danger" ng-show="!migrationStatus">Migrate {{list.length}}</button>
+						<button class="btn btn-disabled" ng-show="migrationStatus">{{migrationStatus | number:0}}% Migrated</button>
+					</div>
+				</form>
+			</div>	
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>

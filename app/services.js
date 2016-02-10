@@ -1244,7 +1244,7 @@ app.factory('Dados', function($q, $rootScope, $http, config, Auth){
 });
 
 
-app.factory('Google',  function($q, config, Auth){
+app.factory('Google',  function($q, $http, config, Auth){
 	var user = false;
 	var auth = false;
 	var load = {};
@@ -1306,6 +1306,17 @@ app.factory('Google',  function($q, config, Auth){
 					})
 		        	return deferred.promise;
 				}
+			}
+		},
+		calendar: {
+			list: function(minAccessRole){
+				var deferred = $q.defer();
+				$http.post(config.parse.root + '/functions/CalendarList', {
+					minAccessRole: minAccessRole
+				}).success(function(data) {
+					deferred.resolve(data.result.items);
+				})
+				return deferred.promise;
 			}
 		}
 	}

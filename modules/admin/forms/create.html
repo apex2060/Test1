@@ -118,29 +118,65 @@
 		</div>
 	</div>
 	<div class="modal fade" id="workflow" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title">Form Workflow</h4>
 				</div>
 				<div class="modal-body">
-					<p class="alert alert-info">When someone submits this form, workflow members will receive a link to the specified form refrencing the data submitted.</p>
-					<table class="table">
-						<tr>
-							<td>User</td>
-							<td>Form</td>
-							<td>Remove</td>
-						</tr>
-						<tr ng-repeat="action in form.actions">
-							<td><select class="form-control" ng-model="action.user" ng-options="user as user.username for user in users"></select></td>
-							<td><select class="form-control" ng-model="action.form" ng-options="form as form.title for form in forms"></select></td>
-							<td><a class="btn btn-danger" ng-click="tools.item.remove(form.actions, action)"><i class="fa fa-trash"></i></a></td>
-						</tr>
-						<tr>
-							<td colspan="3"><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'actions', {})">Add Workflow</a></td>
-						</tr>
-					</table>
+					<div><!-- Nav tabs -->
+						<ul class="nav nav-tabs" role="tablist">
+							<li role="presentation" class="active"><a href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a></li>
+							<li role="presentation"><a href="#calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
+							<li role="presentation"><a href="#redirect" aria-controls="redirect" role="tab" data-toggle="tab">Redirect</a></li>
+						</ul>
+						
+						<!-- Tab panes -->
+						<div class="tab-content">
+							<div role="tabpanel" class="tab-pane active" id="email">
+								<p class="alert alert-info">When someone submits this form, workflow members will receive a link to the specified form refrencing the data submitted.</p>
+								<table class="table">
+									<tr>
+										<td>User</td>
+										<td>Form</td>
+										<td>Remove</td>
+									</tr>
+									<tr ng-repeat="action in form.actions | filter:{type:'email'}">
+										<td><select class="form-control" ng-model="action.userId" ng-options="user.objectId as user.username for user in users"></select></td>
+										<td><select class="form-control" ng-model="action.formId" ng-options="form.objectId as form.title for form in forms"></select></td>
+										<td><a class="btn btn-danger" ng-click="tools.item.remove(form.actions, action)"><i class="fa fa-trash"></i></a></td>
+									</tr>
+									<tr>
+										<td colspan="3"><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'actions', {type:'email'})">Add Workflow</a></td>
+									</tr>
+								</table>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="calendar">
+								<p class="alert alert-info">When someone submits this form, an entry will be added to the following calendars.</p>
+								<table class="table">
+									<tr>
+										<td>Calendar</td>
+										<td>Start Date</td>
+										<td>End Date</td>
+										<td>Title</td>
+										<td>Remove</td>
+									</tr>
+									<tr ng-repeat="action in form.actions | filter:{type:'calendar'}">
+										<td><select class="form-control" ng-model="action.calendar" ng-options="calendar as calendar.summary for calendar in calendars"></select></td>
+										<td><input type="text" class="form-control" ng-model="action.startDateCol" placeholder="columnName"></td>
+										<td><input type="text" class="form-control" ng-model="action.endDateCol" placeholder="columnName"></td>
+										<td><input type="text" class="form-control" ng-model="action.titleCol" placeholder="columnName"></td>
+										<td><a class="btn btn-danger" ng-click="tools.item.remove(form.actions, action)"><i class="fa fa-trash"></i></a></td>
+									</tr>
+									<tr>
+										<td colspan="5"><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'actions', {type:'calendar',userId:user.objectId})">Add Workflow</a></td>
+									</tr>
+								</table>	
+							</div>
+							<div role="tabpanel" class="tab-pane" id="redirect">Comming Soon</div>
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

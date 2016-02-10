@@ -1,16 +1,16 @@
 <div ng-controller="TestCtrl" class="container">
     <h1>eCMS to gCal</h1>
-    <h2><a class="btn btn-block btn-info" ng-click="tools.auth()">Authorize</a></h2>
-<a href="
+    <h2><a class="btn" ng-click="tools.auth()">Reg Authorize</a></h2>
+<a class="btn btn-info" href="
 https://accounts.google.com/o/oauth2/auth?
 scope=email%20profile%20https://www.googleapis.com/auth/calendar%20https://www.googleapis.com/auth/drive&
-redirect_uri=https%3A%2F%2Fjhcc-dev.parseapp.com/oauth&
+redirect_uri=https%3A%2F%2Fthe.easybusiness.center/oauth&
 response_type=code&
 access_type=offline&
-client_id=693915073881-8lq8g0q78rhabgmmhf86prf34gcaeeff.apps.googleusercontent.com&
+client_id=821954483-q3ooncrbh8cmo8ukcupov77hfn41i6g9.apps.googleusercontent.com&
 approval_prompt=force&
 state={{user.objectId}}
-">REAL Auth</a>
+">REAL (Offline) Auth</a>
 
 
     <div class="row">

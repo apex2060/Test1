@@ -217,7 +217,7 @@ app.lazy.controller('AdminRoles', function($rootScope, $scope, $routeParams, $ht
 				user.edit=false;
 				$scope.editUser = null;
 				//add/remove users from user.
-				alert('Saving User')
+				toastr.info('Saving User')
 				defer.resolve();
 				return defer.promise;
 			}
