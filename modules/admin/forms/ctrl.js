@@ -297,6 +297,11 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				}
 			}
 		},
+		workflow:{
+			toggle: function(action){
+				action.active = !action.active;
+			}
+		},
 		modal: function(id){
 			$('#'+id).modal('show');
 		}
