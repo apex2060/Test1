@@ -1,40 +1,42 @@
-
-
-.slideUp {
-	transition: .5s linear all;
-	height: 80px;
-	overflow: hidden;
+.bounceIn .ng-enter {
+	-webkit-animation: bounceIn 1.5s;
+	animation: bounceIn 1.5s;
 }
-.slideUp.ng-hide {
-	height: 0;
+.fadeIn .ng-enter {
+	-webkit-animation: fadeIn 1.5s;
+	animation: fadeIn 1.5s;
 }
-
-.example-animate-container {
-  background:white;
-  border:1px solid black;
-  list-style:none;
-  margin:0;
-  padding:0 10px;
+.fadeInLeft .ng-enter {
+	-webkit-animation: fadeInLeft 1.5s;
+	animation: fadeInLeft 1.5s;
 }
 
-.animate-repeat {
-  box-sizing:border-box;
+
+
+
+
+
+.fadeOut .ng-leave {
+	-webkit-animation: fadeOut 1s;
+	animation: fadeOut 1s;
+}
+.fadeOutLeft .ng-leave {
+	-webkit-animation: fadeOutLeft 1s;
+	animation: fadeOutLeft 1s;
+}
+.flipOutX .ng-leave {
+	-webkit-animation: flipOutX 1s;
+	animation: flipOutX 1s;
+	display: block !important;
 }
 
-.animate-repeat.ng-move,
-.animate-repeat.ng-enter,
-.animate-repeat.ng-leave {
-  transition:all linear 0.5s;
+.bounceOut .ng-leave {
+	-webkit-animation: bounceOut 1s;
+	animation: bounceOut 1s;
+	display: block !important;
 }
-
-.animate-repeat.ng-leave.ng-leave-active,
-.animate-repeat.ng-move,
-.animate-repeat.ng-enter {
-  opacity:0;
-}
-
-.animate-repeat.ng-leave,
-.animate-repeat.ng-move.ng-move-active,
-.animate-repeat.ng-enter.ng-enter-active {
-  opacity:1;
+.bounceOutDown .ng-leave {
+	-webkit-animation: bounceOutDown 1s;
+	animation: bounceOutDown 1s;
+	display: block !important;
 }

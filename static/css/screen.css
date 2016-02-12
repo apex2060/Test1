@@ -104,6 +104,14 @@ map {
 .white, .text-white{
 	color: #FFF;
 }
+.bg-success{
+	background-color: #dff0d8 !important;
+}
+.bg-danger{
+	background-color: #f2dede !important;
+}
+
+
 
 #wrapper{
 	position: relative;

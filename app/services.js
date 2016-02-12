@@ -166,7 +166,7 @@ app.factory('User', function ($http, $q, $timeout, config) {
 					}else{
 						my.error = gAuth;
 					}
-				}).catch(function(e){
+				}, function(e){
 					my.error = e;
 					my.defer.reject(e);
 					it.me = my;
@@ -208,14 +208,18 @@ app.factory('User', function ($http, $q, $timeout, config) {
 			google: {
 				auth: function(immediate){
 					var deferred = $q.defer();
-					gapi.auth.authorize({
-						client_id: config.google.client_id, 
-						scope: my.data.scopes, 
-						immediate: immediate
-					}, function(gAuth){
-						my.gAuth = gAuth;
-						deferred.resolve(gAuth)
-					});
+					try{
+						gapi.auth.authorize({
+							client_id: config.google.client_id, 
+							scope: my.data.scopes, 
+							immediate: immediate
+						}, function(gAuth){
+							my.gAuth = gAuth;
+							deferred.resolve(gAuth)
+						});
+					}catch(e){
+						//listen...
+					}
 					return deferred.promise;
 				},
 				plus: function(){

@@ -10,6 +10,7 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $q, Au
 		template: '<div class="alert alert-info">Page Does Not Exist</div>',
 		data: []
 	}
+	
 	// [] Load existing templates as options.
 	
 	var tools = $scope.tools = {
@@ -63,7 +64,10 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $q, Au
 			for(var i=0; i<page.data.length; i++)
 				promises.push(tools.data.init(page.data[i]))
 			$q.all(promises).then(function(){
-				$scope.template = page.template
+				$scope.template = page.template;
+				eval('$scope.js = '+page.js)
+				if($scope.js && $scope.js.init)
+					$scope.js.init($scope.data);
 			})
 		},
 		data: {
@@ -116,7 +120,6 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $q, Au
 					if(ii%2)
 						queries[i].rpv.push(query[ii])
 			}
-			console.log(queries)
 			return queries;
 		},
 		

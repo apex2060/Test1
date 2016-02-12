@@ -12,6 +12,10 @@ app.factory('config', function ($http, $q) {
 		},
 		firebase: 		'https://easybusiness.firebaseio.com/',
 		nest: 			'7e57b122-f5db-4807-b83e-642a9f5ba667',
+		plaid: {
+			client_id: 	'54b57cb9d6c6ee9c0a5d4286',
+			public_key: '4c75c2f6fb37a8a499150430ce66ac'
+		},
 		google: {
 			"client_id": "821954483-q3ooncrbh8cmo8ukcupov77hfn41i6g9.apps.googleusercontent.com",
 			"project_id": "easy-business-center",

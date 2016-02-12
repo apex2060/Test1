@@ -48,6 +48,12 @@
 						</div>
 					</div>
 					<a class="btn btn-block btn-info" ng-click="tools.data.add()">Add Data Point</a>
+					<div class="well">
+						<p>js: </p>
+						<textarea class="form-control" placeholder="{}" ng-model="page.js"></textarea>
+						<p class="help-block">js:{init:function(data){}} will be called when all data has been loaded.</p>
+						<p class="help-block">These can be called from within the template using: js.init() etc.</p>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="tools.preview()">Preview</button>

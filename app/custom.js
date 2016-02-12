@@ -1,3 +1,8 @@
+Array.prototype.flat = function(col){
+	return this.map(function(i){
+		return i[col];
+	})
+}
 Array.prototype.getUnique = function() {
 	var u = {},
 		a = [];
@@ -9,6 +14,12 @@ Array.prototype.getUnique = function() {
 		u[this[i]] = 1;
 	}
 	return a;
+}
+Array.prototype.unique = function(col){
+	if(col)
+		return this.flat(col).getUnique();
+	else
+		return this.getUnique();
 }
 
 String.prototype.toCamelCase = function() {

@@ -1,7 +1,7 @@
 var it = {};
 var app = null;
 
-app = angular.module('RootApp', ['ngAnimate','ngResource','ngRoute','ngTouch','xeditable','textAngular','sticky','ui.sortable','ngDraggable']);
+app = angular.module('RootApp', ['ngAnimate','ngResource','ngRoute','ngTouch','xeditable','textAngular','sticky','ui.sortable','chart.js','ngDraggable']);
 app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide) {
 	app.lazy = {
 		controller: $controllerProvider.register,
@@ -26,7 +26,6 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		if(module=='admin'){
 			includes.push('vendor/jSignature/flashcanvas.js')
 			includes.push('vendor/jSignature/jSignature.min.js')
-			includes.push('//widget.cloudinary.com/global/all.js')
 		}
 		
 		
@@ -142,24 +141,48 @@ app.run(function(editableOptions) {
 
 
 
-// All the following is to allow google visualizations...
-var vizPromise = new Promise(function(resolve, reject) {
-	google.setOnLoadCallback(function () {  
-		resolve();
-	});
-});
-var letsBegin = null;
-var authPromise = new Promise(function(resolve, reject) {
-	letsBegin = function(){
-		resolve();
-	}
-});
 
-Promise.all([vizPromise, authPromise]).then(function() {
-	angular.bootstrap(document, ['RootApp']);
-}, function() {
-	toastr.error('Something went wrong.', 'Please Reload')
-});
+var inc = [
+	'//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js',
+	'//widget.cloudinary.com/global/all.js',
+	'//www.parsecdn.com/js/parse-1.3.1.min.js',
+	'//cdn.firebase.com/js/client/1.0.21/firebase.js',
+	'//checkout.stripe.com/checkout.js',
+	
+	'//apis.google.com/js/client:platform.js?onload=letsBegin',
+	'//maps.google.com/maps/api/js?sensor=true&libraries=geometry,drawing',
+	'//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.js',
+	'//cdnjs.cloudflare.com/ajax/libs/wow/1.0.3/wow.min.js',
+	'//cdn.plaid.com/link/stable/link-initialize.js'
+]
 
-google.load('visualization', '1', {packages: ['gauge']});
-google.load('visualization', '1', {packages: ['corechart']});
+require(inc, function(){
+	require(['vendor/angular-chart.js'], function(){
+		angular.bootstrap(document, ['RootApp']);
+	})
+})
+
+
+
+
+// // All the following is to allow google visualizations...
+// var vizPromise = new Promise(function(resolve, reject) {
+// 	google.setOnLoadCallback(function () {  
+// 		resolve();
+// 	});
+// });
+// var letsBegin = null;
+// var authPromise = new Promise(function(resolve, reject) {
+// 	letsBegin = function(){
+// 		resolve();
+// 	}
+// });
+
+// Promise.all([vizPromise, authPromise]).then(function() {
+// 	angular.bootstrap(document, ['RootApp']);
+// }, function() {
+// 	toastr.error('Something went wrong.', 'Please Reload')
+// });
+
+// google.load('visualization', '1', {packages: ['gauge']});
+// google.load('visualization', '1', {packages: ['corechart']});
