@@ -1,28 +1,23 @@
-<div class="container" ng-controller="FinanceCtrl" ng-init="tools.init()">
+<div ng-controller="PlaidTest" class="container-fluid">
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-3">
 			<div class="list-group">
-				<a href="#" class="list-group-item active">
-				 	Accounts
+				<div class="list-group-item active" ng-click="tools.account.focus()">All Accounts</div>
+				<a class="list-group-item" ng-class="{'bg-danger':a.type=='credit'}" ng-repeat="a in plaid.accounts" ng-click="tools.account.focus(a)">
+					<span>{{a.meta.name}} ({{a.meta.number}})</span> <span class="badge">{{a.balance.available | currency}}</span>
 				</a>
-				<a href="#" class="list-group-item" ng-repeat="account in bank.accounts" title="{{account.subtype}}">
-					<span>{{account.meta.name}} - ({{account.meta.number}})</span>
-					<span class="badge">{{account.balance.available | currency}}</span>
-				</a>
+				<div class="list-group-item"><a class="btn btn-block btn-lg btn-info" ng-click="tools.plaid()">Connect Bank Account</a></div>
 			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-3"></div>
 		<div class="col-md-9">
-			<div class="list-group">
-				<a href="#" class="list-group-item active">
-				 	Transactions
-				</a>
-				<a href="#" class="list-group-item" ng-repeat="tran in bank.transactions" title="{{tran.pending}}">
-					<span>{{tran.name}} - ({{tran.meta.location.city}}, {{tran.meta.location.state}})</span>
-					<span class="badge">{{tran.amount | currency}}</span>
-				</a>
+			<div class="row bounceIn bounceOut">
+				<div class="col-md-3" ng-repeat="t in plaid.transactions | filter:search">
+					<div class="thumbnail" ng-class="t.amount>0 ? 'bg-danger' : 'bg-success'">
+						<p>{{t.name}}</p>
+						<hr>
+						<h3>{{-t.amount | currency}}</h3>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

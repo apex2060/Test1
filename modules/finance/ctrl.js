@@ -1,41 +1,41 @@
-app.lazy.controller('FinanceCtrl', function($rootScope, $scope, $routeParams, $http, $q, $timeout, config, Easy, Data, Auth){
-	$scope.temp = {};
-	it.http = $http
-	
+app.lazy.controller('PlaidTest', function($scope, $http, Auth, config) {
+
 	var tools = $scope.tools = {
-		init: function(){
-			Auth.init().then(function(){
-				tools.plaid.load();
-			});
-		},
-		plaid: {
-			connect: function(req){
-				$http.post(config.parse.root+'/functions/plaidConnect', req).success(function(data){
-					it.plaidConnect = data;
-					// $scope.temp.access_token = data.access_token;
-				}).error(function(response){
-					console.error('Finance error', response)
-				})	
-			},
-			connectStep: function(code, access_token){
-				var req = {
-					mfa: code,
-					access_token: access_token
+		plaid: function() {
+			var plaid = Plaid.create({
+				env: 'tartan',
+				clientName: 'Client Name',
+				key: 'test_key',
+				product: 'auth',
+				longTail: true,
+				onLoad: function() {
+					// The Link module finished loading.
+				},
+				onSuccess: function(public_token, metadata) {
+					// Send the public_token to your app server here.
+					// The metadata object contains info about the institution the
+					// user selected and the account ID, if selectAccount is enabled.
+					console.log(public_token, metadata)
+					$http.post(config.parse.root + '/functions/plaidConnect', metadata).success(function(data) {
+						$scope.plaid = data.result;
+					})
+				},
+				onExit: function() {
+					// The user exited the Link flow.
 				}
-				$http.post(config.parse.root+'/functions/plaidConnectStep', req).success(function(data){
-					it.plaidConnectStep = data;
-				}).error(function(response){
-					console.error('Finance error', response)
-				})	
-			},
-			load: function(){
-				$http.post(config.parse.root+'/functions/plaidTransactions', {}).success(function(data){
-					$scope.bank = data.result;
-				}).error(function(response){
-					console.error('Finance error', response)
-				})	
+			});
+			plaid.open();
+		},
+		account: {
+			focus: function(account){
+				$scope.focus = account;
+				if(account)
+					$scope.search = {_account: account._id}
+				else
+					$scope.search = undefined;
 			}
 		}
 	}
-	it.FinanceCtrl = $scope;
+
+	it.PlaidTest = $scope;
 });
