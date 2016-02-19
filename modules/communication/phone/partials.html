@@ -1,0 +1,122 @@
+<script type="text/ng-template" id="undefined.rule">
+	<p>Rule not available.</p>
+</script>
+
+<script type="text/ng-template" id="time.rule">
+<table class="table">
+	<tr>
+		<th>Day</th>
+		<th>Start</th>
+		<th>End</th>
+		<th>Flow</th>
+		<th>Remove</th>
+	</tr>
+	<tr ng-repeat="time in rule.times">
+		<td><select class="form-control" ng-options="day for day in days" ng-model="time.day"></select></td>
+		<td><input type="time" class="form-control" ng-model="time.start" title="Start time"></td>
+		<td><input type="time" class="form-control" ng-model="time.end" title="End time"></td>
+		<td><select class="form-control" ng-options="index as flow.title for (index, flow) in number.flows" ng-model="time.flow"></select></td>
+		<td>
+			<a class="btn btn-danger" ng-click="tools.item.remove(rule.times, time)">Delete</a>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">All Other Times</td>
+		<td><select class="form-control" ng-options="index as flow.title for (index, flow) in number.flows" ng-model="rule.default"></select></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr class="bg-info">
+		<td><select class="form-control" ng-options="day for day in days" ng-model="block.day"></select></td>
+		<td><input type="time" class="form-control" ng-model="block.start" title="Start time"></td>
+		<td><input type="time" class="form-control" ng-model="block.end" title="End time"></td>
+		<td><select class="form-control" ng-options="index as flow.title for (index, flow) in number.flows" ng-model="block.flow"></select></td>
+		<td>
+			<button type="submit" class="btn btn-success" ng-click="tools.item.copyTo(rule.times, block)">Add</button>
+		</td>
+	</tr>
+</table>
+</script>
+
+<script type="text/ng-template" id="number.rule">
+<div>
+	<h1>Number</h1>
+	<h2>From || To (This number) || Rule</h2>
+</div>
+</script>
+
+<script type="text/ng-template" id="table.rule">
+<div>
+	<h1>Table</h1>
+	<h2>Table || Query || Rule</h2>
+</div>
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/ng-template" id="say.action">
+<div class="panel panel-default">
+	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}say{{$index}}">Say</div>
+	<div id="rule{{$parent.$parent.$index}}say{{$index}}" class="panel-body collapse">
+		<select class="form-control" ng-model="action.how">
+			<option value="text">Text</option>
+			<option value="url">MP3</option>
+			<option value="qry">Lookup</option>
+		</select>
+		<div ng-show="action.how=='text'">
+			<textarea class="form-control" ng-model="action.text" placeholder="What to say"></textarea>
+		</div>
+		<div ng-show="action.how=='url'">
+			<input type="url" class="form-control" ng-model="action.url" placeholder="URL">
+		</div>
+		<div ng-show="action.how=='qry'">
+			<table class="table">
+				<tr>
+					<td><input type="text" class="form-control" ng-model="action.qry.table" placeholder="Table"></td>
+					<td><input type="text" class="form-control" ng-model="action.qry.col" placeholder="Query Column"></td>
+					<td><input type="text" class="form-control" ng-model="action.qry.what" placeholder="Query Value"></td>
+				</tr>
+				<tr colspan="3">
+					<td><textarea class="form-control" ng-model="action.text" ng-non-bindable placeholder="This is: {{data.column}}"></textarea></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="forward.action">
+<div class="panel panel-default">
+	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}forward{{$index}}">Forward</div>
+	<div id="rule{{$parent.$parent.$index}}forward{{$index}}" class="panel-body collapse">
+		<select class="form-control" ng-model="action.how">
+			<option value="number">Number</option>
+			<option value="endpoint">Endpoint</option>
+			<option value="qry">Lookup</option>
+		</select>
+		<div ng-show="action.how=='number'">
+			<input type="number" class="form-control" ng-model="action.number" placeholder="Number">
+		</div>
+		<div ng-show="action.how=='endpoint'">
+			<select class="form-control" ng-options="endpoint for endpoint in endpointList" ng-model="action.endpoint"></select>
+		</div>
+		<div ng-show="action.how=='qry'">
+			<table class="table">
+				<tr>
+					<td><input type="text" class="form-control" ng-model="action.qry.table" placeholder="Table"></td>
+					<td><input type="text" class="form-control" ng-model="action.qry.col" placeholder="Query Column"></td>
+					<td><input type="text" class="form-control" ng-model="action.qry.what" placeholder="Query Value"></td>
+					<td><input type="text" class="form-control" ng-model="action.column" placeholder="Forwarding Column"></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+</script>

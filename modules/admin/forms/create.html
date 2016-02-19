@@ -100,16 +100,33 @@
 	
 	
 	<div class="modal fade" id="properties" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title">Form Properties</h4>
 				</div>
 				<div class="modal-body">
-					<input type="text" 	class="form-control" 	placeholder="Title"			ng-model="form.title">
-					<textarea 			class="form-control" 	placeholder="Description"	ng-model="form.p"></textarea>
-					<input type="text" 	class="form-control" 	placeholder="table_id"		ng-model="form.name" title="This defines the table to which the data will be saved.">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Title</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" placeholder="Title" ng-model="form.title">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Description</label>
+							<div class="col-sm-9">
+								<textarea class="form-control" placeholder="Description" ng-model="form.p"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Table</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" placeholder="table_id" ng-model="form.name" title="This defines the table to which the data will be saved.">
+							</div>
+						</div>
+					</form>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -129,7 +146,7 @@
 						<ul class="nav nav-tabs" role="tablist">
 							<li role="presentation" class="active"><a href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a></li>
 							<li role="presentation"><a href="#calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
-							<li role="presentation"><a href="#redirect" aria-controls="redirect" role="tab" data-toggle="tab">Redirect</a></li>
+							<li role="presentation"><a href="#redirect" aria-controls="redirect" role="tab" data-toggle="tab">On Submit</a></li>
 						</ul>
 						
 						<!-- Tab panes -->
@@ -237,7 +254,22 @@
 								</div>
 								<a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'actions', {type:'calendar',active:true,userId:user.objectId})">Add Workflow</a>	
 							</div>
-							<div role="tabpanel" class="tab-pane" id="redirect">Comming Soon</div>
+							<div role="tabpanel" class="tab-pane" id="redirect">
+								<form class="form-horizontal">
+									<div class="form-group">
+										<label class="col-sm-3 control-label">On Submit Message</label>
+										<div class="col-sm-9">
+											<textarea class="form-control" placeholder="Message" ng-model="form.onSubmit.message"></textarea>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">On Submit Link</label>
+										<div class="col-sm-9">
+											<input type="text" class="form-control" ng-model="form.onSubmit.link" placeholder="https://  http://  #/">
+										</div>
+									</div>
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -256,6 +288,36 @@
 				</div>
 				<div class="modal-body">
 					<p class="alert alert-warning">The sharing permissions for this form do not reflect sharing permissions of the data its self.</p>
+					<table class="table">
+						<tr>
+							<th>Entity</th>
+							<th>Read</th>
+							<th>Write</th>
+							<th>Remove</th>
+						</tr>
+						<tr>
+							<td>Public</td>
+							<td><input type="checkbox" ng-model="form.pAcl.read"></td>
+							<td><input type="checkbox" ng-model="form.pAcl.write" disabled></td>
+							<td></td>
+						</tr>
+						</tr>
+						<tr ng-repeat="acl in form.acl">
+							<td>
+								<select class="form-control" ng-model="acl.role" ng-show="acl.type=='role'" ng-options="role.name as role.name for role in roles"></select>
+								<select class="form-control" ng-model="acl.user" ng-show="acl.type=='user'" ng-options="user.objectId as user.username for user in users"></select>
+							</td>
+							<td><input type="checkbox" ng-model="acl.read" ng-disabled="form.pAcl.read"></td>
+							<td><input type="checkbox" ng-model="acl.write" ng-disabled="form.pAcl.write"></td>
+							<td><i class="fa fa-trash" ng-click="tools.item.remove(form.acl, acl)"></i></td>
+						</tr>
+					</table>
+					<table class="table">
+						<tr>
+							<td><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'acl', {type:'role'})">Add Role</a></td>
+							<td><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'acl', {type:'user'})">Add User</a></td>
+						</tr>
+					</table>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -218,7 +218,12 @@ app.factory('User', function ($http, $q, $timeout, config) {
 							deferred.resolve(gAuth)
 						});
 					}catch(e){
-						//listen...
+						console.error(e);
+						// $timeout(function(){
+						// 	tools.google.auth().then(function(gAuth){
+						// 		deferred.resolve(gAuth)
+						// 	})
+						// }, 1000)
 					}
 					return deferred.promise;
 				},
@@ -869,23 +874,6 @@ app.factory('GeoService', function ($q) {
 	it.GeoService = GeoService;
 	return GeoService;
 });
-// app.factory('FileService', function ($http, $q) {
-// 	var FileService = {
-// 		upload:function(name,b64){
-// 			var deferred = $q.defer();
-// 			var file = new Parse.File(name, { base64: b64});
-// 			file.save().then(function(data) {
-// 				deferred.resolve(data);
-// 			}, function(error) {
-// 				deferred.reject(error);
-// 			});
-// 			return deferred.promise;
-// 		}
-// 	}
-// 	it.FileService = FileService;
-// 	return FileService;
-// });
-
 app.factory('Documents', function ($rootScope, $http, $q, Auth, Data, FileService) {
 	var Docs		= Data({
 		className: 	'Documents',

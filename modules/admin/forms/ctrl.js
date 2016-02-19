@@ -45,6 +45,7 @@ app.lazy.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routePa
 app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $routeParams, Parse, Auth, Google) {
 	var Forms = new Parse('Forms');
 	var Users = new Parse('_User');
+	var Roles = new Parse('_Role');
 	
 	//The following variables make it possible to work with nested input groups.
 	var ePromise;
@@ -222,16 +223,52 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						$scope.form = form;
 						$scope.form.title = $scope.form.title + ' (copy)'
 						toastr.success('Form Copied!')
+					}, function(e){
+						form = angular.copy($scope.form)
+						delete form.objectId;
+						$scope.form = form;
+						$scope.form.title = $scope.form.title + ' (copy)'
+						toastr.success('Form Copied!')
 					});
 			},
+			format: function(form){
+				var acl = {'*':{},'Admin':{read:true,write:true}};
+				if(!form.objectId)
+					acl[$scope.user.objectId] = {
+						read: true,
+						write: true
+					}
+				if(form.pAcl){
+					acl['*'].read = form.pAcl.read
+					acl['*'].write = form.pAcl.write
+				}
+				if(form.acl)
+					form.acl.forEach(function(item){
+						acl[item[item.type]] = {
+							read: item.read,
+							write: item.write
+						}
+					})
+				delete form.acl
+				delete form.pAcl
+				form.ACL = acl
+				return form;
+			},
 			save: function(){
-				var error = tools.form.errors($scope.form.fields)
+				var form = angular.copy($scope.form)
+					form = tools.form.format(form);
+				var error = tools.form.errors(form.fields)
 				if(error)
 					alert('You need to rename the column for: '+error.title)
 				else
-					Forms.save($scope.form).then(function(form){
+					Forms.save(form).then(function(form){
 						$scope.form = form;
 						toastr.success('Form Saved!')
+					}, function(e){
+						if(e.code == 101)
+							toastr.error('It looks like you do not have permission to edit this form');
+						else
+							toastr.error(e.error);
 					})
 			},
 			delete: function(){
@@ -304,6 +341,8 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 		},
 		modal: function(id){
 			$('#'+id).modal('show');
+		},
+		permissions: {
 		}
 	}
 	
@@ -314,6 +353,9 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 		})
 		Users.list().then(function(list){
 			$scope.users = list;
+		})
+		Roles.list().then(function(list){
+			$scope.roles = list;
 		})
 	})
 	
@@ -496,8 +538,12 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 					data: 	$scope.data
 				}
 				$http.post('https://api.parse.com/1/functions/formSubmit', request).success(function(resp){
+					tools.form.redirect(form);
 					toastr.success('Form Saved!')
 				})
+			},
+			redirect: function(form){
+				
 			}
 		},
 		item: {

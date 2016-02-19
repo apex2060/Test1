@@ -110,7 +110,13 @@ map {
 .bg-danger{
 	background-color: #f2dede !important;
 }
-
+.dropdown [disabled=disabled],
+.dropdown [disabled=disabled]:visited ,
+.dropdown [disabled=disabled]:active,
+.dropdown [disabled=disabled]:hover {
+    background-color:#d9d9d9 !important;
+    color:#aaa !important;
+}
 
 
 #wrapper{

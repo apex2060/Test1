@@ -156,9 +156,18 @@ var inc = [
 	'//cdn.plaid.com/link/stable/link-initialize.js'
 ]
 
+var letsBegin = null;
+var authPromise = new Promise(function(resolve, reject) {
+	letsBegin = function(){
+		resolve();
+	}
+});
+
 require(inc, function(){
 	require(['vendor/angular-chart.js'], function(){
-		angular.bootstrap(document, ['RootApp']);
+		authPromise.then(function(){
+			angular.bootstrap(document, ['RootApp']);
+		})
 	})
 })
 
