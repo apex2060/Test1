@@ -206,6 +206,18 @@ app.factory('User', function ($http, $q, $timeout, config) {
 				return deferred.promise;
 			},
 			google: {
+				offlineLink: function(){
+					var services = ['email','profile','https://www.googleapis.com/auth/calendar','https://www.googleapis.com/auth/drive'];
+					var scope = services.join("%20")
+					return 'https://accounts.google.com/o/oauth2/auth?'+
+						'&scope='+scope+
+						'&redirect_uri='+config.oauth+
+						'&response_type=code'+
+						'&access_type=offline'+
+						'&client_id='+config.google.client_id+
+						'&approval_prompt=force'+
+						'&state='+my.objectId
+				},
 				auth: function(immediate){
 					var deferred = $q.defer();
 					try{
@@ -637,7 +649,10 @@ app.factory('Parse', function($http, $q, config, Auth){
 			var deferred = $q.defer();
 			if(ds.immediate)
 				$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
-					deferred.resolve(data.results)
+					if(data.results)
+						deferred.resolve(data.results)
+					else
+						deferred.resolve(data)
 				}).error(function(e){
 					deferred.reject(e);
 				})

@@ -172,8 +172,7 @@
 													<div class="form-group">
 														<label class="col-sm-2 control-label">To: </label>
 														<div class="col-sm-10">
-															<input type="email" class="form-control" placeholder="Email" ng-model="action.to">
-															<select class="form-control" ng-model="action.to" ng-options="user.username as user.username for user in users"></select>
+															<input type="text" class="form-control" placeholder="Email" ng-model="action.to">
 														</div>
 													</div>
 													<div class="form-group">
@@ -199,6 +198,13 @@
 							</div>
 							<div role="tabpanel" class="tab-pane" id="calendar">
 								<p class="alert alert-info">When someone submits this form, an entry will be added to the following calendars.</p>
+								<div class="alert alert-warning" ng-hide="calendars">
+									<p>You will need to link your google account to utilize this feature. </p>
+									<ol>
+										<li><a target="_blank" href="{{user.tools.google.offlineLink()}}">Link Account</a></li>
+										<li><a ng-click="tools.workflow.loadCalendars()">Load Calendar List</a></li>
+									</ol>
+								</div>
 								<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 									<div class="panel panel-default" ng-repeat="action in form.actions | filter:{type:'calendar'}">
 										<div class="panel-heading" role="tab" id="headingOne" title="Active: {{action.active}}">
@@ -302,7 +308,7 @@
 							<td></td>
 						</tr>
 						</tr>
-						<tr ng-repeat="acl in form.acl">
+						<tr ng-repeat="acl in form.acl" ng-hide="acl.role == 'Admin'">
 							<td>
 								<select class="form-control" ng-model="acl.role" ng-show="acl.type=='role'" ng-options="role.name as role.name for role in roles"></select>
 								<select class="form-control" ng-model="acl.user" ng-show="acl.type=='user'" ng-options="user.objectId as user.username for user in users"></select>

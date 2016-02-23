@@ -4,6 +4,8 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $q, Au
 	$scope.moment = moment;
 	$scope.Data = {};
 	$scope.data = {};
+	$scope.params = $routeParams;
+	$scope.search = $location.search();
 	$scope.template = '';
 	var defaultPage = {
 		permalink: $routeParams.view,
@@ -67,7 +69,7 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $q, Au
 				$scope.template = page.template;
 				eval('$scope.js = '+page.js)
 				if($scope.js && $scope.js.init)
-					$scope.js.init($scope.data);
+					$scope.data = $scope.js.init($scope.data) || $scope.data;
 			})
 		},
 		data: {

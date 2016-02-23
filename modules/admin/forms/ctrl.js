@@ -156,7 +156,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				if($routeParams.action=='create'){
 					if($routeParams.id){
 						Forms.get($routeParams.id).then(function(form){
-							$scope.form = angular.copy(form);
+							$scope.form = tools.form.unpack(angular.copy(form))
 						})
 					}else{
 						tools.form.new();
@@ -169,9 +169,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						$scope.form.name = 'ud_'+newValue
 				}
 			}, true)
-			Google.calendar.list('writer').then(function(calendars){
-				$scope.calendars = calendars;
-			})
+			tools.workflow.loadCalendars()
 		},
 		item: {
 			add: function(parent, attr, item){
@@ -231,8 +229,25 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						toastr.success('Form Copied!')
 					});
 			},
-			format: function(form){
-				var acl = {'*':{},'Admin':{read:true,write:true}};
+			unpack: function(form){
+				if(!form.acl)
+					return form;
+				var keys = Object.keys(form.ACL)
+				form.acl = [];
+				keys.forEach(function(key){
+					var acl = form.ACL[key]; //read write params
+						acl.type = 'user';
+					if(key.indexOf('role:') != -1){
+						acl.type = 'role';
+						key = key.replace('role:', '')
+					}
+					acl[acl.type] = key;
+					form.acl.push(acl)
+				})
+				return form;
+			},
+			pack: function(form){
+				var acl = {'*':{},'role:Admin':{read:true,write:true}};
 				if(!form.objectId)
 					acl[$scope.user.objectId] = {
 						read: true,
@@ -244,7 +259,10 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				}
 				if(form.acl)
 					form.acl.forEach(function(item){
-						acl[item[item.type]] = {
+						var extension = '';
+						if(item.type == 'role')
+							extension = 'role:'
+						acl[extension+item[item.type]] = {
 							read: item.read,
 							write: item.write
 						}
@@ -256,7 +274,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			},
 			save: function(){
 				var form = angular.copy($scope.form)
-					form = tools.form.format(form);
+					form = tools.form.pack(form);
 				var error = tools.form.errors(form.fields)
 				if(error)
 					alert('You need to rename the column for: '+error.title)
@@ -335,6 +353,11 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			}
 		},
 		workflow:{
+			loadCalendars: function(){
+				Google.calendar.list('writer').then(function(calendars){
+					$scope.calendars = calendars;
+				})
+			},
 			toggle: function(action){
 				action.active = !action.active;
 			}
@@ -391,6 +414,7 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 					if($routeParams.action=='fill'){
 						if($routeParams.id){
 							Forms.get($routeParams.id).then(function(form){
+								$scope.orig = form;
 								$scope.form = angular.copy(form);
 								Data = new Parse(form.name);
 								deferred.resolve($scope.form);
@@ -513,7 +537,6 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 				var data = {}
 				for(var i=0; i<fields.length; i++){
 					(function(field){
-						console.log('field', field)
 						if(field.array){
 							var arr = [];
 							for(var i=0; i<field.value.length; i++){
@@ -537,13 +560,35 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 					dataId: $scope.data.objectId,
 					data: 	$scope.data
 				}
-				$http.post('https://api.parse.com/1/functions/formSubmit', request).success(function(resp){
-					tools.form.redirect(form);
+				$http.post('https://api.parse.com/1/functions/formSubmit', request).success(function(data){
+					$scope.data.objectId = data.result.objectId
+					tools.form.end.modal();
 					toastr.success('Form Saved!')
 				})
 			},
-			redirect: function(form){
-				
+			end: {
+				modal: function(form){
+					$('#endOptions').modal('show');
+				},
+				continue: function(){
+					$scope.form = angular.copy($scope.orig);
+					tools.form.import($scope.form.fields, $scope.data).then(function(fields){
+						$scope.form.fields = fields;
+						$('#endOptions').modal('hide');
+					})
+				},
+				keepData: function(){
+					delete $scope.data.objectId;
+					$('#endOptions').modal('hide');
+				},
+				clearAll: function(){
+					$scope.data = {};
+					$scope.form = angular.copy($scope.orig);
+					tools.form.import($scope.form.fields, {}).then(function(fields){
+						$scope.form.fields = fields;
+					})
+					$('#endOptions').modal('hide');
+				},
 			}
 		},
 		item: {

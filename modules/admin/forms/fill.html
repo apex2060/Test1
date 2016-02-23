@@ -35,4 +35,23 @@
 			<button type="submit" class="btn btn-success pull-right" ng-click="tools.form.save()">Save</button>
 		</form>
 	</div>
+	
+	<div class="modal fade" id="endOptions" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Data Saved</h4>
+				</div>
+				<div class="modal-body">
+					<p>{{form.onSubmit.message || 'Thank You!'}}</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-block btn-default" ng-click="tools.form.end.continue()">Continue Making Changes.</button>
+					<button type="button" class="btn btn-block btn-info" ng-click="tools.form.end.keepData()">Keep Data, but submit another.</button>
+					<button type="button" class="btn btn-block btn-warning" ng-click="tools.form.end.clearAll()">Clear Data, and submit another.</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
