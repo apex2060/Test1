@@ -1,0 +1,167 @@
+<div class="container" ng-controller="CommunicationCtrl">
+	<style>
+		#addComm {
+			position: fixed;
+			top: 52px;
+			z-index: 1000;
+			width: 1140px;
+			box-shadow: 5px 5px 20px;
+		}
+	</style>
+	<div class="page-header">
+		<nav class="navbar navbar-default" sticky offset="50">
+			<div class="container-fluid">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand">Communication</a>
+				</div>
+		
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li><a href="#">With: </a></li>
+					</ul>
+					<form class="navbar-form navbar-left" role="search">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="Search">
+						</div>
+					</form>
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Filter <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">By Time</a></li>
+								<li><a href="#">By Contact</a></li>
+								<li><a href="#">By Method</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">Inbox</a></li>
+								<li><a href="#">Show All</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">View <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">Timeline</a></li>
+								<li><a href="#">Table</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">New <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="tools.new('call')">Call</a></li>
+								<li><a ng-click="tools.new('text')">Text</a></li>
+								<li><a ng-click="tools.new('email')">Email</a></li>
+								<li><a ng-click="tools.new('fax')">Fax</a></li>
+								<li><a ng-click="tools.new('snail')">Snail</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">Social Media</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				<!-- /.navbar-collapse -->
+			</div>
+			<!-- /.container-fluid -->
+		</nav>
+	</div>
+	<!--<div id="addComm" class="panel panel-default wow bounceInDown" ng-show="newComm.show">-->
+	<!--	<div class="panel-heading">-->
+	<!--		<span>Create: {{newComm.type}}</span>-->
+	<!--		<button type="button" class="close" aria-label="Close" ng-click="newComm.show = false"><span aria-hidden="true">&times;</span></button>-->
+	<!--	</div>-->
+	<!--	<div class="panel-body" ng-include="newComm.type+'.new'"></div>-->
+	<!--</div>-->
+	<div ng-include="tools.view()"></div>
+	
+	
+	
+	<script type="text/ng-template" id="options.new">
+		<div class="panel-heading">
+			<h4 class="panel-title">New Communication</h4>
+		</div>
+		<ul class="list-group">
+			<a class="list-group-item" ng-click="tools.new('call')">Call</a>
+			<a class="list-group-item" ng-click="tools.new('text')">Text</a>
+			<a class="list-group-item" ng-click="tools.new('email')">Email</a>
+			<a class="list-group-item" ng-click="tools.new('fax')">Fax</a>
+			<a class="list-group-item" ng-click="tools.new('snail')">Snail</a>
+			<a class="list-group-item" href="#">Social Media</a>
+		</ul>
+	</script>
+	<script type="text/ng-template" id="call.new">
+		<div class="panel-heading">
+			<h4 class="panel-title">New Call</h4>
+		</div>
+		<ul class="list-group">
+			<li class="list-group-item"><input type="tel" class="form-control" placeholder="To"></li>
+		</ul>
+		<div class="panel-footer clearfix">
+			<a class="btn btn-success pull-right">Call</a>
+		</div>
+	</script>
+	<script type="text/ng-template" id="text.new">
+		<div class="panel-heading">
+			<h4 class="panel-title">New Text</h4>
+		</div>
+		<ul class="list-group">
+			<li class="list-group-item"><input type="tel" class="form-control" placeholder="To"></li>
+			<li class="list-group-item"><textarea class="form-control" placeholder="Message"></textarea></li>
+		</ul>
+		<div class="panel-footer clearfix">
+			<a class="btn btn-success pull-right">Send</a>
+		</div>
+	</script>
+	<script type="text/ng-template" id="email.new">
+		<div class="panel-heading">
+			<h4 class="panel-title">New Email</h4>
+		</div>
+		<ul class="list-group">
+			<li class="list-group-item"><input type="email" class="form-control" placeholder="To"></li>
+			<li class="list-group-item"><input type="text" class="form-control" placeholder="Subject"></li>
+			<li class="list-group-item"><textarea class="form-control" placeholder="Message"></textarea></li>
+		</ul>
+		<div class="panel-footer clearfix">
+			<a class="btn btn-success pull-right">Send</a>
+		</div>
+	</script>
+	<script type="text/ng-template" id="fax.new">
+		<div class="panel-heading">
+			<h4 class="panel-title">New Fax</h4>
+		</div>
+		<ul class="list-group">
+			<li class="list-group-item"><input type="tel" class="form-control" placeholder="From"></li>
+			<li class="list-group-item"><input type="tel" class="form-control" placeholder="To" ng-model="newComm.data.to"></li>
+			<li class="list-group-item"><input type="text" class="form-control" placeholder="Subject" ng-model="newComm.data.subject"></li>
+			<li class="list-group-item" ng-click="tools.addImage(newComm.data, 'attachment')">Attach Document</li>
+		</ul>
+		<div class="panel-footer clearfix">
+			<a class="btn btn-success pull-right" ng-click="tools.fax.send(newComm.data)">Send</a>
+		</div>
+	</script>
+	<script type="text/ng-template" id="snail.new">
+		<div class="panel-heading">
+			<h4 class="panel-title">New Snail</h4>
+		</div>
+		<ul class="list-group" ng-hide="snail">
+			<li class="list-group-item"><input type="tel" class="form-control" placeholder="To"></li>
+			<li class="list-group-item"><textarea class="form-control" placeholder="Address"></textarea></li>
+			<li class="list-group-item" ng-click="tools.addImage(newComm.data, 'front')">Front Of Card</li>
+			<li class="list-group-item" ng-click="tools.addImage(newComm.data, 'back')">Back Of Card</li>
+		</ul>
+		<div class="panel-body" ng-show="snail">
+			<div class="thumbnail">
+				<img ng-src="{{snail.thumbnails[0].medium}}">
+				<img ng-src="{{snail.thumbnails[1].medium}}">
+			</div>
+		</div>
+		<div class="panel-footer clearfix">
+			<a class="btn btn-success pull-right" ng-click="tools.snail.postcard(newComm.data)">Send</a>
+		</div>
+	</script>
+</div>

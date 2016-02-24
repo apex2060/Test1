@@ -615,7 +615,7 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 					item.value = angular.extend(item.value, ol)
 				})
 			},
-			addPictures: function(item){
+			addImages: function(item){
 				cloudinary.openUploadWidget({
 					cloud_name: $scope.config.params.cloudinary.cloud_name,
 					upload_preset: $scope.config.params.cloudinary.preset,

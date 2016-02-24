@@ -1329,3 +1329,12 @@ app.factory('Google',  function($q, $http, config, Auth){
 	}
 	return tools;
 })
+app.factory('Cloudinary', function(){
+	var tools = {
+		resize: function(src, width, height){
+			src = src.split('upload')
+			return src[0]+'upload/w_'+width+',h_'+height+src[1]
+		}
+	}
+	return tools;
+})
