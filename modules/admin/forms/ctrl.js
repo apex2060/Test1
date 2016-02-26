@@ -156,7 +156,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				if($routeParams.action=='create'){
 					if($routeParams.id){
 						Forms.get($routeParams.id).then(function(form){
-							$scope.form = tools.form.unpack(angular.copy(form))
+							$scope.form = angular.copy(form)
 						})
 					}else{
 						tools.form.new();
@@ -169,7 +169,10 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						$scope.form.name = 'ud_'+newValue
 				}
 			}, true)
-			tools.workflow.loadCalendars()
+			tools.workflow.loadCalendars();
+			Parse.prototype.schema().then(function(schema){
+				$scope.schema = schema
+			})
 		},
 		item: {
 			add: function(parent, attr, item){
@@ -204,6 +207,9 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			}
 		},
 		form: {
+			acl: function(){
+				Forms.ACL.modal($scope.form, 'The sharing permissions for this form do not reflect sharing permissions of the data its self.')
+			},
 			new: function(){
 				if(!$scope.form || confirm('Any unsaved work will be lost, do you wish to continue?')){
 					$scope.form = angular.copy(formTemplate);
@@ -222,59 +228,11 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						$scope.form.title = $scope.form.title + ' (copy)'
 						toastr.success('Form Copied!')
 					}, function(e){
-						form = angular.copy($scope.form)
-						delete form.objectId;
-						$scope.form = form;
-						$scope.form.title = $scope.form.title + ' (copy)'
-						toastr.success('Form Copied!')
+						toastr.error(e)
 					});
-			},
-			unpack: function(form){
-				if(!form.acl)
-					return form;
-				var keys = Object.keys(form.ACL)
-				form.acl = [];
-				keys.forEach(function(key){
-					var acl = form.ACL[key]; //read write params
-						acl.type = 'user';
-					if(key.indexOf('role:') != -1){
-						acl.type = 'role';
-						key = key.replace('role:', '')
-					}
-					acl[acl.type] = key;
-					form.acl.push(acl)
-				})
-				return form;
-			},
-			pack: function(form){
-				var acl = {'*':{},'role:Admin':{read:true,write:true}};
-				if(!form.objectId)
-					acl[$scope.user.objectId] = {
-						read: true,
-						write: true
-					}
-				if(form.pAcl){
-					acl['*'].read = form.pAcl.read
-					acl['*'].write = form.pAcl.write
-				}
-				if(form.acl)
-					form.acl.forEach(function(item){
-						var extension = '';
-						if(item.type == 'role')
-							extension = 'role:'
-						acl[extension+item[item.type]] = {
-							read: item.read,
-							write: item.write
-						}
-					})
-				delete form.acl
-				delete form.pAcl
-				form.ACL = acl
-				return form;
 			},
 			save: function(){
 				var form = angular.copy($scope.form)
-					form = tools.form.pack(form);
 				var error = tools.form.errors(form.fields)
 				if(error)
 					alert('You need to rename the column for: '+error.title)
@@ -362,10 +320,15 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				action.active = !action.active;
 			}
 		},
+		onSubmit: {
+			acl: function(){
+				if(!$scope.form.onSubmit)
+					$scope.form.onSubmit = {ACL: {}};
+				Forms.ACL.modal($scope.form.onSubmit, 'All data submitted through this form will be saved with the following rules applied.')
+			}
+		},
 		modal: function(id){
 			$('#'+id).modal('show');
-		},
-		permissions: {
 		}
 	}
 	
@@ -562,8 +525,15 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 				}
 				$http.post('https://api.parse.com/1/functions/formSubmit', request).success(function(data){
 					$scope.data.objectId = data.result.objectId
-					tools.form.end.modal();
-					toastr.success('Form Saved!')
+					if(!form.onSubmit)
+						form.onSubmit = {};
+					var message = $scope.form.onSubmit.message || 'Form Saved!'
+					toastr.success(message)
+						
+					if(form.onSubmit.link)
+						window.location = form.onSubmit.link
+					else
+						tools.form.end.modal();
 				})
 			},
 			end: {

@@ -613,7 +613,7 @@ app.factory('ParseData', function ($rootScope, $timeout, $http, $q, config, Auth
 	it.ParseData = ParseData;
 	return ParseData;
 });
-app.factory('Parse', function($http, $q, config, Auth){
+app.factory('Parse', function($rootScope, $http, $q, config, Auth){
 	var Parse = function(className, immediate){
 		var ds = this;
 		ds.className = className;
@@ -719,6 +719,111 @@ app.factory('Parse', function($http, $q, config, Auth){
 			})
 			return deferred.promise;
 		}
+		ds.ACL = {
+			init: function(){
+				if(!$rootScope.users){
+					Auth.init().then(function(){
+						$http.get(config.parse.root+'/classes/_User').success(function(data){
+							$rootScope.users = data.results
+						})
+						$http.get(config.parse.root+'/classes/_Role').success(function(data){
+							$rootScope.roles = data.results
+						})
+					});
+				}
+			},
+			modal: function(object, message){
+				object = object || {}
+				var deferred = $q.defer();
+				ds.ACL.init();
+				$rootScope.ACL = {
+					deferred: deferred,
+					object: ds.ACL.unpack(object),
+					message: message,
+					tools: ds.ACL
+				};
+				$('#ACL').modal({
+					keyboard: false,
+					backdrop: 'static',
+					show: true
+				});
+				return deferred.promise;
+			},
+			close: function(){
+				var object = ds.ACL.pack($rootScope.ACL.object)
+				$('#ACL').modal('hide');
+				$rootScope.ACL.deferred.resolve(object)
+			},
+			add: function(type){
+				if(!$rootScope.ACL.object.acl)
+					$rootScope.ACL.object.acl = []
+				$rootScope.ACL.object.acl.push({type:type})
+			},
+			remove: function(acl){
+				var i = $rootScope.ACL.object.acl.indexOf(acl)
+				$rootScope.ACL.object.acl.splice(i, 1)
+			},
+			verify: function(){
+				//This will need to check to make sure the current user will still have access
+				//If the current user will not have access, then prompt to see if they still 
+				//want to set those permissions.
+			},
+			unpack: function(object){
+				if(!object.ACL)
+					return object;
+				var keys = Object.keys(object.ACL)
+				object.acl = [];
+				keys.forEach(function(key){
+					var acl = object.ACL[key]; //read write params
+						acl.type = 'user';
+					if(key.indexOf('*') != -1){
+						acl.type = 'all';
+						object.pAcl = acl;
+					}else if(key.indexOf('role:') != -1){
+						acl.type = 'role';
+						key = key.replace('role:', '')
+					}
+					if(acl.type != 'all'){
+						acl[acl.type] = key;
+						object.acl.push(acl)
+					}
+				})
+				return object;
+			},
+			pack: function(object){
+				var acl = {'*':{},'role:Admin':{read:true,write:true}};
+				if(!object.ACL)
+					acl[Auth.objectId] = {
+						read: true,
+						write: true
+					}
+				if(object.pAcl){
+					acl['*'].read = object.pAcl.read
+					acl['*'].write = object.pAcl.write
+				}
+				if(object.acl)
+					object.acl.forEach(function(item){
+						var extension = '';
+						if(item.type == 'role')
+							extension = 'role:'
+						acl[extension+item[item.type]] = {
+							read: item.read,
+							write: item.write
+						}
+					})
+				delete object.acl
+				delete object.pAcl
+				object.ACL = acl
+				return object;
+			}
+		}
+	}
+	Parse.prototype.schema = function(){
+		var deferred = $q.defer();
+		$http.post('https://api.parse.com/1/functions/schema').success(function(data){
+			deferred.resolve(data.result)
+		})
+		return deferred.promise;
 	}
 	return Parse;
 }) //A simple shell for getting and saving data.
@@ -1331,9 +1436,10 @@ app.factory('Google',  function($q, $http, config, Auth){
 })
 app.factory('Cloudinary', function(){
 	var tools = {
-		resize: function(src, width, height){
+		resize: function(src, width, height, style){
+			style = style || 'c_fill'
 			src = src.split('upload')
-			return src[0]+'upload/w_'+width+',h_'+height+src[1]
+			return src[0]+'upload/w_'+width+',h_'+height+','+style+src[1]
 		}
 	}
 	return tools;

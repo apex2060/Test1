@@ -1,5 +1,5 @@
-<div class="container" ng-controller="AdminFormsCreateCtrl">
-	<!--<nav class="navbar navbar-default" ng-click="tools.item.focus(form, true)">-->
+<div class="container" ng-controller="AdminFormsCreateCtrl" ng-show="form">
+	<loading ng-hide="form"></loading>
 	<nav class="navbar navbar-default">
 		<div class="container-fluid">
 			<div class="navbar-header">
@@ -9,13 +9,12 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" contenteditable ng-model="form.title">{{form.title}}</a>
+				<a class="navbar-brand" ng-click="tools.modal('properties')">{{form.title}} ({{form.name}})</a>
 			</div>
 	
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<p class="navbar-text"><a target="_new" ng-href="#/admin/tables/{{form.name}}">Table:</a> <span contenteditable ng-model="form.name">{{form.name}}</span></p>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a ng-click="tools.modal('share')"><i class="fa fa-user-plus"></i></a></li>
+					<li><a ng-click="tools.form.acl()"><i class="fa fa-user-plus"></i></a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span class="caret"></span></a>
 						<ul class="dropdown-menu">
@@ -33,7 +32,7 @@
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a ng-click="tools.modal('share')">Share</a></li>
+							<li><a ng-click="tools.form.acl()">Share</a></li>
 							<li><a ng-click="tools.modal('properties')">Properties</a></li>
 							<li><a ng-click="tools.modal('workflow')">Workflow</a></li>
 						</ul>
@@ -146,7 +145,7 @@
 						<ul class="nav nav-tabs" role="tablist">
 							<li role="presentation" class="active"><a href="#email" aria-controls="email" role="tab" data-toggle="tab">Email</a></li>
 							<li role="presentation"><a href="#calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
-							<li role="presentation"><a href="#redirect" aria-controls="redirect" role="tab" data-toggle="tab">On Submit</a></li>
+							<li role="presentation"><a href="#onSubmit" aria-controls="onSubmit" role="tab" data-toggle="tab">On Submit</a></li>
 						</ul>
 						
 						<!-- Tab panes -->
@@ -260,7 +259,7 @@
 								</div>
 								<a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'actions', {type:'calendar',active:true,userId:user.objectId})">Add Workflow</a>	
 							</div>
-							<div role="tabpanel" class="tab-pane" id="redirect">
+							<div role="tabpanel" class="tab-pane" id="onSubmit">
 								<form class="form-horizontal">
 									<div class="form-group">
 										<label class="col-sm-3 control-label">On Submit Message</label>
@@ -274,56 +273,22 @@
 											<input type="text" class="form-control" ng-model="form.onSubmit.link" placeholder="https://  http://  #/">
 										</div>
 									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">Save User To Column</label>
+										<div class="col-sm-9">
+											<input type="text" class="form-control" ng-model="form.onSubmit.savedBy" placeholder="savedBy, requestedBy, reviewedBy...">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-3 control-label">SET ACL</label>
+										<div class="col-sm-9">
+											<div class="well" ng-click="tools.onSubmit.acl()">{{form.onSubmit.ACL? 'Custom ACL' : 'No ACL Set'}}</div>
+										</div>
+									</div>
 								</form>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade" id="share" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Share Form</h4>
-				</div>
-				<div class="modal-body">
-					<p class="alert alert-warning">The sharing permissions for this form do not reflect sharing permissions of the data its self.</p>
-					<table class="table">
-						<tr>
-							<th>Entity</th>
-							<th>Read</th>
-							<th>Write</th>
-							<th>Remove</th>
-						</tr>
-						<tr>
-							<td>Public</td>
-							<td><input type="checkbox" ng-model="form.pAcl.read"></td>
-							<td><input type="checkbox" ng-model="form.pAcl.write" disabled></td>
-							<td></td>
-						</tr>
-						</tr>
-						<tr ng-repeat="acl in form.acl" ng-hide="acl.role == 'Admin'">
-							<td>
-								<select class="form-control" ng-model="acl.role" ng-show="acl.type=='role'" ng-options="role.name as role.name for role in roles"></select>
-								<select class="form-control" ng-model="acl.user" ng-show="acl.type=='user'" ng-options="user.objectId as user.username for user in users"></select>
-							</td>
-							<td><input type="checkbox" ng-model="acl.read" ng-disabled="form.pAcl.read"></td>
-							<td><input type="checkbox" ng-model="acl.write" ng-disabled="form.pAcl.write"></td>
-							<td><i class="fa fa-trash" ng-click="tools.item.remove(form.acl, acl)"></i></td>
-						</tr>
-					</table>
-					<table class="table">
-						<tr>
-							<td><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'acl', {type:'role'})">Add Role</a></td>
-							<td><a class="btn btn-info btn-block" ng-click="tools.item.add(form, 'acl', {type:'user'})">Add User</a></td>
-						</tr>
-					</table>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -3,8 +3,7 @@
 		<div class="timeline-badge" ng-click="tools.new('options')">
 			<i class="glyphicon glyphicon-plus"></i>
 		</div>
-		<div class="timeline-panel panel panel-default" ng-show="newComm.show" ng-include="newComm.type+'.new'">
-		</div>
+		<div ng-show="newComm.show" ng-include="newComm.type+'.new'"></div>
 	</li>
 	<li ng-repeat="thread in threads">
 		<div class="timeline-badge" title="11 hours ago via Twitter"><i class="glyphicon glyphicon-earphone"></i></div>
@@ -37,9 +36,9 @@
 			</div>
 		</div>
 	</li>
-	<li class="timeline-inverted">
+	<li>
 		<div class="timeline-badge warning"><i class="glyphicon glyphicon-credit-card"></i></div>
-		<div class="timeline-panel well">
+		<div class="timeline-panel inverted well">
 			<div class="timeline-heading">
 				<h4 class="timeline-title">Mussum ipsum cacilds</h4>
 			</div>
@@ -64,8 +63,8 @@
 			</div>
 		</div>
 	</li>
-	<li class="timeline-inverted">
-		<div class="timeline-panel">
+	<li>
+		<div class="timeline-panel inverted">
 			<div class="timeline-heading">
 				<h4 class="timeline-title">Mussum ipsum cacilds</h4>
 			</div>
@@ -111,11 +110,11 @@
 			</div>
 		</div>
 	</li>
-	<li class="timeline-inverted">
+	<li>
 		<div class="timeline-badge success"><i class="glyphicon glyphicon-thumbs-up"></i></div>
-		<div class="timeline-panel">
+		<div class="timeline-panel inverted">
 			<div class="timeline-heading">
-				<h4 class="timeline-title">Mussum ipsum cacilds</h4>
+				<h4 class="timeline-title">OPA ipsum cacilds</h4>
 			</div>
 			<div class="timeline-body">
 				<p>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá , depois divoltis porris, paradis. Paisis, filhis, espiritis santis. Mé faiz elementum girarzis, nisi eros vermeio, in elementis mé pra quem é amistosis

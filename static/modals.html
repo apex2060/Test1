@@ -1,0 +1,46 @@
+<div class="modal fade" id="ACL" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Share</h4>
+			</div>
+			<div class="modal-body">
+				<p class="alert alert-warning" ng-show="ACL.message">{{ACL.message}}</p>
+				<table class="table">
+					<tr>
+						<th>Entity</th>
+						<th>Read</th>
+						<th>Write</th>
+						<th>Remove</th>
+					</tr>
+					<tr>
+						<td>Public</td>
+						<td><input type="checkbox" ng-model="ACL.object.pAcl.read"></td>
+						<td><input type="checkbox" ng-model="ACL.object.pAcl.write" disabled></td>
+						<td></td>
+					</tr>
+					</tr>
+					<tr ng-repeat="acl in ACL.object.acl" ng-hide="acl.role == 'Admin'">
+						<td>
+							<select class="form-control" ng-model="acl.role" ng-show="acl.type=='role'" ng-options="role.name as role.name for role in roles"></select>
+							<select class="form-control" ng-model="acl.user" ng-show="acl.type=='user'" ng-options="user.objectId as user.username for user in users"></select>
+						</td>
+						<td><input type="checkbox" ng-model="acl.read" ng-disabled="ACL.object.pAcl.read"></td>
+						<td><input type="checkbox" ng-model="acl.write" ng-disabled="ACL.object.pAcl.write"></td>
+						<td><i class="fa fa-trash" ng-click="ACL.tools.remove(acl)"></i></td>
+					</tr>
+				</table>
+				<table class="table">
+					<tr>
+						<td><a class="btn btn-info btn-block" ng-click="ACL.tools.add('role')">Add Role</a></td>
+						<td><a class="btn btn-info btn-block" ng-click="ACL.tools.add('user')">Add User</a></td>
+					</tr>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" ng-click="ACL.tools.close()">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

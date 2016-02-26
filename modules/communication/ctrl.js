@@ -1,4 +1,4 @@
-app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, Auth, Cloudinary, config){
+app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $sce, Auth, Cloudinary, config){
 
 	var tools = $scope.tools = {
 		init: function(){
@@ -29,11 +29,12 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, A
 			function(error, result) {
 				if (result)
 					item[attr] = {
-						etag: result[0].etag,
-						public_id: result[0].public_id,
-						secure_url: result[0].secure_url,
-						thumbnail_url: result[0].thumbnail_url,
-						url: result[0].url
+						etag: 			result[0].etag,
+						public_id: 		result[0].public_id,
+						trusted_url: 	$sce.trustAsResourceUrl(result[0].secure_url),
+						secure_url: 	result[0].secure_url,
+						thumbnail_url: 	result[0].thumbnail_url,
+						url: 			result[0].url
 					}
 				$scope.$apply();
 			});
@@ -56,9 +57,23 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, A
 			}
 		},
 		snail: {
-			postcard: function(data){
-				var width = '2500'
-				var height = '1700'
+			routes: function(zip){
+				$http.post(config.parse.root+'/functions/snailRoutes', {zip:zip}).success(function(data){
+					$scope.routes = data.result;
+				})
+			},
+			postcard: {
+				prep: function(imgUrl){
+					var width = '2500'
+					var height = '1700'
+					if(imgUrl)
+						return Cloudinary.resize(imgUrl, width, height)
+				}
+			},
+			send: function(data){
+				//[] Get addresses from Google contacts || directory
+				//[] Allow user to specify media type [postcard, letter]
+				//[] Allow users to choose from pre-saved options (front & back)
 				var request = {
 					description: 'Demo Postcard job',
 					to: {
@@ -68,10 +83,10 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, A
 			 			address_state: 'CA',
 			 			address_zip: '94041'
 			 		},
-			 		front: Cloudinary.resize(data.front.secure_url, width, height),
-			 		back: Cloudinary.resize(data.back.secure_url, width, height)
+			 		front: tools.snail.postcard.prep(data.front.secure_url),
+			 		back: tools.snail.postcard.prep(data.back.secure_url),
 				}
-				$http.post(config.parse.root+'/functions/lobPostcard', request).success(function(data){
+				$http.post(config.parse.root+'/functions/snailPostcard', request).success(function(data){
 					$scope.snail = data.result;
 				})
 			}
