@@ -15,7 +15,9 @@ app.controller('SiteCtrl', function($rootScope, config, Auth, User){
 		}
 	})
 	
-	
+	$rootScope.notify = function(type, message){
+		toastr[type](message);
+	}
 	var tools = $rootScope.tools = {
 		clearStorage: function(){
 			if(prompt('Enter Clear Code: ') == '159487')

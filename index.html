@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <!--<html manifest="offline.appcache"> -->
 <html>
@@ -33,6 +32,7 @@
 		<link rel="stylesheet" 	media="screen"		href="/vendor/xeditable.css">
 		<link rel="stylesheet" 	media="screen"		href="/vendor/wow.css">
 		<link rel="stylesheet" 	media="screen"		href="/vendor/toastr/toastr.min.css">
+		<link rel="stylesheet" 	media="screen"		href="/vendor/agGrid/styles/ag-grid.css">
 
 		
 		<!--[if !IE]> -->
@@ -43,13 +43,7 @@
 		<!-- STARTING JS FILES -->
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-animate.min.js"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-resource.min.js"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.min.js"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-touch.min.js"></script>
-
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>  <!--Allows us to dynamically load js-->
-		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> <!-- Styling -->
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.14/require.min.js"></script>
 	</head>
 	
 	
@@ -59,11 +53,7 @@
 		<section class="view {{status}}" id="{{view}}" ng-view><h1 class="fancy">Loading...</h1></section>
 		<footer ng-include="'static/footer.html'"></footer>
 		<div ng-include="'static/modals.html'"></div>
-		
-		<script type="text/javascript" src="/vendor/xeditable.js"></script><!--Nice inline edits-->
-		<script type="text/javascript" src="/vendor/textangular.min.js"></script><!--Nice inline edits-->
-		<script type="text/javascript" src="/vendor/textangular-sanitize.min.js"></script><!--Nice inline edits-->
-		<script type="text/javascript" src="/vendor/textangular-rangy.min.js"></script><!--Nice inline edits-->
+
 		<script type="text/javascript" src="/vendor/angular-sticky.min.js"></script><!--Make things stick-->
 		<script type="text/javascript" src="/vendor/toastr/toastr.min.js"></script><!--Notifications-->
 		
@@ -74,13 +64,9 @@
 		<script type="text/javascript" src="/app/directives.js"></script>
 		<script type="text/javascript" src="/app/services.js"></script>
 		<script type="text/javascript" src="/app/controllers.js"></script>
-		
-		<script type="text/javascript" src="/vendor/angular-dragDrop.js"></script><!--Drag n Drop
-		<!--<script type="text/javascript" src="/vendor/chance.js"></script><!--Random Testing Information-->
-		<script type="text/javascript" src="/vendor/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="/vendor/angular-sortable.js"></script>
+
 		<script type="text/javascript" src="/vendor/pouchdb.min.js"></script>
-		
+		<script type="text/javascript" src="/vendor/vendor.min.js"></script>
 
 	</body>
 </html>

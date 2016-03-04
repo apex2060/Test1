@@ -224,7 +224,7 @@ app.factory('User', function ($http, $q, $timeout, config) {
 						gapi.auth.authorize({
 							client_id: config.google.client_id, 
 							scope: my.data.scopes, 
-							immediate: immediate
+							immediate: immediate,
 						}, function(gAuth){
 							my.gAuth = gAuth;
 							deferred.resolve(gAuth)
@@ -798,17 +798,22 @@ app.factory('Parse', function($rootScope, $http, $q, config, Auth){
 						write: true
 					}
 				if(object.pAcl){
-					acl['*'].read = object.pAcl.read
-					acl['*'].write = object.pAcl.write
+					if(object.pAcl.read)
+						acl['*'].read = object.pAcl.read
+					if(object.pAcl.write)
+						acl['*'].write = object.pAcl.write
 				}
 				if(object.acl)
 					object.acl.forEach(function(item){
-						var extension = '';
-						if(item.type == 'role')
-							extension = 'role:'
-						acl[extension+item[item.type]] = {
-							read: item.read,
-							write: item.write
+						if(item[item.type]){
+							var extension = '';
+							if(item.type == 'role')
+								extension = 'role:'
+							acl[extension+item[item.type]] = {};
+							if(item.read)
+								acl[extension+item[item.type]].read = item.read
+							if(item.write)
+								acl[extension+item[item.type]].write = item.write
 						}
 					})
 				delete object.acl
@@ -1362,6 +1367,23 @@ app.factory('Google',  function($q, $http, config, Auth){
 	var load = {};
 
 	var tools = {
+		request: function(path, data, method){
+			method = method || 'POST'
+			var deferred = $q.defer();
+			$http({
+				method: method,
+				url: path,
+				headers: {
+					Authorization: 'Bearer '+Auth.gAuth.access_token
+				},
+				data: data
+			}).then(function(r){
+				deferred.resolve(r.data);
+			}, function(e){
+				deferred.reject(e.data.error);
+			})
+			return deferred.promise;
+		},
 		auth: {
 			access: function(scope){
 				var deferred = $q.defer();
@@ -1417,6 +1439,12 @@ app.factory('Google',  function($q, $http, config, Auth){
 		        		picker.setVisible(true);
 					})
 		        	return deferred.promise;
+				}
+			},
+			permission: {
+				set: function(fileId, permission){
+					var url = 'https://www.googleapis.com/drive/v3/files/'+fileId+'/permissions?sendNotificationEmail=false'
+					return tools.request(url, permission)
 				}
 			}
 		},

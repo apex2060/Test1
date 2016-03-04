@@ -1,7 +1,7 @@
 var it = {};
 var app = null;
 
-app = angular.module('RootApp', ['ngAnimate','ngResource','ngRoute','ngTouch','xeditable','textAngular','sticky','ui.sortable','chart.js','ngDraggable']);
+app = angular.module('RootApp', ['ngAnimate','ngRoute','ngTouch','sticky','chart.js','ngDraggable']);
 app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide) {
 	app.lazy = {
 		controller: $controllerProvider.register,
@@ -130,19 +130,23 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 });
 
 app.run(['$window', '$rootScope', function($window, $rootScope) {
-	new WOW().init();
+	// new WOW().init();
 	$rootScope.$on('$routeChangeStart', function(next, current) {
-		new WOW().sync();
+		// new WOW().sync();
 	});
 }])
-app.run(function(editableOptions) {
-	editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
-});
 
 
 
 
 var inc = [
+	'//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js',
+	'//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js',
+	
+	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-animate.min.js',
+	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.min.js',
+	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-touch.min.js',
+	
 	'//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js',
 	'//widget.cloudinary.com/global/all.js',
 	'//www.parsecdn.com/js/parse-1.3.1.min.js',
@@ -152,8 +156,12 @@ var inc = [
 	'//apis.google.com/js/client:platform.js?onload=letsBegin',
 	'//maps.google.com/maps/api/js?sensor=true&libraries=geometry,drawing',
 	'//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.js',
-	'//cdnjs.cloudflare.com/ajax/libs/wow/1.0.3/wow.min.js',
-	'//cdn.plaid.com/link/stable/link-initialize.js'
+	'//cdn.plaid.com/link/stable/link-initialize.js',
+	
+	'vendor/jquery-ui.min.js',
+	'vendor/angular-dragDrop.js',
+	'vendor/slick-grid.js',
+	// 'vendor/chance.js'
 ]
 
 var letsBegin = null;

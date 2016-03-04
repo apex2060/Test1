@@ -25,6 +25,8 @@
 							<li><a target="_blank" href="#/admin/tables/{{form.name}}">Data</a></li>
 							<li><a target="_blank" href="#/admin/forms/{{form.objectId}}?action=fill">Fill</a></li>
 							<li role="separator" class="divider"></li>
+							<li><a ng-click="tools.item.undo()">Undo</a></li>
+							<li><a ng-click="tools.item.redo()">Redo</a></li>
 							<li><a ng-click="tools.form.save()">Save</a></li>
 							<li><a ng-click="tools.form.delete()">Delete</a></li>
 						</ul>
@@ -82,11 +84,11 @@
 		
 		<div class="col-md-3">
 			<div sticky media-query="min-width: 1080px" stick-limit="true" offset="50">
-				<div class="well">
+				<div class="well" ng-show="focus.type">
 					<div ng-include="focus.type+'.details'"></div>
 					<hr>
-					<div ng-show="focus.type">
-						<p><label for="asArray"><input id="asArray" type="checkbox" ng-model="focus.array"> As Array</label></p>
+					<div ng-hide="focus.type == 'form'">
+						<p><label for="asArray"><input id="asArray" type="checkbox" ng-model="focus.array"> Allow Multiple</label></p>
 						<p><label for="removeable" ng-show="focus.array"><input id="removeable" type="checkbox" ng-model="focus.removeable"> Allow Remove</label></p>
 					</div>
 				</div>
@@ -128,7 +130,7 @@
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Return</button>
 				</div>
 			</div>
 		</div>
@@ -280,9 +282,9 @@
 										</div>
 									</div>
 									<div class="form-group">
-										<label class="col-sm-3 control-label">SET ACL</label>
+										<label class="col-sm-3 control-label">Data Sharing</label>
 										<div class="col-sm-9">
-											<div class="well" ng-click="tools.onSubmit.acl()">{{form.onSubmit.ACL? 'Custom ACL' : 'No ACL Set'}}</div>
+											<div class="well" ng-click="tools.onSubmit.acl()">{{form.onSubmit.ACL? 'Custom Sharing Set' : 'No Sharing Set'}}</div>
 										</div>
 									</div>
 								</form>
@@ -291,7 +293,70 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Return</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="filePermissions" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">File Permissions</h4>
+				</div>
+				<div class="modal-body">
+					<p class="alert alert-info">Set permissions to share attached files with the following accounts.</p>
+					<div class="panel-group" id="filePermission" role="tablist" aria-multiselectable="true">
+						<div class="panel panel-default" ng-repeat="permission in focus.permissions">
+							<div class="panel-heading" role="tab" id="headingOne">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#filePermission" href="#filePermission{{$index}}" aria-expanded="true" aria-controls="filePermission{{$index}}">
+										<span>Share File with: </span>
+										<span ng-show="permission.type=='domain'">{{permission.domain}}</span>
+										<span ng-hide="permission.type=='domain'">{{permission.emailAddress}}</span>
+									</a>
+									<span class="pull-right">
+										<i class="fa fa-trash" ng-click="tools.item.remove(focus.permissions, permission)"></i>
+									</span>
+								</h4>
+							</div>
+							<div id="filePermission{{$index}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+								<div class="panel-body">
+									<form class="form-horizontal">
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Type: </label>
+											<div class="col-sm-10">
+												<select class="form-control" ng-model="permission.type" ng-options="t for t in gDefault.types"></select>
+											</div>
+										</div>
+										<div class="form-group" ng-show="permission.type == 'user' || permission.type == 'group'">
+											<label class="col-sm-2 control-label">Email</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" placeholder="user@domain.com" ng-model="permission.emailAddress">
+											</div>
+										</div>
+										<div class="form-group" ng-show="permission.type == 'domain'">
+											<label class="col-sm-2 control-label">Domain</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" placeholder="domain.com" ng-model="permission.domain">
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Access: </label>
+											<div class="col-sm-10">
+												<select class="form-control" ng-model="permission.role" ng-options="r for r in gDefault.roles"></select>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a class="btn btn-info btn-block" ng-click="tools.item.add(focus, 'permissions', {})">Add Permissions</a>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Return</button>
 				</div>
 			</div>
 		</div>

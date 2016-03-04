@@ -290,6 +290,7 @@ app.directive('mediaManager', function() {
 	};
 });
 app.directive('fileManager', function() {
+	console.log('fileManager')
 	return {
 		restrict: 'A',
 		replace: true,
@@ -303,6 +304,7 @@ app.directive('fileManager', function() {
 			parent: 	'=parent'
 		},
 		link: function(scope, elem, attrs, ctrl) {
+			console.log('fileManager')
 
 			if(typeof(scope.callback)!='function'){
 				console.error('fileManager: no callback defined.',scope.callback)
@@ -329,6 +331,7 @@ app.directive('fileManager', function() {
 					e.preventDefault();
 				}
 				file = e.target.files[0];
+				it.f = file;
 				if(file){
 					name = file.name;
 					type = file.type;
@@ -342,7 +345,8 @@ app.directive('fileManager', function() {
 							src: evt.target.result
 						})
 					};
-					reader.readAsDataURL(file);
+					// reader.readAsDataURL(file);
+					reader.readAsText(file);
 				}
 				return false;
 			});
@@ -487,6 +491,69 @@ app.directive('compile', function($compile) {
 				element.html($compile(attr.compile)(scope));
 				it.e = element;
 			});
+		}
+	}
+})
+app.directive('grid', function($compile, $timeout) {
+	return {
+		restrict: 'A',
+		scope: {
+			grid: 	'=',
+		},
+		link: function(scope, element, attr) {
+			$(element).css({
+				display: 'block',
+				height: '500px'
+			})
+			
+			function keep(api){
+				api.onColumnsReordered.subscribe(function(){
+					scope.grid.columns = api.getColumns();
+					scope.$apply();
+				})
+				api.onCellChange.subscribe(function(evt, data){
+					data.item._dirty = true;
+					scope.grid.data = api.getData();
+					scope.grid.changed = scope.grid.data.filter(function(item){
+						return item._dirty
+					}, true);
+					scope.$apply();
+					//Callback with row??
+					it.change = data;
+				})
+			}
+			
+			if(scope.grid && scope.grid.columns && !scope.grid.api){
+				scope.grid.api = new Slick.Grid($(element), scope.grid.data, scope.grid.columns, scope.grid.options);
+				keep(scope.grid.api)
+			}else{
+				scope.$watch('grid.data', function(){
+					if(scope.grid && scope.grid.columns){
+						if(!scope.grid.api){
+							scope.grid.api = new Slick.Grid($(element), scope.grid.data, scope.grid.columns, scope.grid.options);
+							keep(scope.grid.api)
+						}else{
+							scope.grid.api.setColumns(scope.grid.columns)
+							scope.grid.api.setData(scope.grid.data)
+							scope.grid.api.render();
+						}
+					}
+				})
+			}
+			// function reformat(){
+			// 	var cells = $(element).find('tbody tr:first').children()
+			// 	var colWidth = cells.map(function() {
+			// 		return $(this).width();
+			// 	}).get();
+				
+			// 	$(element).find('thead tr').children().each(function(i, v) {
+			// 		$(v).width(colWidth[i]);
+			// 	});
+			// }
+			// scope.$watch(function() {
+			// 	console.log('data change')
+			// 	reformat();
+			// });
 		}
 	}
 })

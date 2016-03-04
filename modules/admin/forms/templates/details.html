@@ -10,10 +10,9 @@
 <script type="text/ng-template" id="pointer.details">
 	<input type="text" class="form-control" placeholder="Field Title"   ng-model="focus.title">
 	<input type="text" class="form-control" placeholder="Field Id"      ng-model="focus.name" 			title="This should be unique and only contain (letters, numbers, and underscores) - no spaces.">
-	<input type="text" class="form-control" placeholder="Database"		ng-model="focus.ptr.database" 	title="Enter the name of the table you want to allow users to choose from.">
+	<select class="form-control" ng-model="focus.ptr.database" 			ng-options="t.className as t.className for t in schema" ng-blur="tools.item.setSchema(focus.ptr.database)">Database</select>
 	<input type="text" class="form-control" placeholder="Query"			ng-model="focus.ptr.query" 		title="Use this to limit the options.">
-	<input type="text" class="form-control" placeholder="Display"		ng-model="focus.ptr.key" 		title="The column that will be displayed in the dropdown box.">
-	<input type="text" class="form-control" placeholder="Placeholder"   ng-model="focus.placeholder" 	title="This is helper text">
+	<select class="form-control" 			placeholder="Display" 		ng-model="focus.ptr.key" 		ng-options="f for f in focus.fields">Display</select>
 	<input type="text" class="form-control" placeholder="Link"   		ng-model="focus.link" 			title="This will<p> be displayed as a link.">
 </script>
 
@@ -62,6 +61,7 @@
 <script type="text/ng-template" id="file.details">
 	<input type="text" class="form-control" placeholder="Field Title"   ng-model="focus.title">
 	<input type="text" class="form-control" placeholder="Field Id"      ng-model="focus.name" title="This should be unique<p> and only contain (letters, numbers, and underscores) - no spaces.">
+	<a title="If someone attaches a file, you will not be able to view the file unless it is shared with you." ng-click="tools.modal('filePermissions')">Set Permissions</a>
 </script>
 
 <!--Image Input-->

@@ -50,7 +50,9 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 	//The following variables make it possible to work with nested input groups.
 	var ePromise;
 	var clicked = [];
-
+	
+	var yHistory = it.y = [];
+	var zHistory = it.z = [];
 	var formTemplate = {
 		title: 		'Untitled Form',
 		type: 		'form',
@@ -134,6 +136,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			name: 		'columnName',
 			type:       'file',
 			dataType:   'Object',
+			permissions: [],
 			enabled: 	true
 		},{
 			title:      'Image Input',
@@ -149,7 +152,10 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			enabled: 	true
 		}
 	]
-	
+	var gDefault = $scope.gDefault = {
+		roles: ['writer','commenter','reader'],
+		types: ['user','group','domain','anyone']
+	}
 	var tools = $scope.tools = {
 		init: function(){
 			$timeout(function(){
@@ -170,12 +176,53 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				}
 			}, true)
 			tools.workflow.loadCalendars();
+			tools.keyEvents();
 			Parse.prototype.schema().then(function(schema){
 				$scope.schema = schema
 			})
 		},
+		keyEvents: function(){
+			require(['vendor/mousetrap.js'], function(Mousetrap){
+				Mousetrap.bind('ctrl+z', function(e){
+					toastr.info('Undo')
+					tools.item.undo();
+					$scope.$apply()
+				});
+				Mousetrap.bind('ctrl+y', function(e){
+					toastr.info('Redo')
+					tools.item.redo();
+					$scope.$apply()
+				});
+				Mousetrap.bind(['ctrl+s', 'meta+s'], function(e){
+					if(e.preventDefault){e.preventDefault();}else{e.returnValue=false;}
+					tools.form.save();
+				});
+			});
+			$scope.$on('$routeChangeStart', function(next, current) {
+				Mousetrap.reset();
+			});
+		},
 		item: {
+			undo: function(){
+				var h = zHistory.pop()
+				if(h){
+					yHistory.push(h)
+					h[0]()
+				}
+			},
+			redo: function(){
+				var h = yHistory.pop()
+				if(h){
+					zHistory.push(h)
+					h[1]()
+				}
+			},
 			add: function(parent, attr, item){
+				zHistory.push([function(){
+					parent[attr].splice(parent[attr].indexOf(item), 1)
+				}, function(){
+					parent[attr].splice(parent[attr].indexOf(item), 0, item)
+				}])
 				parent[attr] = parent[attr] || [];
 				parent[attr].push(item)
 			},
@@ -184,8 +231,13 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				toastr.success('Item Cloned')
 			},
 			remove: function(parent, item){
-				if(confirm('Are sure you want to delete this item?'))
-					parent.splice(parent.indexOf(item), 1)
+				var i = parent.indexOf(item)
+				zHistory.push([function(){
+					parent.splice(i+1, 0, item)
+				}, function(){
+					parent.splice(i, 1)
+				}])
+				parent.splice(i, 1)
 			},
 			focus: function(field){
 				$timeout.cancel(ePromise);
@@ -198,12 +250,27 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 				}, 100)
 			},
 			addFiles: function(item){
+				//update file permissions????
 				item.files = item.files || [];
 				var ol = angular.copy(item.files)
 				Google.drive.picker.generate(10).then(function(data){
 					ol = ol.concat(data.docs)
 					item.files = angular.extend(item.files, ol)
 				})
+			},
+			setSchema: function(db){
+				if(db){
+					db = $scope.schema.find(function(schema){
+						return schema.className == db
+					});
+					var keys = Object.keys(db.fields)
+						keys = keys.filter(function(key){
+							if(['String','Number'].indexOf(db.fields[key].type) != -1)
+								return true;
+						})
+					
+					$scope.focus.fields = keys;
+				}
 			}
 		},
 		form: {
@@ -225,6 +292,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 						form = angular.copy(form);
 						delete form.objectId;
 						$scope.form = form;
+						$scope.fParent = $scope.form;
 						$scope.form.title = $scope.form.title + ' (copy)'
 						toastr.success('Form Copied!')
 					}, function(e){
@@ -232,7 +300,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 					});
 			},
 			save: function(){
-				var form = angular.copy($scope.form)
+				var form = $scope.form;
 				var error = tools.form.errors(form.fields)
 				if(error)
 					alert('You need to rename the column for: '+error.title)
@@ -349,6 +417,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 });
 
 app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, $routeParams, $interpolate, Parse, Google) {
+	it.http = $http;
 	var Forms = new Parse('Forms');
 	var Data = null;
 	$scope.data = {};
@@ -484,6 +553,21 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 								className: 	field.ptr.database,
 								objectId: 	field.value
 							}
+						},
+						file: function(field){
+							//update all permissions
+							if(field.value){
+								field.value.forEach(function(file){
+									field.permissions.forEach(function(permission){
+										Google.drive.permission.set(file.id, permission).then(function(r){
+											toastr.success('Files Shared.')
+										}, function(e){
+											toastr.error('Some files were not shared correctly.')
+										})
+									})
+								})
+							}
+							return field.value;
 						},
 						date: function(field){
 							var d = new Date()
