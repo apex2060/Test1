@@ -81,8 +81,6 @@
 	<!-- /.modal-dialog -->
 </div>
 
-
-
 <div id="mergeModal" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -133,6 +131,28 @@
 	</div>
 	<!-- /.modal-dialog -->
 </div>
+
+<div id="formModal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Edit in a form.</h4>
+			</div>
+			<div class="modal-body">
+				<div class="list-group">
+					<a class="list-group-item" ng-repeat="form in forms" target="_blank" href="#/admin/forms/{{form.objectId}}?action=fill&for={{focus.objectId}}">{{form.title}}</a>
+				</div>
+			</div>	
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+
 <script type="text/ng-template" id=".merge">
 	<div></div>
 </script>
@@ -146,3 +166,4 @@
 <script type="text/ng-template" id="plain.merge">
 	<textarea class="form-control" ng-model="merge.plain" placeholder="Paste JSON here." ng-blur="tools.merge.display('plain')"></textarea>
 </script>
+

@@ -1,15 +1,18 @@
 var it = {};
 var app = null;
 
-app = angular.module('RootApp', ['ngAnimate','ngRoute','ngTouch','sticky','chart.js','ngDraggable']);
+app = angular.module('RootApp', ['ngAnimate','ngRoute','ngTouch','ngMap','sticky','chart.js','ngDraggable']);
 app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide) {
+	var dep = {
+		slickGrid: ['vendor/slickGrid/slick.core.js','vendor/slickGrid/slick.grid.js','vendor/slickGrid/slick.editors.js','vendor/slickGrid/slick.formatters.js']
+	}
 	app.lazy = {
 		controller: $controllerProvider.register,
 		factory: 	$provide.factory,
 		service: 	$provide.service,
 	};
 
-	var parent 		= ['scalehouse','page']
+	var parent 		= ['scalehouse', 'page']
  	// :module/index.html		>	:module/ctrl.js
 	var child		= ['admin', 'employee', 'communication']
 	// :module/:view/index.html	> 	:module/:view/ctrl.js
@@ -26,6 +29,7 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		if(module=='admin'){
 			includes.push('vendor/jSignature/flashcanvas.js')
 			includes.push('vendor/jSignature/jSignature.min.js')
+			includes=includes.concat(dep.slickGrid)
 		}
 		
 		
@@ -160,7 +164,8 @@ var inc = [
 	
 	'vendor/jquery-ui.min.js',
 	'vendor/angular-dragDrop.js',
-	'vendor/slick-grid.js',
+	'vendor/angular-map.min'
+	// 'vendor/slick-grid.js',
 	// 'vendor/chance.js'
 ]
 

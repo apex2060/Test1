@@ -1,7 +1,4 @@
 <div class="container" ng-controller="AdminTableCtrl">
-	<div class="alert alert-warning">
-		Row editing does not work yet.  You can change the data, but it will not be saved.
-	</div>
 	<div  class="well">
 		<nav class="navbar navbar-default">
 			<div class="container-fluid">
@@ -30,16 +27,16 @@
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a ng-click="tools.table.init()">Reload Data</a></li>
-								<li><a ng-click="tools.column.add()">Add Column</a></li>
-								<li><a ng-click="tools.merge.init()">Merge</a></li>
-								<li><a ng-click="tools.modal('migrationModal')">Migrate</a></li>
+								<!--<li><a ng-click="tools.column.add()">Add Column</a></li>-->
+								<li><a ng-click="tools.merge.init()">Import</a></li>
 								<li><a ng-click="tools.table.export()">Export</a></li>
+								<li><a ng-click="tools.modal('migrationModal')">Migrate</a></li>
 								<!--<li><a href="#">Action</a></li>-->
 								<!--<li><a href="#">Another action</a></li>-->
 								<!--<li><a href="#">Something else here</a></li>-->
 								<!--<li><a ng-click="tools.table.export()">Export</a></li>-->
 								<li role="separator" class="divider"></li>
-								<li><a ng-click="tools.table.reset()">Reset</a></li>
+								<!--<li><a ng-click="tools.table.reset()">Reset</a></li>-->
 							</ul>
 						</li>
 					</ul>

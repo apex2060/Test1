@@ -111,10 +111,11 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 			dataType:   'Number',
 			enabled: 	true
 		},{
-			title:      'Date Time',
+			title:      'Date',
 			name: 		'columnName',
 			placeholder:'Placeholder for Date',
 			type:       'date',
+			subType: 	'date',
 			dataType:   'Date',
 			enabled: 	true
 		},{
@@ -269,7 +270,7 @@ app.lazy.controller('AdminFormsCreateCtrl', function($scope, $http, $timeout, $r
 								return true;
 						})
 					
-					$scope.focus.fields = keys;
+					$scope.focus.options = keys;
 				}
 			}
 		},
@@ -473,7 +474,9 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 							return deferred.promise;
 						},
 						date: function(field){
-							field.value = moment(data).toDate();
+							var d = new Date()
+							var m = d.getTimezoneOffset();
+							field.value = moment(data.iso).add(m, 'minutes').toDate()
 							deferred.resolve(field);
 							return deferred.promise;
 						},
@@ -572,7 +575,10 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 						date: function(field){
 							var d = new Date()
 							var m = d.getTimezoneOffset();
-							return moment(field.value).subtract(m, 'minutes').toDate()
+							return {
+								__type: 	'Date',
+								iso: 		moment(field.value).subtract(m, 'minutes').toDate()
+							}
 						}
 					}
 					var formatOptions = Object.keys(format);

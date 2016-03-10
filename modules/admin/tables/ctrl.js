@@ -1,4 +1,4 @@
-app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolate, $compile, $http, Auth, Parse){
+app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolate, $compile, $timeout, $http, Auth, Parse){
 	var Forms = new Parse('Forms');
 	$scope.rp = $routeParams;
 	if($routeParams.id){
@@ -103,16 +103,38 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 			remove: function(n){
 				var item = $scope.grid.api.getDataItem(n);
 				if(confirm('Are you sure you want to delete this?'))
-					Data.delete(item).then(function(){
+					if(!item.objectId)
 						$scope.grid.api.invalidateRow(n)
-					}, function(e){
-						$scope.notify('error', 'Error removing item')
-					})
+					else
+						Data.delete(item).then(function(){
+							$scope.grid.api.invalidateRow(n)
+						}, function(e){
+							$scope.notify('error', 'Error removing item')
+						})
 			},
 			form: function(n){
 				var item = $scope.grid.api.getDataItem(n);
 				$scope.focus = item;
+				$('#formModal').modal('show')
 				// show modal to open with a form.
+			}
+		},
+		data: {
+			save: function(){
+				if($scope.grid.changed.length)
+					$timeout(function(){
+						var items = $scope.grid.changed.splice(0, 50);
+							items = items.map(function(item){delete item._dirty; return item})
+						Data.batch(items).then(function(){
+							$scope.notify('info', 'Items Saved. '+$scope.grid.changed.length+' items remaining.')
+							tools.data.save()
+						}, function(e){
+							$scope.notify('error', e.error)
+							tools.data.save();
+						})
+					}, 500)
+				else
+					$scope.notify('success', 'Everything saved.')
 			}
 		},
 		table: {
@@ -137,9 +159,11 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 					id: 'options',
 					name: 'Options',
 					formatter: function(r,c,v,cd,dc){
-						var html = 	'<button class="btn btn-success btn-xs" type="button" ng-click="tools.row.save('+r+')"><i class="fa fa-check"></i></button>'+
-									'<button class="btn btn-info btn-xs" type="button" ng-click="tools.row.form('+r+')"><i class="fa fa-file-text"></i></button>'+
-									'<button class="btn btn-danger btn-xs" type="button" ng-click="tools.row.remove('+r+')"><i class="fa fa-trash"></i></button>'
+						var html = ''
+						if(dc._dirty)
+							html += '<button class="btn btn-success btn-xs" type="button" ng-click="tools.row.save('+r+')"><i class="fa fa-check"></i></button>'
+							html += '<button class="btn btn-info btn-xs" type="button" ng-click="tools.row.form('+r+')"><i class="fa fa-file-text"></i></button>'
+							html += '<button class="btn btn-danger btn-xs" type="button" ng-click="tools.row.remove('+r+')"><i class="fa fa-trash"></i></button>'
 						return html
 					},
 					asyncPostRender: function(cellNode, row, dataContext, colDef){
@@ -153,10 +177,10 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 				})
 				if(!$scope.grid)
 					$scope.grid = {options: {
-						editable: true,
-						enableCellNavigation: true,
-						asyncEditorLoading: true,
-						enableAsyncPostRender: true
+						editable: 				true,
+						enableCellNavigation: 	true,
+						asyncEditorLoading: 	true,
+						enableAsyncPostRender: 	true
 					}};
 				$scope.grid.columns = columns
 				$scope.grid.data = data
@@ -180,7 +204,12 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 						return {id:i,field:key,name:key,editor:Slick.Editors.Integer}
 					else if(example.type=='boolean')
 						return {id:i,field:key,name:key,editor:Slick.Editors.Checkbox}
-					else 
+					else if(example.type=='object')
+						if(example.value.__type=='Date')
+							return {id:i,field:key,name:key,editor:Slick.Editors.Date}
+						else
+							return {id:i,field:key,name:key}
+					else
 						return {id:i,field:key,name:key}
 				}).filter(function(col){
 					if(!col)
@@ -367,7 +396,7 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 							cols.join.forEach(function(m){
 								// console.log(lItem, rItem)
 								// console.log(lItem[m[0]], rItem[m[1]])
-								if(true || m.loose){
+								if( (true || m.loose) && (lItem[m.left] && rItem[m.right]) ){
 									if(lItem[m.left].toLowerCase().replace(/ /g, '') != rItem[m.right].toLowerCase().replace(/ /g, ''))
 										found = false;
 								}else{

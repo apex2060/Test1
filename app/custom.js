@@ -67,6 +67,8 @@ String.prototype.csvToArray = function(strDelimiter) {
 		}
 		else {
 			var strMatchedValue = arrMatches[3];
+			if(!isNaN(strMatchedValue))
+				strMatchedValue = Number(strMatchedValue)
 		}
 		arrData[arrData.length - 1].push(strMatchedValue);
 	}

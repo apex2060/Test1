@@ -22,7 +22,7 @@
 <!--Date Input-->
 <script type="text/ng-template" id="date.field">
 	<label contenteditable ng-model="field.title">{{field.title}}</label>
-	<input type="datetime-local" class="form-control" placeholder="{{field.placeholder}}">
+	<input type="{{field.subType}}" class="form-control" placeholder="{{field.placeholder}}">
 	<span class="help-block"><a target="_new" ng-href="{{field.link}}" ng-show="field.link">Link</a></span>
 </script>
 

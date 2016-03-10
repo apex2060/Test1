@@ -64,148 +64,148 @@ app.directive('signature', function(){
 		}
 	}
 })
-app.directive('map', ['GeoService', function(GeoService){
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			callback: '='
-		},
-		link:function (scope, elem, attr){
-			/*SETUP DEFAULT VARIABLES FOR DIRECTIVE*/
-			scope.config = {
-				selectors: new Array('MARKER','CIRCLE', 'RECTANGLE'),
-				color: '#1E90FF',
-				zoom: 15,
-				initmarker: false,
-				advanced:false
-			}
+// app.directive('map', ['GeoService', function(GeoService){
+// 	return {
+// 		restrict: 'E',
+// 		replace: true,
+// 		scope: {
+// 			callback: '='
+// 		},
+// 		link:function (scope, elem, attr){
+// 			/*SETUP DEFAULT VARIABLES FOR DIRECTIVE*/
+// 			scope.config = {
+// 				selectors: new Array('MARKER','CIRCLE', 'RECTANGLE'),
+// 				color: '#1E90FF',
+// 				zoom: 15,
+// 				initmarker: false,
+// 				advanced:false
+// 			}
 
-			/*OVERRIDE DEFAULTS IF PROVIDED*/
-			if(attr.selectors)
-				scope.config.selectors = attr.selectors.split('|');
-			if(attr.color)
-				scope.config.color = attr.color;
-			if(attr.zoom)
-				scope.config.zoom = Number(attr.zoom);
-			if(attr.initmarker)
-				scope.config.initmarker = attr.initmarker;
-			if(attr.advanced)
-				scope.config.advanced = attr.advanced;
+// 			/*OVERRIDE DEFAULTS IF PROVIDED*/
+// 			if(attr.selectors)
+// 				scope.config.selectors = attr.selectors.split('|');
+// 			if(attr.color)
+// 				scope.config.color = attr.color;
+// 			if(attr.zoom)
+// 				scope.config.zoom = Number(attr.zoom);
+// 			if(attr.initmarker)
+// 				scope.config.initmarker = attr.initmarker;
+// 			if(attr.advanced)
+// 				scope.config.advanced = attr.advanced;
 
-			/*THESE CONSTANTS ARE REQUIRED*/
-			scope.consts = {
-				modes: [],
-				currentShape:false
-			};
+// 			/*THESE CONSTANTS ARE REQUIRED*/
+// 			scope.consts = {
+// 				modes: [],
+// 				currentShape:false
+// 			};
 
-			//Setup interaction
-			$(scope.config.selectors).each(function(index, elem){
-				scope.consts.modes.push(google.maps.drawing.OverlayType[elem]);
-			});
+// 			//Setup interaction
+// 			$(scope.config.selectors).each(function(index, elem){
+// 				scope.consts.modes.push(google.maps.drawing.OverlayType[elem]);
+// 			});
 
-			//Important Functions
-			function normalizeShape(geoShape){
-				var normalized = {};
-				if(geoShape.type=='circle'){
-					normalized={
-						"type": "circle",
-						"latitude": geoShape.getCenter().lat(),
-						"longitude": geoShape.getCenter().lng(),
-						"radius": Math.round(geoShape.getRadius()) / 1000
-					}
-				}else if(geoShape.type=='rectangle'){
-					normalized = {
-						"type": "rectangle",
-						"northEast":{
-							"latitude": geoShape.getBounds().getNorthEast().lat(),
-							"longitude": geoShape.getBounds().getNorthEast().lng()
-						},
-						"southWest":{
-							"latitude": geoShape.getBounds().getSouthWest().lat(),
-							"longitude": geoShape.getBounds().getSouthWest().lng()
-						}
-					}
-				}else if(geoShape.type=='marker'){
-					normalized={
-						"type": "marker",
-						"latitude": geoShape.getPosition().lat(),
-						"longitude": geoShape.getPosition().lng()
-					}
-				}
-				return normalized;
-			}
-			function returnResults(newShape){
-				if(typeof(scope.callback)=='function'){
-					if(scope.config.advanced)
-						scope.callback(newShape);
-					else
-						scope.callback(normalizeShape(newShape))
-				}
-			}
+// 			//Important Functions
+// 			function normalizeShape(geoShape){
+// 				var normalized = {};
+// 				if(geoShape.type=='circle'){
+// 					normalized={
+// 						"type": "circle",
+// 						"latitude": geoShape.getCenter().lat(),
+// 						"longitude": geoShape.getCenter().lng(),
+// 						"radius": Math.round(geoShape.getRadius()) / 1000
+// 					}
+// 				}else if(geoShape.type=='rectangle'){
+// 					normalized = {
+// 						"type": "rectangle",
+// 						"northEast":{
+// 							"latitude": geoShape.getBounds().getNorthEast().lat(),
+// 							"longitude": geoShape.getBounds().getNorthEast().lng()
+// 						},
+// 						"southWest":{
+// 							"latitude": geoShape.getBounds().getSouthWest().lat(),
+// 							"longitude": geoShape.getBounds().getSouthWest().lng()
+// 						}
+// 					}
+// 				}else if(geoShape.type=='marker'){
+// 					normalized={
+// 						"type": "marker",
+// 						"latitude": geoShape.getPosition().lat(),
+// 						"longitude": geoShape.getPosition().lng()
+// 					}
+// 				}
+// 				return normalized;
+// 			}
+// 			function returnResults(newShape){
+// 				if(typeof(scope.callback)=='function'){
+// 					if(scope.config.advanced)
+// 						scope.callback(newShape);
+// 					else
+// 						scope.callback(normalizeShape(newShape))
+// 				}
+// 			}
 
-			GeoService.location().then(function(geo){
-				scope.geo=geo;
-				var mapOptions = {
-					center: new google.maps.LatLng(geo.coords.latitude,geo.coords.longitude),
-					zoom: scope.config.zoom
-				};
-				scope.map = new google.maps.Map(elem[0],mapOptions);
+// 			GeoService.location().then(function(geo){
+// 				scope.geo=geo;
+// 				var mapOptions = {
+// 					center: new google.maps.LatLng(geo.coords.latitude,geo.coords.longitude),
+// 					zoom: scope.config.zoom
+// 				};
+// 				scope.map = new google.maps.Map(elem[0],mapOptions);
 
-				var polyOptions = {
-					strokeWeight: 0,
-					fillOpacity: 0.45,
-					editable: false
-				};
-				drawingManager = new google.maps.drawing.DrawingManager({
-					drawingControlOptions: {
-						position: google.maps.ControlPosition.TOP_CENTER,
-						drawingModes: scope.consts.modes
-					},
-					drawingMode: scope.consts.modes[0],
-					rectangleOptions: polyOptions,
-					circleOptions: polyOptions,
-					map: scope.map
-				});
+// 				var polyOptions = {
+// 					strokeWeight: 0,
+// 					fillOpacity: 0.45,
+// 					editable: false
+// 				};
+// 				drawingManager = new google.maps.drawing.DrawingManager({
+// 					drawingControlOptions: {
+// 						position: google.maps.ControlPosition.TOP_CENTER,
+// 						drawingModes: scope.consts.modes
+// 					},
+// 					drawingMode: scope.consts.modes[0],
+// 					rectangleOptions: polyOptions,
+// 					circleOptions: polyOptions,
+// 					map: scope.map
+// 				});
 				
 
-				google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
-					scope.deleteOld();
-					var newShape = e.overlay;
-						newShape.type = e.type;
-						scope.setCurrent(newShape);
-						returnResults(newShape)
-				});
+// 				google.maps.event.addListener(drawingManager, 'overlaycomplete', function(e) {
+// 					scope.deleteOld();
+// 					var newShape = e.overlay;
+// 						newShape.type = e.type;
+// 						scope.setCurrent(newShape);
+// 						returnResults(newShape)
+// 				});
 
-				if(scope.config.initmarker){
-					scope.consts.currentShape = new google.maps.Marker({
-						type: 'marker',
-						map:scope.map,
-						animation: google.maps.Animation.DROP,
-						position: mapOptions.center
-					});
-					returnResults(scope.consts.currentShape)
-				}
+// 				if(scope.config.initmarker){
+// 					scope.consts.currentShape = new google.maps.Marker({
+// 						type: 'marker',
+// 						map:scope.map,
+// 						animation: google.maps.Animation.DROP,
+// 						position: mapOptions.center
+// 					});
+// 					returnResults(scope.consts.currentShape)
+// 				}
 
-				var rectangleOptions = drawingManager.get('rectangleOptions');
-				rectangleOptions.fillColor = scope.config.color;
-				drawingManager.set('rectangleOptions', rectangleOptions);
+// 				var rectangleOptions = drawingManager.get('rectangleOptions');
+// 				rectangleOptions.fillColor = scope.config.color;
+// 				drawingManager.set('rectangleOptions', rectangleOptions);
 
-				var circleOptions = drawingManager.get('circleOptions');
-				circleOptions.fillColor = scope.config.color;
-				drawingManager.set('circleOptions', circleOptions);
-			})
-			scope.setCurrent=function setCurrent(shape) {
-				scope.consts.currentShape = shape;
-			}
-			scope.deleteOld=function deleteOld() {
-				if (scope.consts.currentShape) {
-					scope.consts.currentShape.setMap(null);
-				}
-			}
-		}
-	}
-}]);
+// 				var circleOptions = drawingManager.get('circleOptions');
+// 				circleOptions.fillColor = scope.config.color;
+// 				drawingManager.set('circleOptions', circleOptions);
+// 			})
+// 			scope.setCurrent=function setCurrent(shape) {
+// 				scope.consts.currentShape = shape;
+// 			}
+// 			scope.deleteOld=function deleteOld() {
+// 				if (scope.consts.currentShape) {
+// 					scope.consts.currentShape.setMap(null);
+// 				}
+// 			}
+// 		}
+// 	}
+// }]);
 app.directive('mediaManager', function() {
 	return {
 		restrict: 'A',
@@ -513,6 +513,8 @@ app.directive('grid', function($compile, $timeout) {
 				})
 				api.onCellChange.subscribe(function(evt, data){
 					data.item._dirty = true;
+					api.invalidateRow(data.row);
+					api.render();
 					scope.grid.data = api.getData();
 					scope.grid.changed = scope.grid.data.filter(function(item){
 						return item._dirty
@@ -525,12 +527,14 @@ app.directive('grid', function($compile, $timeout) {
 			
 			if(scope.grid && scope.grid.columns && !scope.grid.api){
 				scope.grid.api = new Slick.Grid($(element), scope.grid.data, scope.grid.columns, scope.grid.options);
+				scope.grid.api.autosizeColumns();
 				keep(scope.grid.api)
 			}else{
 				scope.$watch('grid.data', function(){
 					if(scope.grid && scope.grid.columns){
 						if(!scope.grid.api){
 							scope.grid.api = new Slick.Grid($(element), scope.grid.data, scope.grid.columns, scope.grid.options);
+							scope.grid.api.autosizeColumns();
 							keep(scope.grid.api)
 						}else{
 							scope.grid.api.setColumns(scope.grid.columns)

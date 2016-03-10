@@ -675,6 +675,32 @@ app.factory('Parse', function($rootScope, $http, $q, config, Auth){
 			})
 			return deferred.promise;
 		}
+		ds.batch = function(arr){
+			var deferred = $q.defer();
+			var requests = arr.map(function(item){
+				delete item.createdAt;
+				delete item.updatedAt;
+				if(item.objectId){
+					var method = 'PUT'
+					var path = '/1/classes/'+ds.className+'/'+item.objectId;
+					delete item.objectId;
+				}else{
+					var method = 'POST'
+					var path = '/1/classes/'+ds.className
+				}
+				return {
+					method: method,
+					path: path,
+					body: item
+				}
+			})
+			$http.post(config.parse.root+'/batch', {requests: requests}).success(function(data){
+				deferred.resolve(data)
+			}).error(function(e){
+				deferred.reject(e);
+			})
+			return deferred.promise;
+		}
 		ds.save = function(object){
 			if(!object.objectId)
 				return ds.new(object)
