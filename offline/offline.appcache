@@ -1,0 +1,15 @@
+CACHE MANIFEST
+# V1
+
+CACHE:
+/favicon.ico
+index.html
+vendor.js
+app.js
+
+vendor.css
+app.css
+
+# Resources that require the user to be online.
+NETWORK:
+*

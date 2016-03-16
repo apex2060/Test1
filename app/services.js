@@ -1487,7 +1487,7 @@ app.factory('Google',  function($q, $http, config, Auth){
 		}
 	}
 	return tools;
-})
+});
 app.factory('Cloudinary', function(){
 	var tools = {
 		resize: function(src, width, height, style){
@@ -1497,4 +1497,4 @@ app.factory('Cloudinary', function(){
 		}
 	}
 	return tools;
-})
+});
