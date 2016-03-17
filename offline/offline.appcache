@@ -1,9 +1,15 @@
 CACHE MANIFEST
-# V1
+# V2
 
 CACHE:
 /favicon.ico
+data.html
+fields.html
+forms.html
 index.html
+setup.html
+sync.html
+
 vendor.js
 app.js
 
