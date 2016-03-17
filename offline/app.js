@@ -8,7 +8,7 @@ var auth = null;
 angular.module('offlineForms', [])
 .factory('config', function ($http, $q) {
 	var config = {
-		oauth: 			encodeURI('https://the.easybusiness.center/oauth'),
+		oauth: 			encodeURI('https://the.easybusiness.center/offline'),
 		parse: {
 			root: 		'https://api.parse.com/1',
 			appId: 		'ETf61cYOebIkncxvVgrldjmPX4Z2acpWiKfY9wWM',
@@ -533,7 +533,7 @@ angular.module('offlineForms', [])
 				$http.defaults.headers.common['X-Parse-Session-Token'] = $scope.vault.token;
 			if(window.navigator.onLine){
 				$scope.view = 'sync';
-				tools.admin.data.sync();
+				tools.admin.entries.sync();
 			}
 		},
 		view: function(view){
@@ -622,7 +622,7 @@ angular.module('offlineForms', [])
 					tools.localSave();
 				}
 			},
-			data: {
+			entries: {
 				log: function(entry){
 					if(!$scope.syncLog)
 						$scope.syncLog = [];
@@ -633,7 +633,7 @@ angular.module('offlineForms', [])
 					var keys = Object.keys(forms);
 					keys.forEach(function(key){
 						forms[key].forEach(function(entry){
-							tools.admin.data.log(entry)
+							tools.admin.entries.log(entry)
 							if(entry.status != 'saved' && entry.status != 'error')
 								$timeout(function(){
 									entry.status = 'syncing'
@@ -649,6 +649,13 @@ angular.module('offlineForms', [])
 								}, 1000)
 						})
 					})
+				},
+				clear: function(){
+					if(prompt('Enter PIN: ')==$scope.vault.pin){
+						//need to add options to only clear only synced, errors, or all entries.
+						$scope.vault.entries = {};
+						tools.localSave();
+					}
 				},
 				sClass: function(status){
 					var c = {
