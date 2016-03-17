@@ -316,6 +316,11 @@ angular.module('offlineForms', [])
 				gapi.auth.signOut();
 				tools.reset();
 			},
+			switchUser: function(){
+				my.defer = $q.defer()
+				tools.loadUser();
+				return my.defer.promise;
+			},
 			loadUser: function(immediate){
 				// alert('Load User')
 				// [] TODO This has a problem... it is being called 3+ times
@@ -384,12 +389,17 @@ angular.module('offlineForms', [])
 				},
 				auth: function(immediate){
 					var deferred = $q.defer();
-					try{
-						gapi.auth.authorize({
+					var req = {
 							client_id: config.google.client_id, 
-							scope: my.data.scopes, 
+							scope: my.data.scopes,
 							immediate: immediate,
-						}, function(gAuth){
+						}
+						if(!immediate){
+							my.status = 'start'
+							req.authuser = -1
+						}
+					try{
+						gapi.auth.authorize(req, function(gAuth){
 							my.gAuth = gAuth;
 							deferred.resolve(gAuth)
 						});
@@ -531,10 +541,7 @@ angular.module('offlineForms', [])
 				tools.reset(true);
 			if($scope.vault.token)
 				$http.defaults.headers.common['X-Parse-Session-Token'] = $scope.vault.token;
-			if(window.navigator.onLine){
-				$scope.view = 'sync';
-				tools.admin.entries.sync();
-			}
+			tools.admin.form.sync();
 		},
 		view: function(view){
 			if(view){
@@ -546,14 +553,23 @@ angular.module('offlineForms', [])
 			else
 				return $scope.view+'.html';
 		},
-		login: function(){
+		login: function(choose){
+			it.h = $http;
 			if(gapi)
-				Auth.init().then(function(user){
-					$scope.user = user;
-					$scope.vault.token = user.pAuth.token;
-					tools.localSave();
-					tools.loadForms();
-				})
+				if(choose)
+					Auth.tools.switchUser().then(function(user){
+						$scope.user = user;
+						$scope.vault.token = user.pAuth.token;
+						tools.localSave();
+						tools.loadForms();
+					})
+				else
+					Auth.init().then(function(user){
+						$scope.user = user;
+						$scope.vault.token = user.pAuth.token;
+						tools.localSave();
+						tools.loadForms();
+					})
 		},
 		localSave: function(){
 			localStorage.setItem('vault', angular.toJson($scope.vault));
@@ -611,7 +627,19 @@ angular.module('offlineForms', [])
 			$scope.form = null;
 		},
 		admin: {
+			sync: function(){
+				if(window.navigator.onLine){
+					tools.admin.form.sync();
+					tools.admin.entries.sync();
+				}
+			},
 			form: {
+				sync: function(){
+					var keys = Object.keys($scope.vault.forms);
+					keys.forEach(function(key){
+						tools.loadFormData($scope.vault.forms[key]);
+					})
+				},
 				focus: function(form){
 					if($scope.vault.forms[form.objectId])
 						$scope.form = $scope.vault.forms[form.objectId]
@@ -624,6 +652,7 @@ angular.module('offlineForms', [])
 			},
 			entries: {
 				log: function(entry){
+					$scope.view = 'sync';
 					if(!$scope.syncLog)
 						$scope.syncLog = [];
 					$scope.syncLog.push(entry)
