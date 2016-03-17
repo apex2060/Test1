@@ -22,7 +22,6 @@ app.factory('config', function ($http, $q) {
 			"auth_uri": "https://accounts.google.com/o/oauth2/auth",
 			"token_uri": "https://accounts.google.com/o/oauth2/token",
 			"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-			"client_secret": "jG4FoLYpU6TC7Pfk9O3iZtJV",
 			"redirect_uris": ["https://root-apex2060.c9users.io/oauth", "https://easybusiness.center/oauth", "http://easybusiness.center/oauth"],
 			"javascript_origins": ["https://root-apex2060.c9users.io", "http://easybusiness.center", "https://easybusiness.center"],
 		},

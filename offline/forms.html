@@ -1,4 +1,8 @@
-<div class="container">
+<div class="list-group" ng-hide="form">
+	<div class="list-group-item active">Forms</div>
+	<a class="list-group-item" ng-repeat="form in vault.forms" ng-click="tools.focusForm(form)">{{form.title}}</a>
+</div>
+<div ng-show="form">
 	<div class="well">
 		<h1 title="For: {{form.name}} &gt; {{data.objectId}}"><span ng-model="form.title">{{form.title}}</span></h1>
 		<p>{{form.p}}</p>
@@ -8,8 +12,8 @@
 			<div ng-repeat="field in form.fields">
 				<div class="form-group" ng-if="!field.array" ng-include="field.type+'.fill'"></div>
 				<div class="panel panel-default" ng-if="field.array">
-  					<div class="panel-heading">List of {{field.title}}</div>
-  					<div class="panel-body">
+	  				<div class="panel-heading">List of {{field.title}}</div>
+	  				<div class="panel-body">
 						<div class="panel-group fadeIn" id="accordion_{{field.name}}" role="tablist" aria-multiselectable="true">
 							<div class="panel panel-default" ng-repeat="field in field.value">
 								<div class="panel-heading" role="tab" id="headingOne">
@@ -53,4 +57,5 @@
 			</div>
 		</div>
 	</div>
+	<div ng-include="'fields.html'"></div>
 </div>

@@ -18,35 +18,50 @@
 </head>
 
 <body ng-app="offlineForms" ng-controller="FormsCtrl">
-	<div class="container-fluid">
-		<div class="well parent">FORMS
-			<ul class="child">
-				<li>Login To Obtain Data</li>
-				<li>Protect with pin?</li>
-				<li>Save form locally</li>
-				<li>Save Pointer Data Locally</li>
-				<li>Save completed form locally</li>
-				<li>Sync completed forms when connected</li>
-				<li>Sync new pointer data when connected</li>
-				<li>Manage Forms, View Data, Edit Data, Sync Data, Manage Data Retention</li>
-			</ul>
-			<p class="child">{{form}}</p>
-			<a class="btn btn-success pull-right" target="_blank" href="../#/admin/forms/{{form.objectId}}?action=create">Edit</a>
-		</div>
+	<div class="container">
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mobileCollapse" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Mobile Ninja</a>
+				</div>
 		
-		<div class="row">
-			<div class="col-md-3">
-				<div class="list-group">
-					<div class="list-group-item active">Forms</div>
-					<div class="list-group-item" ng-repeat="form in forms">
-						<span>{{form.title}}</span>
-						<span class="label pull-right" ng-class="form.offline ? 'label-success' : 'label-danger'" ng-click="tools.loadFormData(form)">{{!!form.offline}}</span>
-					</div>
+				<div class="collapse navbar-collapse" id="mobileCollapse">
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+							<a ng-click="tools.view('forms')" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Forms <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li ng-repeat="form in vault.forms"><a ng-click="tools.focusForm(form)">{{form.title}}</a></li>
+							</ul>
+						</li>
+						<li class="dropdown">
+							<a ng-click="tools.view('data')" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Data <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li ng-repeat="form in vault.forms"><a ng-click="tools.focusForm(form)">{{form.title}}</a></li>
+							</ul>
+						</li>
+						<li class="dropdown" ng-show="online"> <!--Only when connected & logged in-->
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a ng-click="tools.view('setup')">Setup</a></li>
+            					<li role="separator" class="divider"></li>
+								<li><a ng-click="tools.admin.sync()">Force Sync</a></li>
+								<li><a ng-click="tools.resetPin()">Change Pin</a></li> 
+								<li><a ng-click="tools.reset()">Clear Local</a></li>
+							</ul>
+						</li>
+					</ul>
 				</div>
 			</div>
-			<div class="col-md-8" ng-include="'fill.html'"></div>
-		</div>
+		</nav>
+		<div ng-include="tools.view()"></div>
 	</div>
-	<div class="col-md-8" ng-include="'fields.html'"></div>
+	
+	<script src="//apis.google.com/js/client:platform.js?onload=auth"></script>
 </body>
 </html>

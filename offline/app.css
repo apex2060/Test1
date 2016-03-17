@@ -4,3 +4,6 @@
 .parent:hover .child{
     display: block;
 }
+[ng-click]{
+    cursor: pointer;
+}
