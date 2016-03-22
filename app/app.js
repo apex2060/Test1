@@ -176,6 +176,10 @@ var authPromise = new Promise(function(resolve, reject) {
 	}
 });
 
+//for slow connections
+require.config({
+	waitSeconds: 0
+})
 require(inc, function(){
 	require(['vendor/angular-chart.js'], function(){
 		authPromise.then(function(){
