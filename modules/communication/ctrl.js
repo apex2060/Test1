@@ -1,8 +1,15 @@
-app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $sce, Auth, Cloudinary, config){
-
+app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $sce, Auth, Parse, Cloudinary, config){
+	var PhoneNumbers = new Parse('PhoneNumbers');
+	var FaxNumbers = new Parse('FaxNumbers');
+	
 	var tools = $scope.tools = {
 		init: function(){
-			
+			PhoneNumbers.list().then(function(phoneNumbers){
+				$scope.phoneNumbers = phoneNumbers
+			})
+			FaxNumbers.list().then(function(faxNumbers){
+				$scope.faxNumbers = faxNumbers
+			})
 		},
 		view: function(view){
 			if(view || !$scope.view)
@@ -53,6 +60,9 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $
 				
 				$http.post(config.parse.root+'/functions/faxSend', request).success(function(data){
 					$scope.fax = data.result;
+					$scope.sendFaxResult = {status: data.result.message};
+				}).error(function(e){
+					$scope.sendFaxResult = {status: 'Error Sending Fax'};
 				})
 			}
 		},

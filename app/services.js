@@ -831,15 +831,17 @@ app.factory('Parse', function($rootScope, $http, $q, config, Auth){
 				}
 				if(object.acl)
 					object.acl.forEach(function(item){
-						if(item[item.type]){
-							var extension = '';
-							if(item.type == 'role')
-								extension = 'role:'
-							acl[extension+item[item.type]] = {};
-							if(item.read)
-								acl[extension+item[item.type]].read = item.read
-							if(item.write)
-								acl[extension+item[item.type]].write = item.write
+						if(item.role != 'Admin'){
+							if(item[item.type]){
+								var extension = '';
+								if(item.type == 'role')
+									extension = 'role:'
+								acl[extension+item[item.type]] = {};
+								if(item.read)
+									acl[extension+item[item.type]].read = item.read
+								if(item.write)
+									acl[extension+item[item.type]].write = item.write
+							}
 						}
 					})
 				delete object.acl

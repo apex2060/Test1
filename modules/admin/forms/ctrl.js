@@ -1,4 +1,4 @@
-app.lazy.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routeParams, Parse, Google) {
+app.lazy.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routeParams, Parse) {
 	var Forms = new Parse('Forms');
 	var tools = $scope.tools = {
 		view: function(){

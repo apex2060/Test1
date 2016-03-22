@@ -77,6 +77,11 @@
 	<!--	</div>-->
 	<!--	<div class="panel-body" ng-include="newComm.type+'.new'"></div>-->
 	<!--</div>-->
+	
+	<!--<div class="well">-->
+	<!--	{{numbers}}-->
+	<!--</div>-->
+	
 	<div ng-include="tools.view()"></div>
 	
 	
@@ -147,7 +152,7 @@
 				<div class="row">
 					<div class="col-md-6">
 						<ul class="list-group">
-							<li class="list-group-item"><input type="tel" class="form-control" placeholder="From" ng-model="newComm.data.from"></li>
+							<li class="list-group-item"><select class="form-control" ng-options="n.number as n.number+' '+n.title for n in faxNumbers" ng-model="newComm.data.from"></select></li>
 							<li class="list-group-item"><input type="tel" class="form-control" placeholder="To" ng-model="newComm.data.to"></li>
 							<li class="list-group-item"><input type="text" class="form-control" placeholder="Subject" ng-model="newComm.data.subject"></li>
 						</ul>

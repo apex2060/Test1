@@ -30,242 +30,6 @@ angular.module('offlineForms', [])
 	$http.defaults.headers.common['Content-Type'] = 'application/json';
 	return config;
 })
-.factory('Parse', function($rootScope, $http, $q, config){
-	var Parse = function(className, immediate){
-		var ds = this;
-		ds.className = className;
-		ds.immediate = immediate;
-		ds.schema = function(){
-			var deferred = $q.defer();
-			$http.get(config.parse.root+'/schemas/'+ds.className).success(function(data){
-				deferred.resolve(data.results)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.list = function(){
-			var deferred = $q.defer();
-			$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
-				deferred.resolve(data.results)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.query = function(query){
-			var deferred = $q.defer();
-			$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
-				deferred.resolve(data.results)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.get = function(objectId){
-			var deferred = $q.defer();
-			$http.get(config.parse.root+'/classes/'+ds.className+'/'+objectId).success(function(data){
-				deferred.resolve(data)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.batch = function(arr){
-			var deferred = $q.defer();
-			var requests = arr.map(function(item){
-				delete item.createdAt;
-				delete item.updatedAt;
-				if(item.objectId){
-					var method = 'PUT'
-					var path = '/1/classes/'+ds.className+'/'+item.objectId;
-					delete item.objectId;
-				}else{
-					var method = 'POST'
-					var path = '/1/classes/'+ds.className
-				}
-				return {
-					method: method,
-					path: path,
-					body: item
-				}
-			})
-			$http.post(config.parse.root+'/batch', {requests: requests}).success(function(data){
-				deferred.resolve(data)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.save = function(object){
-			if(!object.objectId)
-				return ds.new(object)
-			else
-				return ds.update(object)
-		}
-		ds.new = function(object){
-			var deferred = $q.defer();
-			object = angular.copy(object);
-			delete object.objectId
-			delete object.updatedAt
-			delete object.createdAt
-			$http.post(config.parse.root+'/classes/'+ds.className, object).success(function(data){
-				object = angular.extend(object, data);
-				deferred.resolve(object)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.update = function(object){
-			var deferred = $q.defer();
-			var object2 = angular.copy(object);
-			var objectId = object.objectId;
-			delete object2.objectId
-			delete object2.updatedAt
-			delete object2.createdAt
-			$http.put(config.parse.root+'/classes/'+ds.className+'/'+objectId, object2).success(function(data){
-				object2 = angular.extend(object, data);
-				deferred.resolve(object2)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.delete = function(object){
-			var deferred = $q.defer();
-			$http.delete(config.parse.root+'/classes/'+ds.className+'/'+object.objectId).success(function(data){
-				deferred.resolve(data)
-			}).error(function(e){
-				deferred.reject(e);
-			})
-			return deferred.promise;
-		}
-		ds.ACL = {
-			init: function(){
-				if(!$rootScope.users){
-					Auth.init().then(function(){
-						$http.get(config.parse.root+'/classes/_User').success(function(data){
-							$rootScope.users = data.results
-						})
-						$http.get(config.parse.root+'/classes/_Role').success(function(data){
-							$rootScope.roles = data.results
-						})
-					});
-				}
-			},
-			modal: function(object, message){
-				object = object || {}
-				var deferred = $q.defer();
-				ds.ACL.init();
-				$rootScope.ACL = {
-					deferred: deferred,
-					object: ds.ACL.unpack(object),
-					message: message,
-					tools: ds.ACL
-				};
-				$('#ACL').modal({
-					keyboard: false,
-					backdrop: 'static',
-					show: true
-				});
-				return deferred.promise;
-			},
-			close: function(){
-				var object = ds.ACL.pack($rootScope.ACL.object)
-				$('#ACL').modal('hide');
-				$rootScope.ACL.deferred.resolve(object)
-			},
-			add: function(type){
-				if(!$rootScope.ACL.object.acl)
-					$rootScope.ACL.object.acl = []
-				$rootScope.ACL.object.acl.push({type:type})
-			},
-			remove: function(acl){
-				var i = $rootScope.ACL.object.acl.indexOf(acl)
-				$rootScope.ACL.object.acl.splice(i, 1)
-			},
-			verify: function(){
-				//This will need to check to make sure the current user will still have access
-				//If the current user will not have access, then prompt to see if they still 
-				//want to set those permissions.
-			},
-			unpack: function(object){
-				if(!object.ACL)
-					return object;
-				var keys = Object.keys(object.ACL)
-				object.acl = [];
-				keys.forEach(function(key){
-					var acl = object.ACL[key]; //read write params
-						acl.type = 'user';
-					if(key.indexOf('*') != -1){
-						acl.type = 'all';
-						object.pAcl = acl;
-					}else if(key.indexOf('role:') != -1){
-						acl.type = 'role';
-						key = key.replace('role:', '')
-					}
-					if(acl.type != 'all'){
-						acl[acl.type] = key;
-						object.acl.push(acl)
-					}
-				})
-				return object;
-			},
-			pack: function(object){
-				var acl = {'*':{},'role:Admin':{read:true,write:true}};
-				if(!object.ACL)
-					acl[Auth.objectId] = {
-						read: true,
-						write: true
-					}
-				if(object.pAcl){
-					if(object.pAcl.read)
-						acl['*'].read = object.pAcl.read
-					if(object.pAcl.write)
-						acl['*'].write = object.pAcl.write
-				}
-				if(object.acl)
-					object.acl.forEach(function(item){
-						if(item[item.type]){
-							var extension = '';
-							if(item.type == 'role')
-								extension = 'role:'
-							acl[extension+item[item.type]] = {};
-							if(item.read)
-								acl[extension+item[item.type]].read = item.read
-							if(item.write)
-								acl[extension+item[item.type]].write = item.write
-						}
-					})
-				delete object.acl
-				delete object.pAcl
-				object.ACL = acl
-				return object;
-			}
-		}
-	}
-	Parse.prototype.schema = function(){
-		var deferred = $q.defer();
-		$http.post('https://api.parse.com/1/functions/schema').success(function(data){
-			deferred.resolve(data.result)
-		})
-		return deferred.promise;
-	}
-	return Parse;
-})
-.factory('urlSearch', function(){
-	return function(key) {
-		var url = window.location.href;
-		url = url.toLowerCase(); // This is just to avoid case sensitiveness
-		key = key.replace(/[\[\]]/g, "\\$&").toLowerCase();// This is just to avoid case sensitiveness for query parameter key
-		var regex = new RegExp("[?&]" + key + "(=([^&#]*)|&|#|$)"),
-		    results = regex.exec(url);
-		if (!results) return null;
-		if (!results[2]) return '';
-		return decodeURIComponent(results[2].replace(/\+/g, " "));
-	}
-})
 .factory('Auth', function (User) {
 	if(!authUser){
 		var authUser = new User();
@@ -521,6 +285,524 @@ angular.module('offlineForms', [])
 		this.init 	= tools.init;
 	}
 	return User;
+})
+.factory('ParsePouch', function($rootScope, $http, $q, config, Auth){
+	//Offline FIRST!!!
+	//Listen Capable
+	/*
+		This still needs to listen for remote changes, and update at appropriate
+		time.  It needs to save dependancies prior to saving any object with
+		pointers and then update the local object pointers to the correct 
+		objectId prior to saving to parse.
+		Should the local pointers always point to the localId?  and then be 
+		shuffled one way or the other when communicating with parse?
+		
+	*/
+	var Parse = function(className){
+		var ds = this;
+		ds.settings = {
+			className: 		'Ud_Untitled',	//REQUIRED
+			dependencies: 	[],				//OPTIONAL ...WIll be determined at data save.  Only dependancy will be pointers.  BEWARE OF CIRCULAR POINTERS
+			onChange: 		[],				//OPTIONAL (will call function when remote change occurs.)
+		}
+		
+		if(typeof(className) == 'object')
+			ds.settings = angular.extend(ds.settings, className)
+		else
+			ds.settings.className = className;
+		
+		ds.db = new PouchDB(ds.settings.className);
+		ds._parse = {
+			//generic save to parse.  Called from sync (after saved locally)
+			save: function(object){
+				var deferred = $q.defer();
+				var dependancies = [];
+				var keys = Object.keys(object);
+				console.log('save',object)
+				//what about an array of pointers!?!?!?!
+				//what about an object with an array of pointers!?!?!
+				keys.forEach(function(key){
+					if(object[key].__type == 'Pointer' && object[key].localId)
+						dependancies.push(object[key])
+				})
+				dependancies.forEach(function(d){
+					console.log(d);
+				})
+				// if(!object.objectId)
+				// 	ds._parse.new(object).then(function(result){
+				// 		object.objectId = result.objectId;
+				// 		object.createdAt = result.createdAt;
+				// 		ds._tools.updateLocal(object)
+				// 	})
+				// else
+				// 	ds._parse.update(object).then(function(result){
+				// 		object.updatedAt = result.updatedAt;
+				// 		ds._tools.updateLocal(object)
+				// 	})
+				return deferred.promise;
+			},
+			prepare: function(object){
+				object = angular.copy(object);
+				object.pdbId 	= object._id;
+				object.pdbRev 	= object._rev;
+				object.pdbState = 'savedRemotly'
+				delete object._id
+				delete object._rev
+				delete object.objectId
+				delete object.updatedAt
+				delete object.createdAt
+				return object;
+			},
+			new: function(object){
+				var deferred = $q.defer();
+				object = ds._parse.prepare(object);
+				$http.post(config.parse.root+'/classes/'+ds.settings.className, object).success(function(data){
+					object = angular.extend(object, data);
+					deferred.resolve(object)
+				}).error(function(e){
+					deferred.reject(e);
+				})
+				return deferred.promise;
+			},
+			update: function(object){
+				var deferred = $q.defer();
+				var objectId = object.objectId;
+				var object2 = ds._parse.prepare(object);
+				$http.put(config.parse.root+'/classes/'+ds.settings.className+'/'+objectId, object2).success(function(data){
+					object2 = angular.extend(object, data);
+					deferred.resolve(object2)
+				}).error(function(e){
+					deferred.reject(e);
+				})
+				return deferred.promise;
+			}
+		}
+		ds._tools = {
+			//once an item is pulled from parse, this saves it locally.
+			prepare: function(object){
+				if(object.pdbId)
+					object._id 		= object.pdbId;
+				else
+					object._id 		= object.objectId;
+				object.pdbState = 'inSync'
+				delete object.pdbId
+				delete object.pdbRev
+				return object;
+			},
+			updateLocal: function(object){
+				var deferred = $q.defer();
+				object = ds._tools.prepare(object);
+				ds.db.get(object._id).then(function(o2){
+					object._rev = o2._rev;
+					ds.db.put(object).then(function(response) {
+						deferred.resolve(response)
+					}).catch(function(e) {
+						deferred.reject(e)
+					})
+				}).catch(function(e) {
+					deferred.reject(e)
+				})
+				return deferred.promise;
+			},
+			//pulls an item from parse and then saves it locally
+			pull: function(objectId){
+				var deferred = $q.defer();
+				$http.get(config.parse.root+'/classes/'+ds.settings.className+'/'+objectId).success(function(object){
+					object = ds._tools.prepare(object)
+					ds._tools.updateLocal(object).then(function(r){
+						deferred.resolve(r)
+					}, function(e){
+						deferred.reject(e);
+					})
+				}).error(function(e){
+					deferred.reject(e);
+				})
+				return deferred.promise;
+			},
+			//pulls 1000 items from parse and saves them locally.
+			pullNsave: function(skip){
+				var deferred = $q.defer();
+				var qry = '?limit=1000';
+				if(skip)
+					qry += '&skip='+skip
+				$http.get(config.parse.root+'/classes/'+ds.settings.className+qry).success(function(data){
+					var list = data.results.map(ds._tools.prepare)
+					ds.db.bulkDocs(list).then(function(result) {
+						deferred.resolve(list)
+					}).catch(function(e) {
+						deferred.reject(e);
+					});
+				}).error(function(e){
+					deferred.reject(e);
+				})
+				return deferred.promise;
+			},
+			//calls pullNsave until all items are saved locally.  Sets up a new DB if needed.
+			pullAll: function(skip){
+				var deferred = $q.defer();
+				function groove(skip){
+					skip = skip || 0;
+					ds._tools.pullNsave(skip).then(function(list){
+						if(list.length == 1000)
+							ds._tools.pullAll(skip+list.length).then(function(){
+								deferred.resolve();
+							})
+						else
+							deferred.resolve();
+					})
+				}
+				if(!skip)
+					ds.db.destroy().then(function(success){
+						ds.db = new PouchDB(ds.settings.className);
+						ds.db.createIndex({
+							index: {
+								fields: ['objectId','pdbState']
+							}
+						});
+						groove(skip);
+					}).catch(function(e){
+						console.error(e);
+					})
+				else
+					groove(skip)
+				return deferred.promise;
+			},
+			//Saves dirty local data to parse.
+			sync: function(){
+				var deferred = $q.defer();
+				ds.db.find({selector:{pdbState:'savedLocally'}})
+				.then(function(syncList) {
+					syncList.docs.forEach(function(item){
+						ds._parse.save(item);
+					})
+				}).catch(function(e) {
+					deferred.reject(e);
+				});
+				return deferred.promise;
+			},
+			id: function() {
+				var genId = Date.now();
+				var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+				for (var i = 0; i < 5; i++)
+					genId += possible.charAt(Math.floor(Math.random() * possible.length));
+				return genId;
+			}
+		}
+		ds.tools = {
+			list: function(){
+				var deferred = $q.defer();
+				ds.db.allDocs({include_docs: true}).then(function(list){
+					list = list.rows.map(function(item){
+						return item.doc;
+					})
+					deferred.resolve(list)
+				})
+				return deferred.promise;
+			},
+			get: function(objectId){
+				var deferred = $q.defer();
+				ds.db.find({selector: {objectId: objectId}})
+				.then(function(result) {
+					deferred.resolve(result.docs[0])
+				}).catch(function(e) {
+					deferred.reject(e)
+				});
+				return deferred.promise;
+			},
+			localGet: function(id){
+				var deferred = $q.defer();
+				ds.db.get(id)
+				.then(function(result) {
+					deferred.resolve(result)
+				}).catch(function(e) {
+					deferred.reject(e)
+				});
+				return deferred.promise;
+			},
+			save: function(item){
+				var deferred = $q.defer();
+				item.pdbState = 'savedLocally';
+				if(!item._id)
+					item._id = ds._tools.id();
+				ds.db.put(item).then(function(r) {
+					item._id = r.id;
+					item._rev = r.rev;
+					deferred.resolve(item);
+				}).catch(function(e) {
+					console.error(e);
+				});
+				return deferred.promise;
+			},
+			pointer: function(object){
+				if(object.objectId)
+					return {
+						__type: "Pointer",
+						className: ds.settings.className,
+						objectId: object.objectId
+					}
+				else
+					return {
+						__type: "Pointer",
+						className: ds.settings.className,
+						localId: object._id
+					}
+			}
+		}
+		// ds.schema = function(){
+		// 	var deferred = $q.defer();
+		// 	$http.get(config.parse.root+'/schemas/'+ds.className).success(function(data){
+		// 		deferred.resolve(data.results)
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.list = function(){
+		// 	var deferred = $q.defer();
+		// 	if(ds.immediate)
+		// 		$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
+		// 			deferred.resolve(data.results)
+		// 		}).error(function(e){
+		// 			deferred.reject(e);
+		// 		})
+		// 	else
+		// 		Auth.init().then(function(){
+		// 			$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
+		// 				deferred.resolve(data.results)
+		// 			}).error(function(e){
+		// 				deferred.reject(e);
+		// 			})
+		// 		});
+		// 	return deferred.promise;
+		// }
+		// ds.authQuery = function(query){
+		// 	var deferred = $q.defer();
+		// 	Auth.init().then(function(){
+		// 		$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
+		// 			deferred.resolve(data.results)
+		// 		}).error(function(e){
+		// 			deferred.reject(e);
+		// 		})
+		// 	});
+		// 	return deferred.promise;
+		// }
+		// ds.query = function(query){
+		// 	var deferred = $q.defer();
+		// 	$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
+		// 		if(data.results && data.results.length)
+		// 			deferred.resolve(data.results)
+		// 		else
+		// 			ds.authQuery.then(function(r){
+		// 				deferred.resolve(r)
+		// 			})
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.get = function(objectId){
+		// 	var deferred = $q.defer();
+		// 	$http.get(config.parse.root+'/classes/'+ds.className+'/'+objectId).success(function(data){
+		// 		deferred.resolve(data)
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.batch = function(arr){
+		// 	var deferred = $q.defer();
+		// 	var requests = arr.map(function(item){
+		// 		delete item.createdAt;
+		// 		delete item.updatedAt;
+		// 		if(item.objectId){
+		// 			var method = 'PUT'
+		// 			var path = '/1/classes/'+ds.className+'/'+item.objectId;
+		// 			delete item.objectId;
+		// 		}else{
+		// 			var method = 'POST'
+		// 			var path = '/1/classes/'+ds.className
+		// 		}
+		// 		return {
+		// 			method: method,
+		// 			path: path,
+		// 			body: item
+		// 		}
+		// 	})
+		// 	$http.post(config.parse.root+'/batch', {requests: requests}).success(function(data){
+		// 		deferred.resolve(data)
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.save = function(object){
+		// 	//Save offline first, then sync later.
+		// 	//Create an onsync callback register
+			
+		// }
+		// // ds.save = function(object){
+		// // 	if(!object.objectId)
+		// // 		return ds.new(object)
+		// // 	else
+		// // 		return ds.update(object)
+		// // }
+		// ds.new = function(object){
+		// 	var deferred = $q.defer();
+		// 	object = angular.copy(object);
+		// 	delete object.objectId
+		// 	delete object.updatedAt
+		// 	delete object.createdAt
+		// 	$http.post(config.parse.root+'/classes/'+ds.className, object).success(function(data){
+		// 		object = angular.extend(object, data);
+		// 		deferred.resolve(object)
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.update = function(object){
+		// 	var deferred = $q.defer();
+		// 	var object2 = angular.copy(object);
+		// 	var objectId = object.objectId;
+		// 	delete object2.objectId
+		// 	delete object2.updatedAt
+		// 	delete object2.createdAt
+		// 	$http.put(config.parse.root+'/classes/'+ds.className+'/'+objectId, object2).success(function(data){
+		// 		object2 = angular.extend(object, data);
+		// 		deferred.resolve(object2)
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.delete = function(object){
+		// 	var deferred = $q.defer();
+		// 	$http.delete(config.parse.root+'/classes/'+ds.className+'/'+object.objectId).success(function(data){
+		// 		deferred.resolve(data)
+		// 	}).error(function(e){
+		// 		deferred.reject(e);
+		// 	})
+		// 	return deferred.promise;
+		// }
+		// ds.ACL = {
+		// 	init: function(){
+		// 		if(!$rootScope.users){
+		// 			Auth.init().then(function(){
+		// 				$http.get(config.parse.root+'/classes/_User').success(function(data){
+		// 					$rootScope.users = data.results
+		// 				})
+		// 				$http.get(config.parse.root+'/classes/_Role').success(function(data){
+		// 					$rootScope.roles = data.results
+		// 				})
+		// 			});
+		// 		}
+		// 	},
+		// 	modal: function(object, message){
+		// 		object = object || {}
+		// 		var deferred = $q.defer();
+		// 		ds.ACL.init();
+		// 		$rootScope.ACL = {
+		// 			deferred: deferred,
+		// 			object: ds.ACL.unpack(object),
+		// 			message: message,
+		// 			tools: ds.ACL
+		// 		};
+		// 		$('#ACL').modal({
+		// 			keyboard: false,
+		// 			backdrop: 'static',
+		// 			show: true
+		// 		});
+		// 		return deferred.promise;
+		// 	},
+		// 	close: function(){
+		// 		var object = ds.ACL.pack($rootScope.ACL.object)
+		// 		$('#ACL').modal('hide');
+		// 		$rootScope.ACL.deferred.resolve(object)
+		// 	},
+		// 	add: function(type){
+		// 		if(!$rootScope.ACL.object.acl)
+		// 			$rootScope.ACL.object.acl = []
+		// 		$rootScope.ACL.object.acl.push({type:type})
+		// 	},
+		// 	remove: function(acl){
+		// 		var i = $rootScope.ACL.object.acl.indexOf(acl)
+		// 		$rootScope.ACL.object.acl.splice(i, 1)
+		// 	},
+		// 	verify: function(){
+		// 		//This will need to check to make sure the current user will still have access
+		// 		//If the current user will not have access, then prompt to see if they still 
+		// 		//want to set those permissions.
+		// 	},
+		// 	unpack: function(object){
+		// 		if(!object.ACL)
+		// 			return object;
+		// 		var keys = Object.keys(object.ACL)
+		// 		object.acl = [];
+		// 		keys.forEach(function(key){
+		// 			var acl = object.ACL[key]; //read write params
+		// 				acl.type = 'user';
+		// 			if(key.indexOf('*') != -1){
+		// 				acl.type = 'all';
+		// 				object.pAcl = acl;
+		// 			}else if(key.indexOf('role:') != -1){
+		// 				acl.type = 'role';
+		// 				key = key.replace('role:', '')
+		// 			}
+		// 			if(acl.type != 'all'){
+		// 				acl[acl.type] = key;
+		// 				object.acl.push(acl)
+		// 			}
+		// 		})
+		// 		return object;
+		// 	},
+		// 	pack: function(object){
+		// 		var acl = {'*':{},'role:Admin':{read:true,write:true}};
+		// 		if(!object.ACL)
+		// 			acl[Auth.objectId] = {
+		// 				read: true,
+		// 				write: true
+		// 			}
+		// 		if(object.pAcl){
+		// 			if(object.pAcl.read)
+		// 				acl['*'].read = object.pAcl.read
+		// 			if(object.pAcl.write)
+		// 				acl['*'].write = object.pAcl.write
+		// 		}
+		// 		if(object.acl)
+		// 			object.acl.forEach(function(item){
+		// 				if(item.role != 'Admin'){
+		// 					if(item[item.type]){
+		// 						var extension = '';
+		// 						if(item.type == 'role')
+		// 							extension = 'role:'
+		// 						acl[extension+item[item.type]] = {};
+		// 						if(item.read)
+		// 							acl[extension+item[item.type]].read = item.read
+		// 						if(item.write)
+		// 							acl[extension+item[item.type]].write = item.write
+		// 					}
+		// 				}
+		// 			})
+		// 		delete object.acl
+		// 		delete object.pAcl
+		// 		object.ACL = acl
+		// 		return object;
+		// 	}
+		// }
+	}
+	return Parse;
+})
+.factory('urlSearch', function(){
+	return function(key) {
+		var url = window.location.href;
+		url = url.toLowerCase(); // This is just to avoid case sensitiveness
+		key = key.replace(/[\[\]]/g, "\\$&").toLowerCase();// This is just to avoid case sensitiveness for query parameter key
+		var regex = new RegExp("[?&]" + key + "(=([^&#]*)|&|#|$)"),
+		    results = regex.exec(url);
+		if (!results) return null;
+		if (!results[2]) return '';
+		return decodeURIComponent(results[2].replace(/\+/g, " "));
+	}
 })
 .controller('FormsCtrl', function($scope, $http, $q, $timeout, urlSearch, Parse, Auth, config){
 	var Forms = new Parse('Forms');
@@ -967,3 +1249,12 @@ angular.module('offlineForms', [])
 	
 	it.FormsCtrl = $scope;
 })
+
+.controller('DC', function($scope, ParsePouch){
+	it.at = new ParsePouch('ud_athlete');
+	it.bu = new ParsePouch('ud_buses');
+	var tools = $scope.tools = {
+		
+	}
+	return tools;
+});
