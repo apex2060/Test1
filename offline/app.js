@@ -522,7 +522,7 @@ angular.module('offlineForms', [])
 	}
 	return User;
 })
-.controller('FormsCtrl', function($scope, $http, $q, $timeout, urlSearch, Parse, Auth, config){
+.controller('FormsCtrl', function($scope, $http, $q, $timeout, $interpolate, $sce, urlSearch, Parse, Auth, config){
 	var Forms = new Parse('Forms');
 	$scope.online = true;
 	$scope.view = 'forms';
@@ -662,7 +662,8 @@ angular.module('offlineForms', [])
 					keys.forEach(function(key){
 						forms[key].forEach(function(entry){
 							tools.admin.entries.log(entry)
-							if(entry.status != 'saved' && entry.status != 'error')
+							console.log('status',entry.status)
+							if(entry.status != 'saved' && entry.status != 'error'){
 								$scope.view = 'sync';
 								$timeout(function(){
 									entry.status = 'syncing'
@@ -676,6 +677,7 @@ angular.module('offlineForms', [])
 										tools.localSave();
 									})
 								}, 1000)
+							}
 						})
 					})
 				},
@@ -858,8 +860,8 @@ angular.module('offlineForms', [])
 				tools.localSave();
 				
 				form.onSubmit = form.onSubmit || {};
-				if(form.onSubmit.link)
-					window.location = form.onSubmit.link
+				if(form.onSubmit.html)
+					$scope.page = form.onSubmit.html;
 				else
 					tools.form.end.modal();
 			},
@@ -953,12 +955,25 @@ angular.module('offlineForms', [])
 			}
 		},
 		random: {
+			hidePage: function(){
+				delete $scope.page;
+				delete $scope.data;
+				$scope.form = angular.copy($scope.orig);
+			},
 			title: function(key){
 				if($scope.vault.forms[key])
 					return $scope.vault.forms[key].title
 				else
 					return 'Form Unavailable'
-			}
+			},
+			interpolate: function(template, scope){
+				if(template && scope && Object.keys(scope).length)
+					return $sce.trustAsHtml($interpolate(template)(scope))
+				else if(template)
+					return $sce.trustAsHtml(template)
+				else
+					return ''
+			},
 		}
 	}
 	

@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# V5
+# V14
 
 CACHE:
 /favicon.ico
@@ -13,7 +13,7 @@ sync.html
 vendor.js
 app.js
 
-vendor.css
+vendor.cs
 app.css
 
 # Resources that require the user to be online.

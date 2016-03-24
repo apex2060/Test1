@@ -19,7 +19,7 @@
 </head>
 
 <body ng-app="offlineForms" ng-controller="FormsCtrl">
-	<div class="container">
+	<div class="container" ng-hide="page">
 		<nav class="navbar navbar-default">
 			<div class="container-fluid">
 				<div class="navbar-header">
@@ -52,7 +52,7 @@
 		</nav>
 		<div ng-include="tools.view()"></div>
 	</div>
-	
+	<div ng-show="page" ng-bind-html="tools.random.interpolate(page, data)" ng-dblclick="tools.random.hidePage()"></div>
 	<script src="//apis.google.com/js/client:platform.js?onload=auth"></script>
 </body>
 </html>
