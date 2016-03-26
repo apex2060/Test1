@@ -722,14 +722,18 @@ angular.module('offlineForms', [])
 							return deferred.promise;
 						},
 						pointer: function(field){
-							field.Data = new Parse(field.ptr.database);
-							var query = field.ptr.query || '';
-							field.Data.query(query).then(function(list){
-								field.options = list;
-								if(data)
-									field.value = data.objectId
-								deferred.resolve(field);
-							})
+							if(field.ptr){
+								field.Data = new Parse(field.ptr.database);
+								var query = field.ptr.query || '';
+								field.Data.query(query).then(function(list){
+									field.options = list;
+									if(data)
+										field.value = data.objectId
+									deferred.resolve(field);
+								})
+							}else{
+								deferred.resolve(field)
+							}
 							return deferred.promise;
 						}
 					}

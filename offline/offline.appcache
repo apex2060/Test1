@@ -13,7 +13,7 @@ sync.html
 vendor.js
 app.js
 
-vendor.cs
+vendor.js
 app.css
 
 # Resources that require the user to be online.
