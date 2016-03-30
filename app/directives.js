@@ -20,7 +20,7 @@ app.directive('drawer', ['$timeout', function($timeout) {
 	};
 }]);
 
-app.directive('signature', function(){
+app.directive('signature', function($timeout){
 	return {
 		restrict: 'E',
 		replace: true,
@@ -32,7 +32,16 @@ app.directive('signature', function(){
 		link: function(scope, ele, attrs,  ngModel){
 			var signature = {};
 			var sig = ele.children()[0];
-			$(sig).jSignature();
+			function waitToRender(sig){
+				if(sig.offsetParent !== null)
+					$(sig).jSignature();
+				else
+					$timeout(function(){
+						waitToRender(sig);
+					}, 1000)
+			}
+			waitToRender(sig);
+			
 			ngModel.$render = function() {
 				return scope.signature.load(ngModel.$viewValue);
 			};
