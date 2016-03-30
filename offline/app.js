@@ -714,9 +714,7 @@ angular.module('offlineForms', [])
 					keys.forEach(function(key){
 						forms[key].forEach(function(entry){
 							tools.admin.entries.log(entry)
-							console.log('status',entry.status)
 							if(entry.status != 'saved' && entry.status != 'error'){
-								$scope.view = 'sync';
 								$timeout(function(){
 									entry.status = 'syncing'
 									$http.post('https://api.parse.com/1/functions/formSubmit', entry).success(function(data){
@@ -724,9 +722,13 @@ angular.module('offlineForms', [])
 										entry.status  = 'saved';
 										tools.localSave();
 									}).error(function(error){
-										entry.status  = 'error';
-										entry.error = error;
-										tools.localSave();
+										if(error){
+											entry.status  = 'error';
+											entry.error = error;
+											tools.localSave();
+										}else{
+											delete entry.status;
+										}
 									})
 								}, 1000)
 							}
@@ -947,13 +949,25 @@ angular.module('offlineForms', [])
 			}
 		},
 		data: {
-			list: {
-				// focus: function(list){
-				// 	$scope.form = list;
-				// }
-			},
-			item: {
-				
+			compile: function(){
+				var keys = Object.keys($scope.vault.entries)
+				var list = keys.map(function(key){
+					var entries = $scope.vault.entries[key];
+					if($scope.vault.forms[key])
+						var form = $scope.vault.forms[key]
+					var data = {
+						form: form,
+						entries: entries,
+						status: []
+					}
+					entries.forEach(function(entry){
+						if(!data.status[entry.status])
+							data.status[entry.status] = []
+						data.status[entry.status].push(entry);
+					})
+					return data;
+				})
+				$scope.data = list;
 			}
 		},
 		item: {
@@ -1015,12 +1029,6 @@ angular.module('offlineForms', [])
 				delete $scope.page;
 				delete $scope.data;
 				$scope.form = angular.copy($scope.orig);
-			},
-			title: function(key){
-				if($scope.vault.forms[key])
-					return $scope.vault.forms[key].title
-				else
-					return 'Form Unavailable'
 			},
 			interpolate: function(template, scope){
 				if(template && scope && Object.keys(scope).length)
