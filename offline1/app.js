@@ -286,7 +286,8 @@ angular.module('offlineForms', [])
 	}
 	return User;
 })
-.factory('ParsePouch', function($rootScope, $http, $q, config, Auth){
+//Pouch Parse Data Service
+.factory('Parse', function($http, $q, config, Auth){
 	//Offline FIRST!!!
 	//Listen Capable
 	/*
@@ -297,12 +298,17 @@ angular.module('offlineForms', [])
 		Should the local pointers always point to the localId?  and then be 
 		shuffled one way or the other when communicating with parse?
 		
+		When remote changes occur a timestamp of updatedAt will be modified in firebase
+		Pull all records with updatedAt since last sync timestamp.
+		
+		On Save, attempt to save remotly.  If offline or fail, wait until connection
+		then sync all on re-connect.
 	*/
 	var Parse = function(className){
 		var ds = this;
+		it[className] = ds;
 		ds.settings = {
 			className: 		'Ud_Untitled',	//REQUIRED
-			dependencies: 	[],				//OPTIONAL ...WIll be determined at data save.  Only dependancy will be pointers.  BEWARE OF CIRCULAR POINTERS
 			onChange: 		[],				//OPTIONAL (will call function when remote change occurs.)
 		}
 		
@@ -314,31 +320,76 @@ angular.module('offlineForms', [])
 		ds.db = new PouchDB(ds.settings.className);
 		ds._parse = {
 			//generic save to parse.  Called from sync (after saved locally)
-			save: function(object){
+			preparePtrs: function(object){
 				var deferred = $q.defer();
-				var dependancies = [];
-				var keys = Object.keys(object);
-				console.log('save',object)
+				var object = angular.copy(object);
 				//what about an array of pointers!?!?!?!
 				//what about an object with an array of pointers!?!?!
-				keys.forEach(function(key){
-					if(object[key].__type == 'Pointer' && object[key].localId)
-						dependancies.push(object[key])
+				//what if there is circular reasoning.
+				//it would require one to remove a circular pointer, save the obj, re-add the pointer, and re-save.
+				function assoc(ptr){
+					var assocDefer = $q.defer();
+					var Tdb = new Parse(ptr.className);
+					Tdb.tools.localGet(ptr.localId).then(function(tobj){
+						if(tobj.objectId){
+							ptr.objectId = tobj.objectId;
+							assocDefer.resolve(ptr);
+						}else{
+							Tdb._parse.save(tobj).then(function(sobj){
+								ptr.objectId = sobj.objectId;
+								assocDefer.resolve(ptr);
+							})
+						}
+					})
+					return assocDefer.promise;
+				}
+				function type(itm){
+					if(!itm){
+						return 'undefined'
+					}else if(itm.__type == 'Pointer' && itm.localId)
+						return 'pointer'
+					else if(Array.isArray(itm)){
+						return 'array'
+					}else if(typeof(itm) == 'object'){
+						return 'object'
+					}
+				}
+				function dep(obj){
+					var depList = {
+						dep: [],
+						obj: []
+					}
+					if(type(obj) == 'object'){
+						var keys = Object.keys(obj);
+						keys.forEach(function(key){
+							var list = dep(obj[key])
+							depList.dep = depList.dep.concat(list.dep)
+							depList.obj = depList.obj.concat(list.obj)
+						})
+					}else if(type(obj) == 'array'){
+						obj.forEach(function(itm){
+							var list = dep(itm)
+							depList.dep = depList.dep.concat(itm.dep)
+							depList.obj = depList.obj.concat(itm.obj)
+						})
+					}else if(type(obj) == 'pointer'){
+						var promise = assoc(obj);
+						depList.dep.push(promise)
+						depList.obj.push(obj)
+					}else{
+						return {dep:[],obj:[]}
+					}
+					return depList;
+				}
+				
+				var d = dep(object);
+				$q.all(d.dep).then(function(results){
+					results.forEach(function(itm, i){
+						d.obj.objectId = itm.objectId;
+						delete d.obj.localId;
+					})
+					deferred.resolve(object);
 				})
-				dependancies.forEach(function(d){
-					console.log(d);
-				})
-				// if(!object.objectId)
-				// 	ds._parse.new(object).then(function(result){
-				// 		object.objectId = result.objectId;
-				// 		object.createdAt = result.createdAt;
-				// 		ds._tools.updateLocal(object)
-				// 	})
-				// else
-				// 	ds._parse.update(object).then(function(result){
-				// 		object.updatedAt = result.updatedAt;
-				// 		ds._tools.updateLocal(object)
-				// 	})
 				return deferred.promise;
 			},
 			prepare: function(object){
@@ -352,6 +403,42 @@ angular.module('offlineForms', [])
 				delete object.updatedAt
 				delete object.createdAt
 				return object;
+			},
+			save: function(object){
+				//prepare for remote save
+				//keep local pointers
+				//update local (createdAt, updatedAt, objectId)
+				var deferred = $q.defer();
+				ds._parse.preparePtrs(object).then(function(o2){
+					if(!object.objectId){
+						ds._parse.new(o2).then(function(obj){
+							object.objectId = obj.objectId;
+							object.createdAt = obj.createdAt;
+							ds.db.put(object).then(function(r) {
+								object.pdbState = 'syncSuccess';
+								object._id = r.id;
+								object._rev = r.rev;
+								deferred.resolve(object);
+							}).catch(function(e) {
+								console.error(e);
+							});
+							deferred.resolve(obj);
+						})
+					}else{
+						ds._parse.update(o2).then(function(obj){
+							object.updatedAt = object.updatedAt;
+							ds.db.put(object).then(function(r) {
+								object.pdbState = 'syncSuccess';
+								object._id = r.id;
+								object._rev = r.rev;
+								deferred.resolve(object);
+							}).catch(function(e) {
+								console.error(e);
+							});
+						})
+					}
+				})
+				return deferred.promise;
 			},
 			new: function(object){
 				var deferred = $q.defer();
@@ -491,13 +578,29 @@ angular.module('offlineForms', [])
 		ds.tools = {
 			list: function(){
 				var deferred = $q.defer();
-				ds.db.allDocs({include_docs: true}).then(function(list){
-					list = list.rows.map(function(item){
-						return item.doc;
-					})
-					deferred.resolve(list)
+				ds.db.info().then(function(dbInfo){
+					if(dbInfo.doc_count > 0){
+						ds.db.allDocs({include_docs: true}).then(function(list){
+							list = list.rows.map(function(item){
+								return item.doc;
+							})
+							deferred.resolve(list)
+						})
+					}else{
+						ds._tools.pullAll().then(function(){
+							ds.db.allDocs({include_docs: true}).then(function(list){
+								list = list.rows.map(function(item){
+									return item.doc;
+								})
+								deferred.resolve(list)
+							})
+						})
+					}
 				})
 				return deferred.promise;
+			},
+			query: function(query){
+				return ds.tools.list();
 			},
 			get: function(objectId){
 				var deferred = $q.defer();
@@ -546,251 +649,44 @@ angular.module('offlineForms', [])
 						className: ds.settings.className,
 						localId: object._id
 					}
+			},
+			delete: function(object){
+				//remove object.
 			}
 		}
-		// ds.schema = function(){
-		// 	var deferred = $q.defer();
-		// 	$http.get(config.parse.root+'/schemas/'+ds.className).success(function(data){
-		// 		deferred.resolve(data.results)
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.list = function(){
-		// 	var deferred = $q.defer();
-		// 	if(ds.immediate)
-		// 		$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
-		// 			deferred.resolve(data.results)
-		// 		}).error(function(e){
-		// 			deferred.reject(e);
-		// 		})
-		// 	else
-		// 		Auth.init().then(function(){
-		// 			$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
-		// 				deferred.resolve(data.results)
-		// 			}).error(function(e){
-		// 				deferred.reject(e);
-		// 			})
-		// 		});
-		// 	return deferred.promise;
-		// }
-		// ds.authQuery = function(query){
-		// 	var deferred = $q.defer();
-		// 	Auth.init().then(function(){
-		// 		$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
-		// 			deferred.resolve(data.results)
-		// 		}).error(function(e){
-		// 			deferred.reject(e);
-		// 		})
-		// 	});
-		// 	return deferred.promise;
-		// }
-		// ds.query = function(query){
-		// 	var deferred = $q.defer();
-		// 	$http.get(config.parse.root+'/classes/'+ds.className+query).success(function(data){
-		// 		if(data.results && data.results.length)
-		// 			deferred.resolve(data.results)
-		// 		else
-		// 			ds.authQuery.then(function(r){
-		// 				deferred.resolve(r)
-		// 			})
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.get = function(objectId){
-		// 	var deferred = $q.defer();
-		// 	$http.get(config.parse.root+'/classes/'+ds.className+'/'+objectId).success(function(data){
-		// 		deferred.resolve(data)
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.batch = function(arr){
-		// 	var deferred = $q.defer();
-		// 	var requests = arr.map(function(item){
-		// 		delete item.createdAt;
-		// 		delete item.updatedAt;
-		// 		if(item.objectId){
-		// 			var method = 'PUT'
-		// 			var path = '/1/classes/'+ds.className+'/'+item.objectId;
-		// 			delete item.objectId;
-		// 		}else{
-		// 			var method = 'POST'
-		// 			var path = '/1/classes/'+ds.className
-		// 		}
-		// 		return {
-		// 			method: method,
-		// 			path: path,
-		// 			body: item
-		// 		}
-		// 	})
-		// 	$http.post(config.parse.root+'/batch', {requests: requests}).success(function(data){
-		// 		deferred.resolve(data)
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.save = function(object){
-		// 	//Save offline first, then sync later.
-		// 	//Create an onsync callback register
-			
-		// }
-		// // ds.save = function(object){
-		// // 	if(!object.objectId)
-		// // 		return ds.new(object)
-		// // 	else
-		// // 		return ds.update(object)
-		// // }
-		// ds.new = function(object){
-		// 	var deferred = $q.defer();
-		// 	object = angular.copy(object);
-		// 	delete object.objectId
-		// 	delete object.updatedAt
-		// 	delete object.createdAt
-		// 	$http.post(config.parse.root+'/classes/'+ds.className, object).success(function(data){
-		// 		object = angular.extend(object, data);
-		// 		deferred.resolve(object)
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.update = function(object){
-		// 	var deferred = $q.defer();
-		// 	var object2 = angular.copy(object);
-		// 	var objectId = object.objectId;
-		// 	delete object2.objectId
-		// 	delete object2.updatedAt
-		// 	delete object2.createdAt
-		// 	$http.put(config.parse.root+'/classes/'+ds.className+'/'+objectId, object2).success(function(data){
-		// 		object2 = angular.extend(object, data);
-		// 		deferred.resolve(object2)
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.delete = function(object){
-		// 	var deferred = $q.defer();
-		// 	$http.delete(config.parse.root+'/classes/'+ds.className+'/'+object.objectId).success(function(data){
-		// 		deferred.resolve(data)
-		// 	}).error(function(e){
-		// 		deferred.reject(e);
-		// 	})
-		// 	return deferred.promise;
-		// }
-		// ds.ACL = {
-		// 	init: function(){
-		// 		if(!$rootScope.users){
-		// 			Auth.init().then(function(){
-		// 				$http.get(config.parse.root+'/classes/_User').success(function(data){
-		// 					$rootScope.users = data.results
-		// 				})
-		// 				$http.get(config.parse.root+'/classes/_Role').success(function(data){
-		// 					$rootScope.roles = data.results
-		// 				})
-		// 			});
-		// 		}
-		// 	},
-		// 	modal: function(object, message){
-		// 		object = object || {}
-		// 		var deferred = $q.defer();
-		// 		ds.ACL.init();
-		// 		$rootScope.ACL = {
-		// 			deferred: deferred,
-		// 			object: ds.ACL.unpack(object),
-		// 			message: message,
-		// 			tools: ds.ACL
-		// 		};
-		// 		$('#ACL').modal({
-		// 			keyboard: false,
-		// 			backdrop: 'static',
-		// 			show: true
-		// 		});
-		// 		return deferred.promise;
-		// 	},
-		// 	close: function(){
-		// 		var object = ds.ACL.pack($rootScope.ACL.object)
-		// 		$('#ACL').modal('hide');
-		// 		$rootScope.ACL.deferred.resolve(object)
-		// 	},
-		// 	add: function(type){
-		// 		if(!$rootScope.ACL.object.acl)
-		// 			$rootScope.ACL.object.acl = []
-		// 		$rootScope.ACL.object.acl.push({type:type})
-		// 	},
-		// 	remove: function(acl){
-		// 		var i = $rootScope.ACL.object.acl.indexOf(acl)
-		// 		$rootScope.ACL.object.acl.splice(i, 1)
-		// 	},
-		// 	verify: function(){
-		// 		//This will need to check to make sure the current user will still have access
-		// 		//If the current user will not have access, then prompt to see if they still 
-		// 		//want to set those permissions.
-		// 	},
-		// 	unpack: function(object){
-		// 		if(!object.ACL)
-		// 			return object;
-		// 		var keys = Object.keys(object.ACL)
-		// 		object.acl = [];
-		// 		keys.forEach(function(key){
-		// 			var acl = object.ACL[key]; //read write params
-		// 				acl.type = 'user';
-		// 			if(key.indexOf('*') != -1){
-		// 				acl.type = 'all';
-		// 				object.pAcl = acl;
-		// 			}else if(key.indexOf('role:') != -1){
-		// 				acl.type = 'role';
-		// 				key = key.replace('role:', '')
-		// 			}
-		// 			if(acl.type != 'all'){
-		// 				acl[acl.type] = key;
-		// 				object.acl.push(acl)
-		// 			}
-		// 		})
-		// 		return object;
-		// 	},
-		// 	pack: function(object){
-		// 		var acl = {'*':{},'role:Admin':{read:true,write:true}};
-		// 		if(!object.ACL)
-		// 			acl[Auth.objectId] = {
-		// 				read: true,
-		// 				write: true
-		// 			}
-		// 		if(object.pAcl){
-		// 			if(object.pAcl.read)
-		// 				acl['*'].read = object.pAcl.read
-		// 			if(object.pAcl.write)
-		// 				acl['*'].write = object.pAcl.write
-		// 		}
-		// 		if(object.acl)
-		// 			object.acl.forEach(function(item){
-		// 				if(item.role != 'Admin'){
-		// 					if(item[item.type]){
-		// 						var extension = '';
-		// 						if(item.type == 'role')
-		// 							extension = 'role:'
-		// 						acl[extension+item[item.type]] = {};
-		// 						if(item.read)
-		// 							acl[extension+item[item.type]].read = item.read
-		// 						if(item.write)
-		// 							acl[extension+item[item.type]].write = item.write
-		// 					}
-		// 				}
-		// 			})
-		// 		delete object.acl
-		// 		delete object.pAcl
-		// 		object.ACL = acl
-		// 		return object;
-		// 	}
-		// }
+		ds.list = ds.tools.list;
+		ds.delete = ds.tools.delete;
+		ds.get = ds.tools.list;
+		ds.save = ds.tools.save;
 	}
 	return Parse;
+})
+.factory('Triger', function(Parse){
+	var Triger = function(){
+		var self = this;
+			self.data = {
+				table: '',		// any table in db
+				action: '', 	// (insert, update, delete)
+				conditions: [], // {col:col, 
+								// compare:('$lt,$lte,$gt,$gte',[$ne,$in,$nin],$exists,-$select,$dontSelect-,$all,$regex), 
+								// value:(string, number, array)}
+				actions: [] 	// {method:(call,text,email,fax,snail)
+								// params: (custom by method)}
+								// call: fromNumber, toNumber, message/<phoneInteraction>
+								// text: fromNumber, toNumber, message
+								// email: fromEmail, toEmail, subject, body(or template)
+								// fax: fromNumber, toNumber, document
+								// snail: fromAddress, toAddress, [document]
+			}
+		self.tools = {
+			get: {
+				options: function(){
+					//return list of columns and their type.
+				}
+			}
+		}
+	}
+	return Triger;
 })
 .factory('urlSearch', function(){
 	return function(key) {
@@ -804,181 +700,98 @@ angular.module('offlineForms', [])
 		return decodeURIComponent(results[2].replace(/\+/g, " "));
 	}
 })
-.controller('FormsCtrl', function($scope, $http, $q, $timeout, urlSearch, Parse, Auth, config){
-	var Forms = new Parse('Forms');
-	$scope.online = true;
-	$scope.view = 'forms';
-	$scope.Auth = Auth;
-	auth = function(){
-		tools.login();
+.factory('$routeParams', function(){
+	return {
+		id: 'init',
+		for: 'init',
+		action: 'forms'
 	}
-
+})
+.controller('AdminFormsCtrl', function($scope, $http, $timeout, $routeParams, Parse) {
+	var Forms = new Parse('Forms');
 	var tools = $scope.tools = {
+		view: function(){
+			var a = $routeParams.action || 'list';
+			return a+'.html';
+		},
 		init: function(){
-			$scope.data = {};
-			$scope.vault = localStorage.getItem('vault');
-			if($scope.vault)
-				$scope.vault = angular.fromJson($scope.vault)
-			else
-				tools.reset(true);
-			if($scope.vault.token)
-				$http.defaults.headers.common['X-Parse-Session-Token'] = $scope.vault.token;
-			tools.admin.sync();
+			tools.form.load();
 		},
-		view: function(view){
-			if(view){
-				$scope.view = view;
-				tools.blurForm();
-			}
-			if(!$scope.vault)
-				return 'setup.html';
-			else
-				return $scope.view+'.html';
+		focus: function(item){
+			$scope.focus = item;
 		},
-		login: function(choose){
-			it.h = $http;
-			if(gapi)
-				if(choose)
-					Auth.tools.switchUser().then(function(user){
-						$scope.user = user;
-						$scope.vault.token = user.pAuth.token;
-						tools.localSave();
-						tools.loadForms();
-					})
-				else
-					Auth.init().then(function(user){
-						$scope.user = user;
-						$scope.vault.token = user.pAuth.token;
-						tools.localSave();
-						tools.loadForms();
-					})
-		},
-		localSave: function(){
-			localStorage.setItem('vault', angular.toJson($scope.vault));
-		},
-		reset: function(override){
-			if(override || prompt('Enter Admin Pin To Clear Data.') == $scope.vault.pin){
-				$scope.vault = {
-					pin: 		'159487',
-					forms: 		{},
-					data: 		{},
-					entries: 	{}
-				}
-				tools.localSave();
-				alert('Settings Reset')
-			}else{
-				alert('Incorrect PIN')
-			}
-		},
-		resetPin: function(){
-			if(prompt('Enter Old Pin.') == $scope.vault.pin){
-				$scope.vault.pin = prompt('Enter New Pin');
-				alert('Settings Reset');
-			}else{
-				alert('Incorrect PIN');
-			}
-		},
-		loadForms: function(){
-			Forms.list().then(function(forms){
-				$scope.forms = forms;
-			})
-		},
-		toggleForm: function(form){
-			var vForm = $scope.vault.forms[form.objectId];
-			if(vForm){
-				delete $scope.vault.forms[form.objectId];
-			}else{
-				$scope.vault.forms[form.objectId] = form;
-				tools.loadFormData(form);
-			}
-		},
-		loadFormData: function(form){
-			tools.form.import(form.fields, {}).then(function(fields){
-				form.fields = fields;
-				$scope.vault.forms[form.objectId] = form;
-				tools.localSave();
-			})
-		},
-		focusForm: function(form){
-			if(!form.pin || prompt('Enter Pin')==form.pin){
-				$scope.orig = form;
-				$scope.form = angular.copy(form);
-			}
-		},
-		blurForm: function(){
-			$scope.form = null;
-		},
-		admin: {
-			sync: function(){
-				if(window.navigator.onLine){
-					tools.admin.form.sync();
-					tools.admin.entries.sync();
-				}
-			},
-			form: {
-				sync: function(){
-					var keys = Object.keys($scope.vault.forms);
-					keys.forEach(function(key){
-						tools.loadFormData($scope.vault.forms[key]);
-					})
-				},
-				focus: function(form){
-					if($scope.vault.forms[form.objectId])
-						$scope.form = $scope.vault.forms[form.objectId]
-					else
-						$scope.form = form;
-				},
-				save: function(form){
-					tools.localSave();
-				}
-			},
-			entries: {
-				log: function(entry){
-					if(!$scope.syncLog)
-						$scope.syncLog = [];
-					$scope.syncLog.push(entry)
-				},
-				sync: function(){
-					var forms = $scope.vault.entries;
-					var keys = Object.keys(forms);
-					keys.forEach(function(key){
-						forms[key].forEach(function(entry){
-							tools.admin.entries.log(entry)
-							if(entry.status != 'saved' && entry.status != 'error')
-								$scope.view = 'sync';
-								$timeout(function(){
-									entry.status = 'syncing'
-									$http.post('https://api.parse.com/1/functions/formSubmit', entry).success(function(data){
-										entry.dataId = data.result.objectId;
-										entry.status  = 'saved';
-										tools.localSave();
-									}).error(function(error){
-										entry.status  = 'error';
-										entry.error = error;
-										tools.localSave();
-									})
-								}, 1000)
-						})
-					})
-				},
-				clear: function(){
-					if(prompt('Enter PIN: ')==$scope.vault.pin){
-						//need to add options to only clear only synced, errors, or all entries.
-						$scope.vault.entries = {};
-						tools.localSave();
-					}
-				},
-				sClass: function(status){
-					var c = {
-						saved: 		'success',
-						syncing: 	'info',
-						error: 		'danger'
-					}
-					return c[status];
-				}
-			}
+		state: function(check){
+			return $scope.state == check;
 		},
 		form: {
+			load: function(){
+				$scope.state = 'loading'
+				Forms.list().then(function(list){
+					$scope.forms = list;
+					$scope.state = 'loaded'
+				})
+			},
+			refresh: function(){
+				$scope.state = 'refreshing'
+				Forms.list().then(function(list){
+					$scope.forms = list;
+					$scope.state = 'loaded'
+				})
+			},
+			delete: function(form){
+				if(confirm('Are you sure you want to delete this form?'))
+					Forms.delete(form).then(function(){
+						var i = $scope.forms.indexOf(form)
+						$scope.forms.splice(i,1)
+					})
+			}
+		}
+	}
+	tools.init();
+	it.AdminFormsCtrl = $scope;
+})
+.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, $routeParams, $interpolate, Parse, Google) {
+	it.http = $http;
+	var Forms = new Parse('Forms');
+	var Data = null;
+	$scope.data = {};
+	
+	var tools = $scope.tools = {
+		init: function(){
+			tools.form.load().then(function(form){
+				if($routeParams.for){
+					Data.get($routeParams.for).then(function(data){
+						$scope.data = data;
+						tools.form.import(form.fields, data).then(function(fields){
+							form.fields = fields;
+						})
+					})
+				}else{
+					tools.form.import(form.fields, {}).then(function(fields){
+						form.fields = fields;
+					})
+				}
+			})
+		},
+		form: {
+			load: function(){
+				var deferred = $q.defer();
+				$timeout(function(){
+					if($routeParams.action=='fill'){
+						if($routeParams.id){
+							Forms.get($routeParams.id).then(function(form){
+								$scope.orig = form;
+								$scope.form = angular.copy(form);
+								Data = new Parse(form.name);
+								deferred.resolve($scope.form);
+							})
+						}else{
+							tools.form.new();
+						}
+					}
+				}, 1000)
+				return deferred.promise;
+			},
 			import: function(fields, data){
 				var deferredFields = $q.defer();
 				data = data || {};
@@ -996,8 +809,7 @@ angular.module('offlineForms', [])
 						date: function(field){
 							var d = new Date()
 							var m = d.getTimezoneOffset();
-							if(data)
-								field.value = moment(data.iso).add(m, 'minutes').toDate()
+							field.value = moment(data.iso).add(m, 'minutes').toDate()
 							deferred.resolve(field);
 							return deferred.promise;
 						},
@@ -1131,19 +943,21 @@ angular.module('offlineForms', [])
 				$scope.data = angular.merge($scope.data, data);
 				var request = {
 					formId: form.objectId,
-					dataId: data.objectId,
-					data: 	data
+					dataId: $scope.data.objectId,
+					data: 	$scope.data
 				}
-				if(!$scope.vault.entries[form.objectId])
-					$scope.vault.entries[form.objectId] = [];
-				$scope.vault.entries[form.objectId].push(request)
-				tools.localSave();
-				
-				form.onSubmit = form.onSubmit || {};
-				if(form.onSubmit.link)
-					window.location = form.onSubmit.link
-				else
-					tools.form.end.modal();
+				$http.post('https://api.parse.com/1/functions/formSubmit', request).success(function(data){
+					$scope.data.objectId = data.result.objectId
+					if(!form.onSubmit)
+						form.onSubmit = {};
+					var message = $scope.form.onSubmit.message || 'Form Saved!'
+					toastr.success(message)
+						
+					if(form.onSubmit.link)
+						window.location = form.onSubmit.link
+					else
+						tools.form.end.modal();
+				})
 			},
 			end: {
 				modal: function(form){
@@ -1168,16 +982,6 @@ angular.module('offlineForms', [])
 					})
 					$('#endOptions').modal('hide');
 				},
-			}
-		},
-		data: {
-			list: {
-				// focus: function(list){
-				// 	$scope.form = list;
-				// }
-			},
-			item: {
-				
 			}
 		},
 		item: {
@@ -1235,26 +1039,16 @@ angular.module('offlineForms', [])
 			}
 		},
 		random: {
-			title: function(key){
-				if($scope.vault.forms[key])
-					return $scope.vault.forms[key].title
-				else
-					return 'Form Unavailable'
-			}
+			interpolate: function(template, scope){
+				return $interpolate(template)(scope)
+			},
 		}
 	}
 	
-	tools.init();
+	Forms.list().then(function(list){
+		$scope.forms = list;
+		tools.init()
+	})
 	
-	
-	it.FormsCtrl = $scope;
-})
-
-.controller('DC', function($scope, ParsePouch){
-	it.at = new ParsePouch('ud_athlete');
-	it.bu = new ParsePouch('ud_buses');
-	var tools = $scope.tools = {
-		
-	}
-	return tools;
+	it.AdminFormsFillCtrl = $scope;
 });

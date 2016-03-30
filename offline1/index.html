@@ -18,11 +18,12 @@
 	<script src="app.js"></script>
 </head>
 
-<body ng-app="offlineForms" ng-controller="DC">
-	<div class="container">
-		<div class="well">DS Test</div>
+<body ng-app="offlineForms">
+	<div class="container-fluid" ng-controller="AdminFormsCtrl">
+		<div ng-include="tools.view()"></div>
+		<div ng-include="'templates/fillFields.html'"></div>
 	</div>
-	
+	<div ng-show="page" ng-bind-html="tools.random.interpolate(page, data)" ng-dblclick="tools.random.hidePage()"></div>
 	<script src="//apis.google.com/js/client:platform.js?onload=auth"></script>
 </body>
 </html>

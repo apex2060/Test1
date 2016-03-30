@@ -745,6 +745,19 @@ app.factory('Parse', function($rootScope, $http, $q, config, Auth){
 			})
 			return deferred.promise;
 		}
+		ds.pointer = function(item){
+			var className = ds.className;
+			if(className == 'users')
+				className = '_User'
+			if(className == 'roles')
+				className = '_Role'
+				
+			return {
+				"__type": "Pointer",
+				"className": className,
+				"objectId": item.objectId
+			}
+		}
 		ds.ACL = {
 			init: function(){
 				if(!$rootScope.users){

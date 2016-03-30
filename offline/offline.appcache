@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# V14
+# V15
 
 CACHE:
 /favicon.ico
@@ -10,6 +10,8 @@ index.html
 setup.html
 sync.html
 
+jSignature/flaschanvas.js
+jSignature/jSignature.min.js
 vendor.js
 app.js
 

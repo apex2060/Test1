@@ -1,9 +1,15 @@
-app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $sce, Auth, Parse, Cloudinary, config){
+app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $timeout, $sce, Auth, Parse, Cloudinary, config){
+	$scope.moment = moment;
 	var PhoneNumbers = new Parse('PhoneNumbers');
 	var FaxNumbers = new Parse('FaxNumbers');
+	var Timeline = new Parse('Timeline');
+	var Comm = {
+		Faxes: new Parse('Faxes')
+	}
 	
 	var tools = $scope.tools = {
 		init: function(){
+			tools.timeline.update();
 			PhoneNumbers.list().then(function(phoneNumbers){
 				$scope.phoneNumbers = phoneNumbers
 			})
@@ -46,24 +52,56 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $
 				$scope.$apply();
 			});
 		},
+		timeline: {
+			iframe: function(event){
+				return $sce.trustAsResourceUrl(event[event.type].attachment.secure_url)
+			},
+			update: function(){
+				Timeline.query('?include=Faxes&order=-createdAt&where={"archive":{"$ne":true}}').then(function(timeline){
+					$scope.timeline = timeline;
+				})
+			},
+			archive: function(event){
+				var e2 = angular.copy(event);
+				e2[e2.type] = Comm[e2.type].pointer(e2[e2.type]);
+				e2.archive = true;
+				Timeline.save(e2).then(function(result){
+					var i = $scope.timeline.indexOf(event)
+					$scope.timeline.splice(i, 1)
+				}, function(e){
+					toastr.error(e);
+				})
+			}
+		},
 		fax: {
 			send: function(data){
 				$scope.sendFaxResult = {status: 'Processing...'};
-				var request = {
-					to: 				data.to,
-					caller_id: 			data.from,
-					header_text: 		data.subject,
-					string_data: 		data.attachment.secure_url,
-					string_data_type: 	'url'
+				function formatTo(num) {
+					if (num.length == 7)
+						num = data.from.substr(0, 3) + num
+					else if (num.length == 4)
+						num = data.from.substr(0, 6) + num
+					
+					return num;
 				}
-				
-				
-				$http.post(config.parse.root+'/functions/faxSend', request).success(function(data){
-					$scope.fax = data.result;
-					$scope.sendFaxResult = {status: data.result.message};
-				}).error(function(e){
-					$scope.sendFaxResult = {status: 'Error Sending Fax'};
-				})
+				if(!data.from || !data.to || !data.attachment){
+					toastr.error('You must fill in the information to send a fax.')
+				}else{
+					data.to = formatTo(data.to)
+					if(data.to.length == 10 || data.to.length == 11){
+						Comm.Faxes.save(data).then(function(result){
+							toastr.success('Sending Fax...')
+							$timeout(function(){
+								toastr.info('Remember those old days when faxes were amazing but took 5 minutes to go through?  Yeah, they probably still have one of those old machines, so it may take some time.', 'Bam!', {timeOut: 5000})
+							}, 1500)
+							tools.timeline.update();
+						}, function(e){
+							console.error(e)
+						})
+					}else{
+						toastr.error('Sorry, I have no idea who you want to send that to!')
+					}
+				}
 			}
 		},
 		snail: {

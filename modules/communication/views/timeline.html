@@ -5,21 +5,7 @@
 		</div>
 		<div ng-show="newComm.show" ng-include="newComm.type+'.new'"></div>
 	</li>
-	<li ng-repeat="thread in threads">
-		<div class="timeline-badge" title="11 hours ago via Twitter"><i class="glyphicon glyphicon-earphone"></i></div>
-		<div class="timeline-panel panel">
-			<div class="timeline-heading">
-				<h4 class="timeline-title">Thread</h4>
-				<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> Random Text</small></p>
-			</div>
-			<div class="timeline-body">
-				<p>{{thread.snippet}}</p>
-			</div>
-			<div class="timeline-footer">
-				<a class="btn btn-info pull-right" ng-click="tools.thread(thread.id)">Load</a>
-			</div>
-		</div>
-	</li>
+	<li ng-repeat="event in timeline" ng-include="event.type+'.snippet'"></li>
 	<li>
 		<div class="timeline-badge" title="11 hours ago via Twitter"><i class="glyphicon glyphicon-earphone"></i></div>
 		<div class="timeline-panel panel panel-default">

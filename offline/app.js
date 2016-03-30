@@ -522,6 +522,50 @@ angular.module('offlineForms', [])
 	}
 	return User;
 })
+.directive('signature', function(){
+	return {
+		restrict: 'E',
+		replace: true,
+		template:	'<div style="position:relative;">'+
+						'<div class="signature"><span>Sign On Line</span> | <a ng-click="signature.clear()">Clear Signature</a></div>'+
+					 	''+
+					'</div>',
+		require: "ngModel",
+		link: function(scope, ele, attrs,  ngModel){
+			var signature = {};
+			var sig = ele.children()[0];
+			$(sig).jSignature();
+			ngModel.$render = function() {
+				return scope.signature.load(ngModel.$viewValue);
+			};
+			$(sig).bind('change', function(e){
+				/* 'e.target' will refer to div with "#signature" */ 
+				var datapair = $(sig).jSignature("getData", "svgbase64") 
+				var src = "data:" + datapair[0] + "," + datapair[1]
+					datapair = $(sig).jSignature("getData","base30") 
+				
+				signature = {
+					type: 		'signature',
+					date: 		new Date(),
+					src: 		src,
+					datapair: 	datapair,
+				};
+				ngModel.$setViewValue(signature);
+			})
+			scope.signature = {
+				load: function(signature){
+					if(signature)
+						$(sig).jSignature("setData", "data:" + signature.datapair.join(",")) 
+				},
+				clear: function(){
+					$(sig).jSignature("reset");
+					signature = {};
+					ngModel.$setViewValue(signature);
+				},
+			}
+		}
+	}
+})
 .controller('FormsCtrl', function($scope, $http, $q, $timeout, $interpolate, $sce, urlSearch, Parse, Auth, config){
 	var Forms = new Parse('Forms');
 	$scope.online = true;
