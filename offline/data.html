@@ -1,7 +1,7 @@
 <!--<p>{{vault.entries}}</p>-->
-<div class="list-group" ng-show="data.length" ng-init="tools.data.compile()">
+<div class="list-group" ng-init="tools.vault.compile()">
 	<div class="list-group-item active">Data</div>
-	<div class="list-group-item" ng-repeat="item in data">
+	<div class="list-group-item" ng-repeat="item in vaultStats">
 		<span>{{item.form.title}}</span>
 		<span class="label pull-right label-success" title="Synced">{{item.status.saved.length}}</span>
 		<span class="label pull-right label-danger" title="Problems">{{item.status.error.length}}</span>

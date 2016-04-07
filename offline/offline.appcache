@@ -14,6 +14,7 @@ jSignature/flashcanvas.js
 jSignature/jSignature.min.js
 vendor.js
 app.js
+config.js
 
 vendor.css
 app.css

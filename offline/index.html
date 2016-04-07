@@ -18,6 +18,7 @@
 	<script src="jSignature/flashcanvas.js"></script>
 	<script src="jSignature/jSignature.min.js"></script>
 	<script src="app.js"></script>
+	<script src="config.js"></script>
 </head>
 
 <body ng-app="offlineForms" ng-controller="FormsCtrl">
@@ -54,7 +55,12 @@
 		</nav>
 		<div ng-include="tools.view()"></div>
 	</div>
-	<div ng-show="page" ng-bind-html="tools.random.interpolate(page, data)" ng-dblclick="tools.random.hidePage()"></div>
+	
+	<div class="ng-cloak" ng-show="form && page" ng-dblclick="tools.random.hidePage()">
+		<div ng-bind-html="tools.random.interpolate(page, data)"></div>
+		<a class="btn btn-warning btn-block" ng-click="tools.random.hidePage()">Return To Form</a>
+	</div>
+	
 	<script src="//apis.google.com/js/client:platform.js?onload=auth"></script>
 </body>
 </html>

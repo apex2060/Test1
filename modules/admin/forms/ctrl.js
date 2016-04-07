@@ -476,7 +476,7 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 						date: function(field){
 							var d = new Date()
 							var m = d.getTimezoneOffset();
-							field.value = moment(data.iso).add(m, 'minutes').toDate()
+							field.value = moment(data.iso).toDate() //.add(m, 'minutes').toDate()
 							deferred.resolve(field);
 							return deferred.promise;
 						},
@@ -577,7 +577,7 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 							var m = d.getTimezoneOffset();
 							return {
 								__type: 	'Date',
-								iso: 		moment(field.value).subtract(m, 'minutes').toDate()
+								iso: 		moment(field.value).toDate() //.subtract(m, 'minutes').toDate()
 							}
 						}
 					}

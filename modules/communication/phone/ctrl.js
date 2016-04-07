@@ -1,26 +1,33 @@
 app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $http, Parse, config){
-	$scope.rp = $routeParams;
+	$scope.view = 'list';
 	var Numbers = new Parse('PhoneNumbers');
+	var Endpoints = new Parse('PlivoEndpoints');
 	var days = $scope.days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 	
 	
 	
 	var tools = $scope.tools = {
 		init: function(){
-			Numbers.list().then(function(list){
-				$scope.list = list;
-				if($routeParams.id)
-					tools.associate($routeParams.id)
-			})
+			tools.number.init();
+			tools.endpoint.init();
 		},
-		associate: function(number){
-			for(var i=0; i<$scope.list.length; i++)
-				if($scope.list[i].number == number)
-					$scope.number = $scope.list[i];
+		view: function(view){
+			if(view)
+				$scope.view = view;
+			return '/modules/communication/phone/view/'+$scope.view+'.html'
 		},
 		number: {
+			init: function(){
+				Numbers.list().then(function(list){
+					$scope.numbers = list;
+				})
+			},
+			focus: function(number){
+				$scope.number = number
+				$scope.view = 'number'
+			},
 			open: function(){
-				$scope.number = null;
+				$scope.view = 'list'
 			},
 			new: function(){
 				alert('Registering new number!')
@@ -48,6 +55,16 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 				if(!$scope.number)
 					return;
 				alert('saving soon')
+			}
+		},
+		endpoint: {
+			init: function(){
+				Endpoints.list().then(function(list){
+					$scope.endpoints = list;
+				})
+			},
+			focus: function(endp){
+				$scope.endpoint = endp;
 			}
 		},
 		rule: {

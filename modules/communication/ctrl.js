@@ -78,29 +78,25 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $
 				$scope.sendFaxResult = {status: 'Processing...'};
 				function formatTo(num) {
 					if (num.length == 7)
-						num = data.from.substr(0, 3) + num
+						num = data.localNumber.substr(0, 3) + num
 					else if (num.length == 4)
-						num = data.from.substr(0, 6) + num
+						num = data.localNumber.substr(0, 6) + num
 					
 					return num;
 				}
-				if(!data.from || !data.to || !data.attachment){
+				if(!data.localNumber || !data.remoteNumber || !data.attachment){
 					toastr.error('You must fill in the information to send a fax.')
 				}else{
-					data.to = formatTo(data.to)
-					if(data.to.length == 10 || data.to.length == 11){
-						Comm.Faxes.save(data).then(function(result){
-							toastr.success('Sending Fax...')
-							$timeout(function(){
-								toastr.info('Remember those old days when faxes were amazing but took 5 minutes to go through?  Yeah, they probably still have one of those old machines, so it may take some time.', 'Bam!', {timeOut: 5000})
-							}, 1500)
-							tools.timeline.update();
-						}, function(e){
-							console.error(e)
-						})
-					}else{
-						toastr.error('Sorry, I have no idea who you want to send that to!')
-					}
+					data.remoteNumber = formatTo(data.remoteNumber)
+					Comm.Faxes.save(data).then(function(result){
+						toastr.success('Sending Fax...')
+						$timeout(function(){
+							toastr.info('Remember those old days when faxes were amazing but took 5 minutes to go through?  Yeah, they probably still have one of those old machines, so it may take some time.', 'Bam!', {timeOut: 5000})
+						}, 1500)
+						tools.timeline.update();
+					}, function(e){
+						console.error(e)
+					})
 				}
 			}
 		},

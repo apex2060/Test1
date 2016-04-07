@@ -1,13 +1,13 @@
 
 <script type="text/ng-template" id="Faxes.snippet">
 	<div class="timeline-badge" title="Fax"><i class="fa fa-fax"></i></div>
-	<div class="timeline-panel panel panel-default" ng-class="{inverted: event.Faxes.direction=='outbound'}">
+	<div class="timeline-panel panel panel-default" ng-class="{inverted: event.Faxes.direction=='sent'}">
 		<div class="panel-heading">
 			<span class="pull-right">
 				<a class="btn btn-warning btn-sm" ng-click="tools.timeline.archive(event)" title="Archive Event"><i class="fa fa-archive"></i></a>
 			</span>
-			<h4 class="panel-title" ng-show="event.Faxes.direction=='outbound'">To: {{event.Faxes.to}}</h4>
-			<h4 class="panel-title" ng-hide="event.Faxes.direction=='outbound'">From: {{event.Faxes.from}}</h4>
+			<h4 class="panel-title" ng-show="event.Faxes.direction=='sent'">To: {{event.Faxes.to}}</h4>
+			<h4 class="panel-title" ng-hide="event.Faxes.direction=='sent'">From: {{event.Faxes.from}}</h4>
 			<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> {{moment(event.Faxes.createdAt).fromNow()}}</small></p>
 		</div>
 		<ul class="panel-body" title="{{event.Faxes.status}}">
