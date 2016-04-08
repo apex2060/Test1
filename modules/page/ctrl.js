@@ -1,7 +1,8 @@
-app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $sce, $q, Auth, Parse){
+app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $sce, $q, config, Auth, Parse){
 	var Page = new Parse('Pages', true);
 	
 	$scope.moment = moment;
+	$scope.Live = {};
 	$scope.Data = {};
 	$scope.data = {};
 	$scope.params = $routeParams;
@@ -83,6 +84,18 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $sce, 
 			},
 			get: function(request){
 				var data = $scope.Data[request.alias] = new Parse(request.table, true); //[] Allow this (immediate) to be defined by the user
+				var live = $scope.Live[request.table] = {
+					request: 	request,
+					ref: 		new Firebase(config.firebase+'/class/'+request.table),
+					timestamp: 	false
+				}
+				live.ref.on('value', function(ds){
+					if(!live.timestamp)
+						live.timestamp = ds.val().updatedAt.time
+					else if(live.timestamp != ds.val().updatedAt.time)
+						tools.init();
+				})
+
 				
 				var vars = $location.search();
 				var query = request.query;

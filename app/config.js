@@ -10,7 +10,7 @@ app.factory('config', function ($http, $q) {
 			jsKey: 		'i3MNq4GYuP6ays3LNQdijimLuaN5uOJst1n87bVy',
 			restKey: 	'Wcpk6SaGnzklz5S0OhtngeYD6KJzNIoQ3VmyUgtK'
 		},
-		firebase: 		'https://easybusiness.firebaseio.com/',
+		firebase: 		'https://easybusiness.firebaseio.com',
 		nest: 			'7e57b122-f5db-4807-b83e-642a9f5ba667',
 		plaid: {
 			client_id: 	'54b57cb9d6c6ee9c0a5d4286',
