@@ -1,0 +1,42 @@
+<div class="container" ng-controller="MapsCtrl">
+	<a target="_blank" href="http://www.insta-mapper.com/">Manage Fleet</a>
+	<ng-map zoom-to-include-markers="auto" center="{{trucks[0].lat}},{{trucks[0].lng}}" style="height:600px">
+		<marker icon="{{marker}}" position="{{t.lat}},{{t.lng}}" ng-repeat="t in trucks" on-click="tools.truck.info(t)"></marker>
+		<info-window id="info">
+			<div ng-non-bindable="">
+				Cement
+				{{tools.truck.info()}}
+			</div>
+		</info-window>
+		<shape name = "polyline"
+			path = "{{route}}"
+			geodesic = "true"
+			stroke - color = "#FF0000"
+			stroke - opacity = "1.0"
+			stroke - weight = "2" >
+		</shape>
+	</ng-map>
+	<div id="truckInfo" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Truck: {{truck.friendly_name}}</h4>
+					<p>{{truck.lastSeen.fromNow()}}</p>
+				</div>
+				<div class="modal-body">
+					<h4>Driver: John Doe</h4>
+					<h4>Speed: {{truck.speed}}</h4>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary pull-left">Send Message</button>
+					<button type="button" class="btn btn-info" ng-click="tools.truck.route(truck)">View Route</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!--/.modal -->
+</div>
