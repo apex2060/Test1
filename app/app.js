@@ -144,9 +144,9 @@ app.run(['$window', '$rootScope', function($window, $rootScope) {
 
 
 var inc = [
-	'//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js',
-	'//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js',
-	
+	'vendor/jquery.min.js',
+	'vendor/bootstrap.min.js',
+
 	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-animate.min.js',
 	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.min.js',
 	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-touch.min.js',
@@ -178,9 +178,10 @@ var authPromise = new Promise(function(resolve, reject) {
 
 //for slow connections
 require.config({
-	waitSeconds: 0
+	waitSeconds: 0,
 })
 require(inc, function(){
+	// jQuery.noConflict(true);
 	require(['vendor/angular-chart.js'], function(){
 		authPromise.then(function(){
 			angular.bootstrap(document, ['RootApp']);

@@ -1,30 +1,34 @@
-app.lazy.controller('MapsCtrl', function($scope, $http, $timeout, NgMap, Auth, config){
-	config.hourOffset = 1;
+app.lazy.controller('DispatchCtrl', function($scope, $http, $timeout, NgMap, Auth, Parse, config){
+	var DispatchFleet = new Parse('DispatchFleet');
+	
+	config.hourOffset = 6;
 	$scope.moment = moment;
 	// NgMap.getMap().then(function(map) {
 	// 	$scope.map = map;
 	// });
-	$scope.marker = {
-		url: 'https://the.easybusiness.center/static/images/cement64.png'
-	}
 	var tools = $scope.tools = {
 		init: function(){
-			tools.truck.init();
+			tools.fleet.init();
 		},
-		truck: {
+		fleet: {
 			init: function(){
-				tools.truck.load();
+				tools.fleet.load();
 			},
 			load: function(){
-				$http.post(config.parse.root+'/functions/multiCurrent').success(function(r){
-					$scope.trucks = r.result
-					$scope.route = []
-					$timeout(tools.truck.load, 1000*60*1)
-				}).error(function(e){
-					toastr.error('Error Loading Data.')
-					$timeout(tools.truck.load, 1000*60*5)
+				var liveFleet = new Firebase(config.firebase+'/class/DispatchFleet')
+				liveFleet.on('value', function(){
+					DispatchFleet.list().then(function(fleet){
+						$scope.fleet = fleet;
+						if($scope.truck){
+							$scope.truck = fleet.find(function(t){
+								return t.objectId == $scope.truck.objectId;
+							})
+						}
+					})
 				})
-			},
+			}
+		},
+		truck: {
 			route: function(truck){
 				$http.post(config.parse.root+'/functions/singleRoute', truck).success(function(r){
 					// $scope.route = r
@@ -33,10 +37,52 @@ app.lazy.controller('MapsCtrl', function($scope, $http, $timeout, NgMap, Auth, c
 					toastr.error('Error Loading Data.')
 				})
 			},
+			setMarker: function(truck){
+				cloudinary.openUploadWidget({
+					cloud_name: config.params.cloudinary.cloud_name,
+					upload_preset: config.params.cloudinary.preset,
+					theme: 'white',
+					multiple: false,
+				},
+				function(error, result) {
+					if(result)
+						truck.marker = {
+							etag: result[0].etag,
+							public_id: result[0].public_id,
+							secure_url: result[0].secure_url,
+							thumbnail_url: result[0].thumbnail_url,
+							url: result[0].url
+						}
+					$scope.$apply();
+				});
+			},
+			marker: function(truck){
+				if(truck.marker)
+					return {
+						url: truck.marker.thumbnail_url
+					}
+				else
+					return {url: 'https://res.cloudinary.com/easybusiness/image/upload/v1460437231/mainSite/daejba2fct7e7pexjidn.png'}
+			},
+			direction: function(heading){
+				var directions = ['N','NE','E','SE','S','SW','W','NW']
+				if(heading)
+					return directions[Math.floor(heading/45)]
+			},
 			info: function(m,t){
-				t.lastSeen = moment(t.Datetime).add('h',config.hourOffset)
+				t.lastSeen = moment(t.seenDate.iso).add('h',config.hourOffset)
 				$scope.truck = t
 				$('#truckInfo').modal('show')
+			},
+			geoPoint: function(geoPoint){
+				return geoPoint.latitude+','+geoPoint.longitude
+			},
+			save: function(truck){
+				DispatchFleet.save(truck).then(function(s){
+					toastr.success('Vehicle Saved')
+				}, function(e){
+					toastr.error(e)
+				})
 			}
 		}
 	}

@@ -409,7 +409,7 @@ app.directive("contenteditable", function() {
 				return;
 			
 			ngModel.$render = function() {
-				return element.text(ngModel.$viewValue);
+				return element.text(ngModel.$viewValue || attrs.placeholder);
 			};
 			element.bind('blur', function() {
 				if (ngModel.$viewValue !== $.trim(element.text())) {
