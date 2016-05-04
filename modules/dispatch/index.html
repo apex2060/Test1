@@ -1,13 +1,13 @@
 <div class="container" ng-controller="DispatchCtrl">
 	<a target="_blank" href="http://www.insta-mapper.com/">Manage Fleet</a>
-	<ng-map zoom-to-include-markers="auto" center="{{fleet[0].lat}},{{fleet[0].lng}}" style="height:600px">
+	<ng-map zoom-to-include-markers="auto" style="height:600px">
 		<marker icon="{{tools.truck.marker(t)}}" position="{{tools.truck.geoPoint(t.geo)}}" ng-repeat="t in fleet" on-click="tools.truck.info(t)"></marker>
 		<shape name = "polyline"
 			path = "{{route}}"
 			geodesic = "true"
-			stroke - color = "#FF0000"
-			stroke - opacity = "1.0"
-			stroke - weight = "2" >
+			stroke-color = "#FF0000"
+			stroke-opacity = "0.4"
+			stroke-weight = "5" >
 		</shape>
 	</ng-map>
 	<div id="truckInfo" class="modal fade" tabindex="-1" role="dialog">

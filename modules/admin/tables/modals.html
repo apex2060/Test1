@@ -115,8 +115,9 @@
 						<div class="list-group">
 							<div class="list-group-item active">New Data</div>
 							<div class="list-group-item bg-success"><input type="checkbox" ng-model="merge.addNew"> Add New Rows</div>
-							<div class="list-group-item move" ng-repeat="col in merge.columns.right" ng-click="tools.merge.join('right', col)">
-								<spam>{{col}}</spam>
+							<div class="list-group-item move" ng-repeat="col in merge.columns.right">
+								<i class="fa fa-chevron-left" ng-click="tools.merge.join('right', col)"></i>
+								<spam ng-click="tools.merge.cast(col)">{{col}}</spam>
 								<i class="fa fa-trash pull-right" ng-class="{'text-danger':merge.columns.left.indexOf(col) != -1}" ng-click="tools.merge.remove(merge.columns.right, col)"></i>
 							</div>
 						</div>

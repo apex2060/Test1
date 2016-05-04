@@ -631,17 +631,7 @@ app.factory('Parse', function($rootScope, $http, $q, config, Auth){
 			var deferred = $q.defer();
 			if(ds.immediate)
 				$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
-					if(data.results.length){
-						deferred.resolve(data.results)
-					}else{
-						Auth.init().then(function(){
-							$http.get(config.parse.root+'/classes/'+ds.className).success(function(data){
-								deferred.resolve(data.results)
-							}).error(function(e){
-								deferred.reject(e);
-							})
-						});
-					}
+					deferred.resolve(data.results)
 				}).error(function(e){
 					deferred.reject(e);
 				})

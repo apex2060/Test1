@@ -21,10 +21,13 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $sce, 
 			tools.get();
 			tools.keyEvents();
 			$scope.$on('$locationChangeStart', function(event) {
+				tools.data.unListen()
 				if($routeParams.view == $scope.page.permalink)
 					tools.setup($scope.page)
-				else
+				else{
+					delete $scope.page
 					tools.get();
+				}
 			});
 		},
 		keyEvents: function(){
@@ -50,16 +53,20 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $sce, 
 		},
 		get: function(){
 			// [] Make this content available offline once loaded for the first time.
-			if($routeParams.id){
-				Page.get($routeParams.id).then(function(result){
-					$scope.page = result || defaultPage;
-					tools.setup($scope.page)
-				})
+			if($scope.page){
+				tools.setup($scope.page)
 			}else{
-				Page.query('?where={"permalink":"'+$routeParams.view+'"}').then(function(list){
-					$scope.page = list[0] || defaultPage;
-					tools.setup($scope.page)
-				})
+				if($routeParams.id){
+					Page.get($routeParams.id).then(function(result){
+						$scope.page = result || defaultPage;
+						tools.setup($scope.page)
+					})
+				}else{
+					Page.query('?where={"permalink":"'+$routeParams.view+'"}').then(function(list){
+						$scope.page = list[0] || defaultPage;
+						tools.setup($scope.page)
+					})
+				}
 			}
 		},
 		setup: function(page){
@@ -82,20 +89,30 @@ app.lazy.controller('PageCtrl', function($scope, $routeParams, $location, $sce, 
 				})
 				return deferred.promise;
 			},
-			get: function(request){
-				var data = $scope.Data[request.alias] = new Parse(request.table, true); //[] Allow this (immediate) to be defined by the user
-				var live = $scope.Live[request.table] = {
-					request: 	request,
-					ref: 		new Firebase(config.firebase+'/class/'+request.table),
-					timestamp: 	false
-				}
-				live.ref.on('value', function(ds){
-					if(!live.timestamp)
-						live.timestamp = ds.val().updatedAt.time
-					else if(live.timestamp != ds.val().updatedAt.time)
-						tools.init();
+			unListen: function(){
+				var keys = Object.keys($scope.Live)
+				keys.forEach(function(key){
+					$scope.Live[key].off('value')
 				})
-
+			},
+			get: function(request){
+				if($scope.Data[request.alias]){
+					var data = $scope.Data[request.alias]
+					var live = $scope.Live[request.table]
+				}else{
+					var data = $scope.Data[request.alias] = new Parse(request.table, true); //[] Allow this (immediate) to be defined by the user
+					var live = $scope.Live[request.table] = {
+						request: 	request,
+						ref: 		new Firebase(config.firebase+'/class/'+request.table),
+						timestamp: 	false
+					}
+					live.ref.on('value', function(ds){
+						if(!live.timestamp)
+							live.timestamp = ds.val().updatedAt.time
+						else if(live.timestamp != ds.val().updatedAt.time)
+							tools.init();
+					})
+				}
 				
 				var vars = $location.search();
 				var query = request.query;

@@ -326,6 +326,21 @@ app.lazy.controller('AdminTableCtrl', function($scope, $routeParams, $interpolat
 				tools.merge.display();
 				$scope.$apply();
 			},
+			cast: function(col){
+				var cast = prompt('To what?  text, number, date')
+				$scope.merge.json = $scope.merge.json.map(function(itm){
+					if(cast == 'text')
+						if(itm[col] == 0)
+							itm[col] = '';
+						else
+							itm[col] = ''+itm[col]
+					else if(cast == 'number')
+						itm[col] = Number(itm[col])
+					else if(cast == 'date')
+						itm[col] = moment(itm[col]).toDate()
+					return itm
+				})
+			},
 			display: function(){
 				if($scope.merge){
 					var merge = $scope.merge

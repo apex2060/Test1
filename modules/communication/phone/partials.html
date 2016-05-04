@@ -120,3 +120,19 @@
 	</div>
 </div>
 </script>
+
+<script type="text/ng-template" id="menu.action">
+<div class="panel panel-default">
+	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}menu{{$index}}">Menu</div>
+	<div id="rule{{$parent.$parent.$index}}menu{{$index}}" class="panel-body collapse">
+		<table class="table">
+			<tr>
+				<td><input type="text" class="form-control" ng-model="action.qry.table" placeholder="Table"></td>
+				<td><input type="text" class="form-control" ng-model="action.qry.col" placeholder="Query Column"></td>
+				<td><input type="text" class="form-control" ng-model="action.qry.what" placeholder="Query Value"></td>
+				<td><input type="text" class="form-control" ng-model="action.column" placeholder="Action Column"></td>
+			</tr>
+		</table>
+	</div>
+</div>
+</script>
