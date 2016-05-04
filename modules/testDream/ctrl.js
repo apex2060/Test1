@@ -8,7 +8,7 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, config){
 			tools.schema(db);
 		},
 		schema: function(db){
-			$http.post('/api', {
+			$http.post(config.secureUrl+'/api', {
 				method: 'GET',
 				path: 	'/'+db+'/_schema'
 			}).success(function(data){
@@ -17,7 +17,7 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, config){
 		},
 		load: function(table){
 			$scope.history[$scope.history.length-1].tables.push(table)
-			$http.post('/api', {
+			$http.post(config.secureUrl+'/api', {
 				method: 'GET',
 				path: 	'/'+$scope.db+'/_table/'+table
 			}).success(function(data){
