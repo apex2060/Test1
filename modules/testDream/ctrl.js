@@ -8,7 +8,7 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, config){
 			tools.schema(db);
 		},
 		schema: function(db){
-			$http.post(config.secureUrl+'/api', {
+			$http.post('/api', {
 				method: 'GET',
 				path: 	'/'+db+'/_schema'
 			}).success(function(data){
@@ -17,14 +17,19 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, config){
 		},
 		load: function(table){
 			$scope.history[$scope.history.length-1].tables.push(table)
-			$http.post(config.secureUrl+'/api', {
+			$http.post('/api', {
 				method: 'GET',
 				path: 	'/'+$scope.db+'/_table/'+table
 			}).success(function(data){
-				$scope.list = data.resource
-				$scope.keys = Object.keys(data.resource[0]);
+				$scope.list = data.resource;
+				if(data.resource[0])
+					$scope.keys = Object.keys(data.resource[0]);
+				else
+					toastr.error('No Data Available')
 				$scope.step = []
 				// $('#infoModal').modal('show')
+			}).error(function(e){
+				toastr.error(e)
 			})
 		}
 	}

@@ -51,10 +51,10 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 					})
 				}
 			},
-			save: function(){
-				if(!$scope.number)
-					return;
-				alert('saving soon')
+			save: function(number){
+				Numbers.save(number).then(function(r){
+					toastr.success('Number Saved')
+				})
 			}
 		},
 		endpoint: {
@@ -97,6 +97,20 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 				manage: function(flow, time){
 					
 				}
+			},
+			forward: {
+				addNumber: function(action){
+					if(!action.numbers)
+						action.numbers = [];
+					if(String(action.number).length == 10)
+						action.number = '1'+action.number
+					if(String(action.number).length >= 11){
+						action.numbers.push(action.number)
+						delete action.number;
+					}else{
+						toastr.error('You must enter a number with an area code.')
+					}
+				}
 			}
 		},
 		action: {
@@ -109,6 +123,22 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 				manage: function(flow, time){
 					
 				}
+			},
+			record: {
+				modal: function(action){
+					if(!action.record)
+						action.record = {active: true, maxLength:60}
+					$scope.action = action;
+					$('#recordSettingsModal').modal('show');
+				},
+				toggle: function(action){
+					action.record.active = !action.record.active
+				},
+				acl: function(){
+					if(!$scope.action.record)
+						$scope.action.record = {ACL: {}};
+					Numbers.ACL.modal($scope.action.record, 'All recordings will be applied with the following rules.')
+				}
 			}
 		},
 		item: {
@@ -120,6 +150,11 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 			},
 			tFocus: function(item){
 				$scope.tFocus = item;
+			},
+			add: function(parent, attr, item){
+				if(!parent[attr])
+					parent[attr] = []
+				parent[attr].push(item)
 			},
 			remove: function(list, item){
 				if(confirm('Are you sure you want to remove this item?'))

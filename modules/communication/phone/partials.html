@@ -63,17 +63,17 @@
 
 <script type="text/ng-template" id="say.action">
 <div class="panel panel-default">
-	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}say{{$index}}">Say</div>
+	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}say{{$index}}">Say <i class="fa fa-trash pull-right" ng-click="tools.item.remove(focus.actions, action)"></i></div>
 	<div id="rule{{$parent.$parent.$index}}say{{$index}}" class="panel-body collapse">
 		<select class="form-control" ng-model="action.how">
 			<option value="text">Text</option>
-			<option value="url">MP3</option>
+			<option value="mp3">MP3</option>
 			<option value="qry">Lookup</option>
 		</select>
 		<div ng-show="action.how=='text'">
 			<textarea class="form-control" ng-model="action.text" placeholder="What to say"></textarea>
 		</div>
-		<div ng-show="action.how=='url'">
+		<div ng-show="action.how=='mp3'">
 			<input type="url" class="form-control" ng-model="action.url" placeholder="URL">
 		</div>
 		<div ng-show="action.how=='qry'">
@@ -83,8 +83,11 @@
 					<td><input type="text" class="form-control" ng-model="action.qry.col" placeholder="Query Column"></td>
 					<td><input type="text" class="form-control" ng-model="action.qry.what" placeholder="Query Value"></td>
 				</tr>
-				<tr colspan="3">
-					<td><textarea class="form-control" ng-model="action.text" ng-non-bindable placeholder="This is: {{data.column}}"></textarea></td>
+				<tr>
+					<td colspan="3"><textarea class="form-control" ng-model="action.qry.template" placeholder="This is: { { data.column } }"></textarea></td>
+				</tr>
+				<tr>
+					<td colspan="3"><textarea class="form-control" ng-model="action.text" placeholder="This will only be played if there were no lookup results."></textarea></td>
 				</tr>
 			</table>
 		</div>
@@ -94,18 +97,38 @@
 
 <script type="text/ng-template" id="forward.action">
 <div class="panel panel-default">
-	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}forward{{$index}}">Forward</div>
+	<div class="panel-heading" data-toggle="collapse" data-target="#rule{{$parent.$parent.$index}}forward{{$index}}">Forward <i class="fa fa-trash pull-right" ng-click="tools.item.remove(focus.actions, action)"></i></div>
 	<div id="rule{{$parent.$parent.$index}}forward{{$index}}" class="panel-body collapse">
+		<label title="If sequential dial is checked, only one number will be attempted at a time.">
+			<input type="checkbox" ng-model="action.sequential"> Sequential Dial
+		</label>
+		<br>
+		<label ng-click="tools.action.record.modal(action)">
+			<i class="fa fa-cog"></i> Record Call
+		</label>
 		<select class="form-control" ng-model="action.how">
 			<option value="number">Number</option>
-			<option value="endpoint">Endpoint</option>
-			<option value="qry">Lookup</option>
+			<!--<option value="endpoint">Endpoint</option>-->
+			<!--<option value="role">Role</option>-->
+			<!--<option value="qry">Lookup</option>-->
 		</select>
 		<div ng-show="action.how=='number'">
-			<input type="number" class="form-control" ng-model="action.number" placeholder="Number">
+			<div class="input-group" ng-repeat="num in action.numbers track by $index">
+				<input type="text" class="form-control" ng-model="num" disabled="true">
+				<span class="input-group-addon"><i class="fa fa-trash" ng-click="tools.item.remove(action.numbers, num)"></i></span>
+			</div>
+			<form ng-submit="tools.flow.forward.addNumber(action)">
+				<div class="input-group">
+					<input type="text" class="form-control" ng-model="action.number" placeholder="Number or SIP Endpoint">
+					<span class="input-group-addon"><i class="fa fa-plus"></i></span>
+				</div>
+			</form>
 		</div>
 		<div ng-show="action.how=='endpoint'">
 			<select class="form-control" ng-options="endpoint for endpoint in endpointList" ng-model="action.endpoint"></select>
+		</div>
+		<div ng-show="action.how=='role'">
+			<input type="text" class="form-control" ng-model="action.role" placeholder="Role">
 		</div>
 		<div ng-show="action.how=='qry'">
 			<table class="table">
@@ -136,3 +159,56 @@
 	</div>
 </div>
 </script>
+
+
+<!--MODALS-->
+
+<div class="modal fade" id="recordSettingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal-dialog" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+			<span class="pull-right">
+				<i class="fa" ng-class="action.record.active ? 'fa-toggle-on' : 'fa-toggle-off'" ng-click="tools.action.record.toggle(action)"></i>
+			</span>
+			<h4 class="modal-title" id="myModalLabel">Record Settings</h4>
+		</div>
+		<div class="modal-body">
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Max Recording Length</label>
+					<div class="col-sm-9">
+						<input type="number" class="form-control" placeholder="In Seconds" ng-model="action.record.maxLength">
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-3 col-sm-9">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" ng-model="action.record.playBeep"> Play Beep
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-3 col-sm-9">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" ng-model="action.record.transcribe"> Transcribe
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Data Sharing</label>
+					<div class="col-sm-9">
+						<div class="well" ng-click="tools.action.record.acl()">{{action.record.ACL? 'Custom Sharing Set' : 'No Sharing Set'}}</div>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Confirm</button>
+		</div>
+	</div>
+</div>
+</div>

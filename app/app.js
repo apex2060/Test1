@@ -12,7 +12,7 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 		service: 	$provide.service,
 	};
 
-	var parent 		= ['scalehouse', 'page']
+	var parent 		= ['scalehouse', 'page', 'insight']
  	// :module/index.html		>	:module/ctrl.js
 	var child		= ['admin', 'employee', 'communication']
 	// :module/:view/index.html	> 	:module/:view/ctrl.js

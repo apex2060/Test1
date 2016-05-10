@@ -1,0 +1,66 @@
+<div class="container" ng-controller="InsightCtrl">
+	<div class="well hidden-lg" ng-show="user.is('Admin')">
+		<a class="btn btn-info" ng-click="tools.edit()">Edit</a>
+		<a class="btn btn-success" ng-click="tools.save()">Save</a>
+	</div>
+	<div class="well"><select class="form-control" ng-options="v for v in tools.template.list()" ng-model="vis" ng-blur="tools.template.set(vis)"></select> </div>
+	<div ng-include="insight.template"></div>
+	<div ng-include="'/modules/insight/templates.html'"></div>
+	<div class="modal fade" id="editInsight" tabindex="-1" role="dialog" aria-labelledby="insightEdit">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="insightEdit">Edit Insight</h4>
+				</div>
+				<div class="modal-body">
+					<textarea class="form-control" placeholder="Template" ng-model="insight.template" ng-model-options="{updateOn:'blur'}"></textarea>
+					<div class="panel-group" id="queryAccord" role="tablist" aria-multiselectable="true">
+						<div class="panel panel-default" ng-repeat="d in insight.data">
+							<div class="panel-heading" role="tab" id="headingOne">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse" data-parent="#queryAccord" href="#data{{$index}}" aria-expanded="true" aria-controls="data{{$index}}">{{d.table}} &gt; {{d.alias}}</a>
+								</h4>
+							</div>
+							<div id="data{{$index}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+								<div class="panel-body">
+									<form class="form-horizontal">
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Table</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" placeholder="Table" ng-model="d.table">
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Alias</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" placeholder="alias (No Spaces)" ng-model="d.alias">
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label">Query</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" placeholder="?where={...}" ng-model="d.query">
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a class="btn btn-block btn-info" ng-click="tools.data.add()">Add Data Point</a>
+					<div class="well">
+						<p>js: </p>
+						<textarea class="form-control" placeholder="{}" ng-model="insight.js"></textarea>
+						<p class="help-block">js:{init:function(data){}} will be called when all data has been loaded.</p>
+						<p class="help-block">These can be called from within the template using: js.init() etc.</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="tools.preview()">Preview</button>
+					<!--<button type="button" class="btn btn-primary">Save</button>-->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

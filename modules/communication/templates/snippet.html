@@ -20,6 +20,30 @@
 	</div>
 </script>
 
+<script type="text/ng-template" id="PhoneCalls.snippet">
+	<div class="timeline-badge" title="Call"><i class="fa fa-phone"></i></div>
+	<div class="timeline-panel panel {{tools.timeline.status(event)}}" ng-class="{inverted: event.PhoneCalls.direction=='outbound'}">
+		<div class="panel-heading">
+			<span class="pull-right">
+				<a class="btn btn-warning btn-sm" ng-click="tools.timeline.archive(event)" title="Archive Event"><i class="fa fa-archive"></i></a>
+			</span>
+			<h4 class="panel-title" ng-show="event.PhoneCalls.direction=='outbound'">To: {{event.PhoneCalls.to}}</h4>
+			<h4 class="panel-title" ng-hide="event.PhoneCalls.direction=='outbound'">From: {{event.PhoneCalls.from}}</h4>
+			<p><small class="text-muted"><i class="glyphicon glyphicon-time"></i> {{moment(event.PhoneCalls.createdAt).fromNow()}}</small></p>
+		</div>
+		<ul class="panel-body" title="{{event.PhoneCalls.status}}">
+			<h4>Duration: {{event.PhoneCalls.duration}}</h4>
+			<h4>Status: {{event.PhoneCalls.status}}</h4>
+			<h4>Direction: {{event.PhoneCalls.direction}}</h4>
+			<audio controls ng-show="event.PhoneCalls.recording">
+				<source src="{{tools.timeline.recording(event)}}" type="audio/mpeg">
+			</audio>
+		</ul>
+		<div class="panel-footer clearfix">
+			<a class="btn btn-success pull-right">More Actions</a>
+		</div>
+	</div>
+</script>
 		<!--<div class="timeline-badge" title="11 hours ago via Twitter"><i class="glyphicon glyphicon-earphone"></i></div>-->
 		<!--<div class="timeline-panel panel panel-default">-->
 		<!--	<div class="panel-heading">-->

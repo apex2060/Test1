@@ -1,5 +1,6 @@
-app.lazy.controller('WorkDirectoryCtrl', function($rootScope, $scope, $q, $http, config, Auth){
-
+app.lazy.controller('WorkDirectoryCtrl', function($rootScope, $scope, $q, $http, config, Parse, Auth){
+	var Directory = new Parse('Directory', true);
+	
 	var tools = $scope.tools = {
 		init: function(){
 			var deferred = $q.defer();
@@ -18,9 +19,12 @@ app.lazy.controller('WorkDirectoryCtrl', function($rootScope, $scope, $q, $http,
 					})
 				});
 			});
-			$http.get('https://api.parse.com/1/classes/udEmail').success(function(data){
-				$scope.udEmails = data.results;
+			Directory.list().then(function(list){
+				$scope.localDirectory = list
 			})
+			// $http.get('https://api.parse.com/1/classes/udEmail').success(function(data){
+			// 	$scope.udEmails = data.results;
+			// })
 			return deferred.promise;
 		},
 		load: {

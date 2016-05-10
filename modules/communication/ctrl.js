@@ -4,17 +4,21 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $
 	var FaxNumbers = new Parse('FaxNumbers');
 	var Timeline = new Parse('Timeline');
 	var Comm = {
-		Faxes: new Parse('Faxes')
+		Faxes: 		new Parse('Faxes'),
+		PhoneCalls: new Parse('PhoneCalls')
 	}
 	
 	var tools = $scope.tools = {
 		init: function(){
-			tools.timeline.update();
 			PhoneNumbers.list().then(function(phoneNumbers){
 				$scope.phoneNumbers = phoneNumbers
 			})
 			FaxNumbers.list().then(function(faxNumbers){
 				$scope.faxNumbers = faxNumbers
+			})
+			var live = new Firebase(config.firebase+'/class/PhoneCalls');
+			live.on('value', function(ds){
+				tools.timeline.update();
 			})
 		},
 		view: function(view){
@@ -56,8 +60,20 @@ app.lazy.controller('CommunicationCtrl', function($scope, $routeParams, $http, $
 			iframe: function(event){
 				return $sce.trustAsResourceUrl(event[event.type].attachment.secure_url)
 			},
+			recording: function(event){
+				return $sce.trustAsResourceUrl(event[event.type].recording)
+			},
+			status: function(event){
+				var options = {
+					'cancel': 		'panel-danger',
+					'ringing': 		'panel-info',
+					'in-progress': 	'panel-success',
+					'completed': 	'panel-default'
+				}
+				return options[event[event.type].status]
+			},
 			update: function(){
-				Timeline.query('?include=Faxes&order=-createdAt&where={"archive":{"$ne":true}}').then(function(timeline){
+				Timeline.query('?include=Faxes,PhoneCalls&order=-createdAt&where={"archive":{"$ne":true}}').then(function(timeline){
 					$scope.timeline = timeline;
 				})
 			},
