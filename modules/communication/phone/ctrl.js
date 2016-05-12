@@ -1,9 +1,16 @@
 app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $http, Parse, config){
 	$scope.view = 'list';
 	var Numbers = new Parse('PhoneNumbers');
-	var Endpoints = new Parse('PlivoEndpoints');
+	var Endpoints = new Parse('PhoneEndpoints');
 	var days = $scope.days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-	
+	var countryCodes = $scope.countryCodes = [
+		{title: 'United States', 	code: 'US'},
+		{title: 'United Kingdom', 	code: 'GB'},
+		{title: 'Germany', 			code: 'DE'},
+		{title: 'Brazil', 			code: 'BR'},
+		{title: 'Switzerland', 		code: 'CH'},
+		{title: 'New Zealand', 		code: 'NZ'},
+	]
 	
 	
 	var tools = $scope.tools = {
@@ -29,17 +36,18 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 			open: function(){
 				$scope.view = 'list'
 			},
-			new: function(){
-				alert('Registering new number!')
+			modal: function(){
+				$scope.numberSearch = {country_iso:'US'}
+				$('#newNumberModal').modal('show')
 			},
-			lookup: function(areaCode){
-				$http.post(config.parse.root+'/functions/listPhoneNumbers', {
-					pattern: areaCode
-				}).success(function(data){
-					$scope.numbers = data.result;
+			search: function(params){
+				$http.post(config.parse.root+'/functions/listPhoneNumbers', params).success(function(data){
+					$scope.numberOptions = data.result.objects
+				}).error(function(e){
+					toastr.error(e)
 				})
 			},
-			register: function(number){
+			purchase: function(number){
 				if(confirm('Please confirm your purchase of: '+number.number)){
 					Numbers.save({
 						type: 	'phone',
@@ -64,7 +72,17 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 				})
 			},
 			focus: function(endp){
-				$scope.endpoint = endp;
+				$scope.endpoint = angular.copy(endp) || {};
+			},
+			modal: function(endp){
+				$scope.endpoint = {};
+				$('#endpointModal').modal('show')
+			},
+			save: function(endp){
+				Endpoints.save(endp).then(function(r){
+					toastr.success('Endpoint Created')
+					$scope.endpoints.push(r)
+				})
 			}
 		},
 		rule: {

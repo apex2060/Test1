@@ -17,7 +17,7 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File <span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li><a ng-click="tools.view('list')">Open</a></li>
-						<li><a ng-click="tools.number.new()">New</a></li>
+						<li><a ng-click="tools.number.modal()">New</a></li>
 						<li role="separator" class="divider"></li>
 						<li><a ng-click="tools.number.save(number)">Save</a></li>
 						<li><a ng-click="tools.number.delete(number)">Delete</a></li>
@@ -51,5 +51,4 @@
 	
 	<div class="col-md-9" ng-show="focusType == 'rule'" ng-include="'/modules/communication/phone/partials/rule.html'"></div>
 	<div class="col-md-9" ng-show="focusType == 'flow'" ng-include="'/modules/communication/phone/partials/flow.html'"></div>
-	<div ng-include="'/modules/communication/phone/partials.html'"></div>
 </div>

@@ -163,6 +163,88 @@
 
 <!--MODALS-->
 
+<div class="modal fade" id="newNumberModal" tabindex="-1" role="dialog" aria-labelledby="newNumber">
+<div class="modal-dialog" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+			<span class="pull-right">
+				<!--<i class="fa" ng-class="action.record.active ? 'fa-toggle-on' : 'fa-toggle-off'" ng-click="tools.action.record.toggle(action)"></i>-->
+			</span>
+			<h4 class="modal-title" id="newNumber">Number Registration</h4>
+		</div>
+		<div class="modal-body">
+			<form class="form-horizontal" ng-submit="tools.number.search(numberSearch)">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Country Code</label>
+					<div class="col-sm-9">
+						<select type="text" class="form-control" ng-options="cc.code as cc.title for cc in countryCodes" ng-model="numberSearch.country_iso"></select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Search</label>
+					<div class="col-sm-9">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Area Code & Prefix" ng-model="numberSearch.pattern">
+							<span class="input-group-addon" ng-click="tools.number.search(numberSearch)">Search</span>
+						</div>
+					</div>
+				</div>
+			</form>
+			<div class="list-group">
+				<div class="list-group-item" ng-repeat="n in numberOptions">
+					<span title="SMS: {{n.sms_enabled}} Voice: {{n.voice_enabled}}">{{n.number}}</span>
+					<span class="label label-info" title="{{n.region}}">{{n.rate_center || n.region}}</span>
+					<i class="fa fa-download pull-right" title="Purchase" ng-click="tools.number.purchase(n)"></i>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		</div>
+	</div>
+</div>
+</div>
+
+
+<div class="modal fade" id="endpointModal" tabindex="-1" role="dialog" aria-labelledby="newNumber">
+<div class="modal-dialog" role="document">
+	<div class="modal-content">
+		<form class="form-horizontal" ng-submit="tools.endpoint.save(endpoint)">
+			<div class="modal-header">
+				<span class="pull-right">
+					<!--<i class="fa" ng-class="action.record.active ? 'fa-toggle-on' : 'fa-toggle-off'" ng-click="tools.action.record.toggle(action)"></i>-->
+				</span>
+				<h4 class="modal-title" id="newNumber">Endpoint Registration</h4>
+			</div>
+			<div class="modal-body">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Alias</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" placeholder="Full Name" ng-model="endpoint.alias">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Username</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" placeholder="Username" ng-model="endpoint.username">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Password</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" placeholder="Password" ng-model="endpoint.password">
+						</div>
+					</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="submit" class="btn btn-success">Save</button>
+			</div>
+		</form>
+	</div>
+</div>
+</div>
+
 <div class="modal fade" id="recordSettingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 <div class="modal-dialog" role="document">
 	<div class="modal-content">
