@@ -17,9 +17,9 @@
 					<ul class="dropdown-menu">
 						<li><a href="#/communication">Timeline</a></li>
 						<li role="separator" class="divider"></li>
-						<li><a ng-click="tools.number.modal()">New Number</a></li>
+						<li><a ng-click="tools.number.new()">New Number</a></li>
 						<!--allow search, show list-->
-						<li><a ng-click="tools.endpoint.modal()">New Endpoint</a></li>
+						<li><a ng-click="tools.endpoint.new()">New Endpoint</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -32,14 +32,14 @@
 		<div class="list-group">
 			<div class="list-group-item active">Numbers</div>
 			<a class="list-group-item" ng-click="tools.number.focus(num)" ng-repeat="num in numbers">{{num.number}} - {{num.title}}</a>
-			<div class="list-group-item"><a class="btn btn-block btn-info" ng-click="tools.number.modal()">New Number</a></div>
+			<div class="list-group-item"><a class="btn btn-block btn-info" ng-click="tools.number.new()">New Number</a></div>
 		</div>
 	</div>
 	<div class="col-md-6">
 		<div class="list-group">
 			<div class="list-group-item active">Endpoints</div>
-			<a class="list-group-item" ng-click="tools.endpoint.focus(endp)" ng-repeat="endp in endpoints">{{endp.alias}} - {{endp.endpoint_id}}</a>
-			<div class="list-group-item"><a class="btn btn-block btn-info" ng-click="tools.endpoint.modal()">New Endpoint</a></div>
+			<a class="list-group-item" ng-click="tools.endpoint.focus(endp)" ng-repeat="endp in endpoints">{{endp.alias}} - {{endp.number}}</a>
+			<div class="list-group-item"><a class="btn btn-block btn-info" ng-click="tools.endpoint.new()">New Endpoint</a></div>
 		</div>
 	</div>
 </div>

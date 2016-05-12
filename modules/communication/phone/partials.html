@@ -206,7 +206,7 @@
 </div>
 
 
-<div class="modal fade" id="endpointModal" tabindex="-1" role="dialog" aria-labelledby="newNumber">
+<div class="modal fade" id="newEndpointModal" tabindex="-1" role="dialog" aria-labelledby="newNumber">
 <div class="modal-dialog" role="document">
 	<div class="modal-content">
 		<form class="form-horizontal" ng-submit="tools.endpoint.save(endpoint)">
@@ -223,10 +223,17 @@
 							<input type="text" class="form-control" placeholder="Full Name" ng-model="endpoint.alias">
 						</div>
 					</div>
+					<div class="form-group" title="Call out number">
+						<label class="col-sm-3 control-label">Number</label>
+						<div class="col-sm-9">
+							<select type="text" class="form-control" ng-options="num.number as num.number for num in numbers" ng-model="endpoint.number"></select>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-sm-3 control-label">Username</label>
 						<div class="col-sm-9">
-							<input type="text" class="form-control" placeholder="Username" ng-model="endpoint.username">
+							<input type="text" class="form-control" placeholder="Username" ng-disabled="endpoint.origin=='cloud'" ng-model="endpoint.username">
+							<p class="help-block" ng-show="endpoint.origin=='cloud'">sip:{{endpoint.username}}@phone.plivo.com</p>
 						</div>
 					</div>
 					<div class="form-group">
@@ -237,8 +244,9 @@
 					</div>
 			</div>
 			<div class="modal-footer">
+				<a class="btn btn-danger" ng-show="endpoint.objectId" ng-disabled="status" ng-click="tools.endpoint.delete(oEndpoint)">{{status.delete || 'Delete'}}</a>
+				<button type="submit" class="btn btn-success" ng-disabled="status">{{status.save || 'Save'}}</button>
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="submit" class="btn btn-success">Save</button>
 			</div>
 		</form>
 	</div>

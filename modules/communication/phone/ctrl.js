@@ -12,7 +12,6 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 		{title: 'New Zealand', 		code: 'NZ'},
 	]
 	
-	
 	var tools = $scope.tools = {
 		init: function(){
 			tools.number.init();
@@ -35,6 +34,9 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 			},
 			open: function(){
 				$scope.view = 'list'
+			},
+			new: function(){
+				tools.number.modal();
 			},
 			modal: function(){
 				$scope.numberSearch = {country_iso:'US'}
@@ -72,17 +74,47 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 				})
 			},
 			focus: function(endp){
-				$scope.endpoint = angular.copy(endp) || {};
+				$scope.oEndpoint = endp;
+				tools.endpoint.modal(angular.copy(endp))
+			},
+			new: function(){
+				$scope.oEndpoint = {};
+				tools.endpoint.modal({})
 			},
 			modal: function(endp){
-				$scope.endpoint = {};
-				$('#endpointModal').modal('show')
+				$scope.endpoint = endp
+				$('#newEndpointModal').modal('show')
 			},
 			save: function(endp){
+				$scope.status = {save: 'Saving...'}
 				Endpoints.save(endp).then(function(r){
-					toastr.success('Endpoint Created')
-					$scope.endpoints.push(r)
+					delete $scope.status;
+					toastr.success('Endpoint Saved')
+					if(endp.origin != 'cloud'){
+						$scope.endpoints.push(r)
+					}else{
+						var i = $scope.endpoints.indexOf($scope.oEndpoint);
+						$scope.endpoints.splice(i, 1, r)
+					}
+				}, function(e){
+					toastr.error(e)
+					delete $scope.status;
 				})
+			},
+			delete: function(endp){
+				if(confirm('Are you sure you want to delete this endpoint?')){
+					$scope.status = {delete: 'Deleting...'}
+					Endpoints.delete(endp).then(function(r){
+						delete $scope.status;
+						toastr.success('Endpoint Removed')
+						var i = $scope.endpoints.indexOf(endp);
+						$scope.endpoints.splice(i,1)
+						$('#newEndpointModal').modal('hide')
+					}, function(e){
+						toastr.error(e)
+						delete $scope.status;
+					})
+				}
 			}
 		},
 		rule: {
