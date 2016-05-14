@@ -1,4 +1,4 @@
-app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $http, Parse, config){
+app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $location, $http, Parse, config){
 	$scope.view = 'list';
 	var Numbers = new Parse('PhoneNumbers');
 	var Endpoints = new Parse('PhoneEndpoints');
@@ -26,13 +26,21 @@ app.lazy.controller('PhoneCtrl', function($rootScope, $scope, $routeParams, $htt
 			init: function(){
 				Numbers.list().then(function(list){
 					$scope.numbers = list;
+					if($routeParams.id){
+						$scope.number = $scope.numbers.find(function(n){
+							return n.objectId == $routeParams.id
+						})
+						$scope.view = 'number';
+					}
 				})
 			},
 			focus: function(number){
+				$location.search('id', number.objectId);
 				$scope.number = number
 				$scope.view = 'number'
 			},
 			open: function(){
+				$location.search('id', null);
 				$scope.view = 'list'
 			},
 			new: function(){
