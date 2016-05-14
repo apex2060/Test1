@@ -144,13 +144,29 @@ app.run(['$window', '$rootScope', function($window, $rootScope) {
 
 
 var inc = [
+	'vendor/jquery.min.js',
+	'vendor/bootstrap.min.js',
+
+	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-animate.min.js',
+	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-route.min.js',
+	'//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular-touch.min.js',
+	
+	'//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js',
 	'//widget.cloudinary.com/global/all.js',
+	'//www.parsecdn.com/js/parse-1.3.1.min.js',
 	'//cdn.firebase.com/js/client/1.0.21/firebase.js',
 	'//checkout.stripe.com/checkout.js',
 	
 	'//apis.google.com/js/client:platform.js?onload=letsBegin',
 	'//maps.google.com/maps/api/js?sensor=true&libraries=geometry,drawing',
+	'//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.js',
 	'//cdn.plaid.com/link/stable/link-initialize.js',
+	
+	'vendor/jquery-ui.min.js',
+	'vendor/angular-dragDrop.js',
+	'vendor/angular-map.min'
+	// 'vendor/slick-grid.js',
+	// 'vendor/chance.js'
 ]
 
 var letsBegin = null;
@@ -165,7 +181,35 @@ require.config({
 	waitSeconds: 0,
 })
 require(inc, function(){
-	authPromise.then(function(){
-		angular.bootstrap(document, ['RootApp']);
+	// jQuery.noConflict(true);
+	require(['vendor/angular-chart.js'], function(){
+		authPromise.then(function(){
+			angular.bootstrap(document, ['RootApp']);
+		})
 	})
 })
+
+
+
+
+// // All the following is to allow google visualizations...
+// var vizPromise = new Promise(function(resolve, reject) {
+// 	google.setOnLoadCallback(function () {  
+// 		resolve();
+// 	});
+// });
+// var letsBegin = null;
+// var authPromise = new Promise(function(resolve, reject) {
+// 	letsBegin = function(){
+// 		resolve();
+// 	}
+// });
+
+// Promise.all([vizPromise, authPromise]).then(function() {
+// 	angular.bootstrap(document, ['RootApp']);
+// }, function() {
+// 	toastr.error('Something went wrong.', 'Please Reload')
+// });
+
+// google.load('visualization', '1', {packages: ['gauge']});
+// google.load('visualization', '1', {packages: ['corechart']});
