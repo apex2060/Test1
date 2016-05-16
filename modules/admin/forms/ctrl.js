@@ -425,6 +425,12 @@ app.lazy.controller('AdminFormsFillCtrl', function($scope, $http, $timeout, $q, 
 	
 	var tools = $scope.tools = {
 		init: function(){
+			tools.setup()
+			$scope.$on('$locationChangeStart', function(event) {
+				tools.setup();
+			});
+		},
+		setup: function(){
 			tools.form.load().then(function(form){
 				if($routeParams.for){
 					Data.get($routeParams.for).then(function(data){

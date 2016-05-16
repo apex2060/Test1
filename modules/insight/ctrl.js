@@ -33,6 +33,7 @@ app.lazy.controller('InsightCtrl', function($scope, $routeParams, $location, $sc
 			//from interface, let them choose label and metric
 			var keys = Object.keys(data);
 			var dataset = data[keys[0]];
+			if(!dataset)return;
 			var columns = Object.keys(dataset[0])
 
 			$scope.line = {
@@ -64,6 +65,7 @@ app.lazy.controller('InsightCtrl', function($scope, $routeParams, $location, $sc
 			//from interface, let them choose label and metric
 			var keys = Object.keys(data);
 			var dataset = data[keys[0]];
+			if(!dataset)return;
 			var columns = Object.keys(dataset[0])
 
 			$scope.bar = {
@@ -95,6 +97,7 @@ app.lazy.controller('InsightCtrl', function($scope, $routeParams, $location, $sc
 			//from interface, let them choose label and metric
 			var keys = Object.keys(data);
 			var dataset = data[keys[0]];
+				if(!dataset)return;
 			var columns = Object.keys(dataset[0])
 
 			$scope.polar = {
@@ -125,6 +128,7 @@ app.lazy.controller('InsightCtrl', function($scope, $routeParams, $location, $sc
 		map: function(data){
 			var keys = Object.keys(data);
 			var dataset = data[keys[0]];
+			if(!dataset)return;
 			function geoKeys(data){
 				var keys = Object.keys(data);
 				return keys.filter(function(key){
