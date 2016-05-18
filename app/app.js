@@ -133,12 +133,12 @@ app.config(function($routeProvider,$compileProvider,$controllerProvider,$provide
 	});
 });
 
-app.run(['$window', '$rootScope', function($window, $rootScope) {
-	// new WOW().init();
-	$rootScope.$on('$routeChangeStart', function(next, current) {
-		// new WOW().sync();
-	});
-}])
+// app.run(['$window', '$rootScope', function($window, $rootScope) {
+// 	new WOW().init();
+// 	$rootScope.$on('$routeChangeStart', function(next, current) {
+// 		new WOW().sync();
+// 	});
+// }])
 
 
 

@@ -1,6 +1,7 @@
 app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, $q, config){
 	$scope.dbs = ['hdlibrary', 'hdmobile', 'hdclient', 'hdapi', 'commandbatch']
 	$scope.history = []
+	var url = config.parse.root+'/functions'
 	var tools = $scope.tools = {
 		init: function(db){
 			$scope.db = db;
@@ -8,20 +9,23 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, $q, config){
 			tools.schema(db);
 		},
 		schema: function(db){
-			$http.post('/api', {
+			$http.post(url+'/api', {
 				method: 'GET',
 				path: 	'/'+db+'/_schema'
 			}).success(function(data){
+				data = data.result;
 				$scope.schema = data.resource
 			})
 		},
 		load: function(table){
 			$scope.status = 'Loading...'
+			$scope.table = table;
 			$scope.history[$scope.history.length-1].tables.push(table)
-			$http.post('/api', {
+			$http.post(url+'/api', {
 				method: 'GET',
 				path: 	'/'+$scope.db+'/_table/'+table
 			}).success(function(data){
+				data = data.result;
 				$scope.status = 'Complete!'
 				// $scope.table = table;
 				$scope.data = data;
@@ -35,25 +39,31 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, $q, config){
 				toastr.error(e)
 			})
 		},
+		list: function(data){
+			$scope.keys = Object.keys(data[0])
+			$scope.list = data.slice(Math.max(data.length - 5, 1))
+		},
 		discover: function(needle){
 			var discoveries = $scope.discoveries = [];
 			var db = $scope.db
 			function schema(){
-				return $http.post('/api', {
+				return $http.post(url+'/api', {
 					method: 'GET',
 					path: 	'/'+db+'/_schema'
 				})
 			}
 			function table(table){
-				return $http.post('/api', {
+				return $http.post(url+'/api', {
 					method: 'GET',
 					path: 	'/'+db+'/_table/'+table
 				})
 			}
 			
 			schema().success(function(data){
+				data = data.result;
 				data.resource.forEach(function(s){
 					table(s.name).success(function(t){
+						t = t.result
 						var keys = Object.keys(t.resource[0]);
 						t.resource.forEach(function(r, i){
 							keys.forEach(function(key){
@@ -71,10 +81,11 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, $q, config){
 			})
 		},
 		understand: function(db, table){
+			console.log(db,table)
 			var calls = []
 			function schema(table){
 				console.log(db, table)
-				return $http.post('/api', {
+				return $http.post(url+'/api', {
 					method: 'GET',
 					path: 	'/'+db+'/_schema/'+table
 				})
@@ -86,6 +97,7 @@ app.lazy.controller('TestCtrl', function($rootScope, $scope, $http, $q, config){
 				}else{
 					calls.push(table)
 					schema(table).success(function(schema){
+						schema = schema.result
 						var fields = schema.field;
 						var promises = []
 						fields.forEach(function(field){
