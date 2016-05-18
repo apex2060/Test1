@@ -24,8 +24,7 @@ app.factory('config', function ($http, $q) {
 			"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
 			"redirect_uris": ["https://root-apex2060.c9users.io/oauth", "https://easybusiness.center/oauth", "http://easybusiness.center/oauth"],
 			"javascript_origins": ["https://root-apex2060.c9users.io", "http://easybusiness.center", "https://easybusiness.center"],
-		},
-		test: 'testing'
+		}
 	}
 	
 	function init(newConfig){
