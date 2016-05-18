@@ -25,6 +25,7 @@ app.factory('config', function ($http, $q) {
 			"redirect_uris": ["https://root-apex2060.c9users.io/oauth", "https://test.domain/oauth", "http://test.domain/oauth"],
 			"javascript_origins": ["https://root-apex2060.c9users.io", "http://test.domain", "https://test.domain"],
 		},
+		test: 'testing'
 	}
 	
 	function init(newConfig){
