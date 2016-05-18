@@ -16,21 +16,50 @@
 				<div class="list-group-item">
 					<input class="form-control" ng-model="tableSearch">
 				</div>
-				<div class="list-group-item" ng-repeat="t in schema | filter:tableSearch" ng-click="tools.load(t.name)">{{t.name}}</div>
+				<div class="list-group-item" ng-repeat="t in schema | filter:tableSearch">
+					<span ng-click="tools.load(t.name)">{{t.name}}</span>
+					<i class="fa fa-magic pull-right"  ng-click="tools.understand(db, t.name)"></i>
+				</div>
 			</div>
 		</div>
 		<div class="col-md-9">
 			<div class="well">
 				<input type="text" class="form-control" ng-model="listSearch" placeholder="Search">
 			</div>
-			<div class="well" ng-repeat="row in list | filter:listSearch">
-				<table classs="table table-striped">
-					<tr ng-repeat="key in keys">
-						<td>{{key}}</td>
-						<td>{{row[key]}}</td>
-					</tr>
-				</table>
+			<div class="well">
+				<p>Table Count: {{schema.length}}</p>
+				<p>Row Count: {{data.resource.length}}</p>
+				<form>
+					<div class="input-group">
+						<input type="text" class="form-control" placeholder="Needle" ng-model="needle">
+						<span class="input-group-addon" ng-click="tools.discover(needle)">Discover</span>
+					</div>
+				</form>
+				
+				<div class="btn-group btn-group-justified" role="group">
+					<a class="btn btn-info" ng-click="tools.list(data.resource)">Data</a>
+					<a class="btn btn-success" ng-click="tools.understand(db, table)">Relations</a>
+				</div>
 			</div>
+			<div class="alert alert-info">{{status}}</div>
+			<div class="well">{{discoveries}}</div>
+			<div class="well" ng-include="'dep.h'">Dep</div>
+			<script type="text/ng-template" id="dep.h">
+				<div>
+					<p>Table: <a ng-click="tools.load(deps.name)">{{deps.name}}</a></p>
+					<div class="well" ng-repeat="deps in deps.deps">
+						<div ng-include="'dep.h'"></div>
+					</div>
+				</div>
+			</script>
+			<!--<div class="well" ng-repeat="row in list | filter:listSearch">-->
+			<!--	<table classs="table table-striped">-->
+			<!--		<tr ng-repeat="key in keys">-->
+			<!--			<td>{{key}}</td>-->
+			<!--			<td>{{row[key]}}</td>-->
+			<!--		</tr>-->
+			<!--	</table>-->
+			<!--</div>-->
 		</div>
 	</div>
 	<div id="infoModal" class="modal fade" tabindex="-1" role="dialog">
@@ -42,7 +71,7 @@
 				</div>
 				<div class="modal-body">
 					<div class="list-group">
-						<div class="list-group-item" ng-repeat="key in keys" ng-click="tools.set(key)">{{list[0][key] || 'undefined'}}<span class="label label-info pull-right">{{key}}</span></div>
+						<!--<div class="list-group-item" ng-repeat="key in keys" ng-click="tools.set(key)">{{list[0][key] || 'undefined'}}<span class="label label-info pull-right">{{key}}</span></div>-->
 					</div>
 				</div>
 				<div class="modal-footer">
