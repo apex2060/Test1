@@ -9,7 +9,7 @@
 			</ol>
 		</div>
 		<div class="col-md-3">
-			<div class="list-group">
+			<div class="list-group" style="height:400px; overflow-x:hidden; overflow-y:auto;">
 				<div class="list-group-item active">
 					<select class="form-control" ng-options="db for db in dbs" ng-model="db" ng-blur="tools.init(db)"></select>
 				</div>
@@ -23,43 +23,58 @@
 			</div>
 		</div>
 		<div class="col-md-9">
+			<div class="alert alert-info">{{status}}</div>
 			<div class="well">
-				<input type="text" class="form-control" ng-model="listSearch" placeholder="Search">
-			</div>
-			<div class="well">
+				<p>Table: {{table}}</p>
 				<p>Table Count: {{schema.length}}</p>
 				<p>Row Count: {{data.resource.length}}</p>
-				<form>
-					<div class="input-group">
-						<input type="text" class="form-control" placeholder="Needle" ng-model="needle">
-						<span class="input-group-addon" ng-click="tools.discover(needle)">Discover</span>
+			</div>
+			
+			<div>
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation" class="active"><a href="#data" aria-controls="data" role="tab" data-toggle="tab">Data</a></li>
+					<li role="presentation"><a href="#relations" aria-controls="relations" role="tab" data-toggle="tab">Relations</a></li>
+					<li role="presentation"><a href="#discovery" aria-controls="discovery" role="tab" data-toggle="tab">Discovery</a></li>
+				</ul>
+			
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="data">
+						<a class="btn btn-info btn-block" ng-click="tools.list(data.resource)">Load</a>
+						<div class="well" ng-repeat="row in list">
+							<table classs="table table-striped">
+								<tr ng-repeat="key in keys">
+									<td>{{key}}</td>
+									<td>{{row[key]}}</td>
+								</tr>
+							</table>
+						</div>
 					</div>
-				</form>
-				
-				<div class="btn-group btn-group-justified" role="group">
-					<a class="btn btn-info" ng-click="tools.list(data.resource)">Data</a>
-					<a class="btn btn-success" ng-click="tools.understand(db, table)">Relations</a>
+					<div role="tabpanel" class="tab-pane" id="relations">
+						<a class="btn btn-success btn-block" ng-click="tools.understand(db, table)">Analyze</a>
+						<div class="well" ng-include="'dep.h'">Dep</div>
+						<script type="text/ng-template" id="dep.h">
+							<div>
+								<p>Table: <a ng-click="tools.load(deps.name)">{{deps.name}}</a></p>
+								<div class="well" ng-repeat="deps in deps.deps">
+									<div ng-include="'dep.h'"></div>
+								</div>
+							</div>
+						</script>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="discovery">
+						<div class="well" ng-show="discoveries">
+							<form>
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="Needle" ng-model="needle">
+									<span class="input-group-addon" ng-click="tools.discover(needle)">Discover</span>
+								</div>
+							</form>
+							{{discoveries}}
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="alert alert-info">{{status}}</div>
-			<div class="well">{{discoveries}}</div>
-			<div class="well" ng-include="'dep.h'">Dep</div>
-			<script type="text/ng-template" id="dep.h">
-				<div>
-					<p>Table: <a ng-click="tools.load(deps.name)">{{deps.name}}</a></p>
-					<div class="well" ng-repeat="deps in deps.deps">
-						<div ng-include="'dep.h'"></div>
-					</div>
-				</div>
-			</script>
-			<!--<div class="well" ng-repeat="row in list | filter:listSearch">-->
-			<!--	<table classs="table table-striped">-->
-			<!--		<tr ng-repeat="key in keys">-->
-			<!--			<td>{{key}}</td>-->
-			<!--			<td>{{row[key]}}</td>-->
-			<!--		</tr>-->
-			<!--	</table>-->
-			<!--</div>-->
 		</div>
 	</div>
 	<div id="infoModal" class="modal fade" tabindex="-1" role="dialog">
